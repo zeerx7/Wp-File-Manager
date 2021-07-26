@@ -1,6 +1,6 @@
 # File-Manager Plugin for Wordpress</br>
 
-<img src="https://i.ibb.co/9bsrLp7/filemanager.jpg" />
+<img src="https://i.ibb.co/QXWNS7N/filemanager.jpg" />
 
 ## Installation
 
@@ -10,4 +10,5 @@
 
 ## Changelog
 
+- 0.2 - Add select checkbox use table and show size.
 - 0.1 - Init version.

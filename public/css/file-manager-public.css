@@ -2,3 +2,15 @@
  * All of the CSS for your public-facing functionality should be
  * included in this file.
  */
+
+.filemanager-wrapper table {
+     width: 100%;
+ }
+
+.filemanager-wrapper tr td:first-child {
+    width: 50px;
+}
+
+.filemanager-wrapper tr td:nth-child(2) {
+    width: 75%;
+}
