@@ -14,3 +14,16 @@
 .filemanager-wrapper tr td:nth-child(2) {
     width: 75%;
 }
+
+#top-wrapper {
+    display: flex;
+}
+
+.filemanager-click-back {
+    margin-left: 0;
+    width: 100%;
+}
+
+.filemanager-basename {
+    margin-right: 0;
+}

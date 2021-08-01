@@ -10,5 +10,6 @@
 
 ## Changelog
 
+- 0.3 - Add video player.
 - 0.2 - Add select checkbox use table and show size.
 - 0.1 - Init version.

@@ -2,7 +2,7 @@
 
 function filemanager_shortcode() { 
 
-    $path = "/var/www/";
+    $path = "/var/www/jerl92.ca/";
     $files = scandir($path);
     echo "<div class='filemanager-wrapper'>";
         echo "<table>";

@@ -22,6 +22,7 @@ function filemanager_get_files($) {
                 $( '.filemanager-wrapper' ).empty();		
 				$('.filemanager-wrapper').append(data);
                 setTimeout(function(){ filemanager_get_files($); }, 1000);
+                setTimeout(function(){ filemanager_read_files($); }, 1000);
             },
             error: function(errorThrown){
                 //error stuff here.text
