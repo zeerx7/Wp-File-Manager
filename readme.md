@@ -1,6 +1,6 @@
 # File-Manager Plugin for Wordpress</br>
 
-<img src="https://i.ibb.co/QXWNS7N/filemanager.jpg" />
+<img src="https://i.ibb.co/Thk3WVy/filemanager.jpg" />
 
 ## Installation
 
@@ -10,6 +10,7 @@
 
 ## Changelog
 
+- 0.4 - Add multi-uplaod fonction.
 - 0.3 - Add video player.
 - 0.2 - Add select checkbox use table and show size.
 - 0.1 - Init version.

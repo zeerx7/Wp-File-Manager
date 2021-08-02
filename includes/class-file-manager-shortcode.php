@@ -2,8 +2,9 @@
 
 function filemanager_shortcode() { 
 
-    $path = "/var/www/jerl92.ca/";
+    $path = "/var/www/jerl92.tk/";
     $files = scandir($path);
+    echo "<div id='sequentialupload' data-object-id='$path'></div>";
     echo "<div class='filemanager-wrapper'>";
         echo "<table>";
             foreach($files as $file){

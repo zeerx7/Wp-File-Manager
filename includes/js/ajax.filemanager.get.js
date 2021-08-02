@@ -8,8 +8,9 @@ function filemanager_get_files($) {
 
         var $this = $(this),
         object_id = $this.data('object-id');
+        
 
-        jQuery.ajax({    
+        jQuery.ajax({
             type: 'post',
             url: get_filemanager_ajax_url,
             data: {
@@ -22,7 +23,9 @@ function filemanager_get_files($) {
                 $( '.filemanager-wrapper' ).empty();		
 				$('.filemanager-wrapper').append(data);
                 setTimeout(function(){ filemanager_get_files($); }, 1000);
+                setTimeout(function(){ filemanager_back_files($); }, 1000);
                 setTimeout(function(){ filemanager_read_files($); }, 1000);
+                setTimeout(function(){ filemanager_uploads_files($, object_id); }, 1000);
             },
             error: function(errorThrown){
                 //error stuff here.text
