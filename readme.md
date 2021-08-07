@@ -10,6 +10,7 @@
 
 ## Changelog
 
+- 0.5 - Add PDF viewer and view image.
 - 0.4 - Add multi-uplaod fonction.
 - 0.3 - Add video player.
 - 0.2 - Add select checkbox use table and show size.

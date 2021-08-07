@@ -2,7 +2,7 @@
 
 function filemanager_shortcode() { 
 
-    $path = "/var/www/jerl92.tk/";
+    $path = get_home_path();
     $files = scandir($path);
     echo "<div id='sequentialupload' data-object-id='$path'></div>";
     echo "<div class='filemanager-wrapper'>";

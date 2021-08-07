@@ -69,7 +69,7 @@ add_action( 'wp_ajax_nopriv_read_filemanager_files', 'read_filemanager_files' );
 function read_filemanager_files($posts) {
 
   $object_id = $_POST['object_id'];
-  $getname = getName(8);
+  $getname = getName(32);
   $target =  $object_id;
   $direname = dirname($object_id);
   $basename = basename($object_id);
@@ -85,11 +85,19 @@ function read_filemanager_files($posts) {
     $html[1] .= '<div id="top-wrapper"><div class="filemanager-click-back" data-object-id="' . $direname . '">Back</div><div class="filemanager-basename">' . $basename . '</div></div>';
     $html[2] .= '<div id="dplayer"></div>';
     $html[3] .= get_home_url() . '/files/' . $getname . '.' . $ext;
+  } elseif ( $ext == 'pdf' ){
+    $html[0] = $ext;
+    $html[1] .= '<div id="top-wrapper"><div class="filemanager-click-back" data-object-id="' . $direname . '">Back</div><div class="filemanager-basename">' . $basename . '</div></div>';
+    $html[2] .= '<div id="pdf"></div>';
+    $html[3] .= get_home_url() . '/files/' . $getname . '.' . $ext;
+  } elseif ( $ext == 'bmp' || $ext == 'jpg' || $ext == 'jpeg' || $ext == 'gif' || $ext == 'png' || $ext == 'bmp' ){
+    $html[0] = $ext;
+    $html[1] .= '<div id="top-wrapper"><div class="filemanager-click-back" data-object-id="' . $direname . '">Back</div><div class="filemanager-basename">' . $basename . '</div></div>';
+    $html[2] .= '<img id="img" src=' . get_home_url() . '/files/' . $getname . '.' . $ext .'></img>';
   } else {
     $html[0] = $ext;
-    $html[1] = '<div id="top-wrapper"><div class="filemanager-click-back" data-object-id="' . $direname . '">Back</div><div class="filemanager-basename">' . $basename . '</div></div>';
+    $html[1] .= '<div id="top-wrapper"><div class="filemanager-click-back" data-object-id="' . $direname . '">Back</div><div class="filemanager-basename">' . $basename . '</div></div>';
     $html[2] .= '<div id="filecontent">' . file_get_contents(get_home_url() . '/files/' . $getname . '.' . $ext) . '</div>';
-
   }
 
 	return wp_send_json ( $html );

@@ -19,10 +19,12 @@ function filemanager_back_files($) {
             dataType: 'json',
             success: function(data){
                 console.log(data);
+                document.getElementById("sequentialupload").style.display = "block";
                 $( '.filemanager-wrapper' ).empty();	
 				$('.filemanager-wrapper').append(data);
-                setTimeout(function(){ filemanager_back_files($); }, 1000);
+                setTimeout(function(){ filemanager_get_files($); }, 1000);
                 setTimeout(function(){ filemanager_read_files($); }, 1000);
+                setTimeout(function(){ filemanager_uploads_files($, object_id); }, 1000);
             },
             error: function(errorThrown){
                 //error stuff here.text
@@ -54,10 +56,11 @@ function filemanager_read_files($) {
             dataType: 'json',
             success: function(data){
                 console.log(data);
+                document.getElementById("sequentialupload").style.display = "none";
                 $( '.filemanager-wrapper' ).empty();	
                 $('.filemanager-wrapper').append(data[1]);	
                 $('.filemanager-wrapper').append(data[2]);	
-                if((data[0] = 'mvk') || (data[0] = 'mp4')){
+                if((data[0] === 'mvk') || (data[0] === 'mp4')){
                     window.dp1 = new DPlayer({
                         container: document.getElementById('dplayer'),
                         preload: 'none',
@@ -72,9 +75,10 @@ function filemanager_read_files($) {
                         }
                     });
                 }
+                if((data[0] === 'pdf')){
+                    PDFObject.embed(data[3], "#pdf");
+                }
                 setTimeout(function(){ filemanager_back_files($); }, 1000);
-                setTimeout(function(){ filemanager_read_files($); }, 1000);
-                setTimeout(function(){ filemanager_uploads_files($, object_id); }, 1000);
             },
             error: function(errorThrown){
                 //error stuff here.text
