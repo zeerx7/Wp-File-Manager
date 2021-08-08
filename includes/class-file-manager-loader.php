@@ -3,7 +3,7 @@
 /**
  * Register all actions and filters for the plugin
  *
- * @link       https://jerl92.ca
+ * @link       https://jerl92.tk
  * @since      1.0.0
  *
  * @package    File_Manager

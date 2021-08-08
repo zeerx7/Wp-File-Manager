@@ -10,6 +10,7 @@
 
 ## Changelog
 
+- 0.6 - Use smoothState.
 - 0.5 - Add PDF viewer and view image.
 - 0.4 - Add multi-uplaod fonction.
 - 0.3 - Add video player.

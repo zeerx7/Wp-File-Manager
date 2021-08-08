@@ -14,6 +14,7 @@ function filemanager_uploads_files($, object_id) {
                 url: get_filemanager_ajax_url,
                 data: {
                     'object_id': object_id,
+                    'link': location.protocol + '//' + location.host + location.pathname,
                     'action': 'get_filemanager_files'
                 },
                 dataType: 'json',
@@ -21,10 +22,8 @@ function filemanager_uploads_files($, object_id) {
                     console.log(data);
                     $( '.filemanager-wrapper' ).empty();		
                     $('.filemanager-wrapper').append(data);
-                    setTimeout(function(){ filemanager_get_files($); }, 1000);
-                    setTimeout(function(){ filemanager_back_files($); }, 1000);
-                    setTimeout(function(){ filemanager_read_files($); }, 1000);
-                    setTimeout(function(){ filemanager_uploads_files($, object_id); }, 1000);
+                    filemanager_delete_files($, object_id);
+                    filemanager_createdir_files($, object_id);
                 },
                 error: function(errorThrown){
                     //error stuff here.text

@@ -3,7 +3,7 @@
 /**
  * The public-facing functionality of the plugin.
  *
- * @link       https://jerl92.ca
+ * @link       https://jerl92.tk
  * @since      1.0.0
  *
  * @package    File_Manager
@@ -72,8 +72,8 @@ class File_Manager_Public {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-
-		wp_enqueue_style( 'jquery.uploadfile', plugin_dir_url( __FILE__ ) . 'css/uploadfile.css', array(), $this->version, 'all' );
+		 
+		wp_enqueue_style( 'uploadfile', plugin_dir_url( __FILE__ ) . 'css/uploadfile.css', array(), $this->version, 'all' );
 
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/file-manager-public.css', array(), $this->version, 'all' );
 
@@ -98,12 +98,14 @@ class File_Manager_Public {
 		 * class.
 		 */
 
-		wp_enqueue_script( 'jquery.uploadfile', plugin_dir_url( __FILE__ ) . 'js/jquery.uploadfile.js', array( 'jquery' ), $this->version, false );
-
 		wp_enqueue_script( 'pdfobject', plugin_dir_url( __FILE__ ) . 'js/pdfobject.js', array( 'jquery' ), $this->version, false );
 
-		wp_enqueue_script( 'DPlayer', plugin_dir_url( __FILE__ ) . 'js/DPlayer.min.js', array( 'jquery' ), $this->version, false );
-		
+		wp_enqueue_script( 'jquery.uploadfile', plugin_dir_url( __FILE__ ) . 'js/jquery.uploadfile.js', array( 'jquery' ), $this->version, false );
+
+		wp_enqueue_script( 'jquery.smoothState', plugin_dir_url( __FILE__ ) . 'js/jquery.smoothState.js', array( 'jquery' ), $this->version, false );
+
+		wp_enqueue_script( 'smoothState', plugin_dir_url( __FILE__ ) . 'js/smoothState.js', array( 'jquery' ), $this->version, false );
+
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/file-manager-public.js', array( 'jquery' ), $this->version, false );
 
 	}

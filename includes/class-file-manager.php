@@ -6,7 +6,7 @@
  * A class definition that includes attributes and functions used across both the
  * public-facing side of the site and the admin area.
  *
- * @link       https://jerl92.ca
+ * @link       https://jerl92.tk
  * @since      1.0.0
  *
  * @package    File_Manager
@@ -122,16 +122,8 @@ class File_Manager {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-file-manager-public.php';
 
-		/**
-		 * The class responsible for defining all actions that occur in the public-facing
-		 * side of the site.
-		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-file-manager-ajax.php';
 
-		/**
-		 * The class responsible for defining all actions that occur in the public-facing
-		 * side of the site.
-		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-file-manager-shortcode.php';
 
 		$this->loader = new File_Manager_Loader();
