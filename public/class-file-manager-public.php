@@ -98,6 +98,8 @@ class File_Manager_Public {
 		 * class.
 		 */
 
+		wp_enqueue_script( 'DPlayer.min', plugin_dir_url( __FILE__ ) . 'js/DPlayer.min.js', array( 'jquery' ), $this->version, false );
+
 		wp_enqueue_script( 'pdfobject', plugin_dir_url( __FILE__ ) . 'js/pdfobject.js', array( 'jquery' ), $this->version, false );
 
 		wp_enqueue_script( 'jquery.uploadfile', plugin_dir_url( __FILE__ ) . 'js/jquery.uploadfile.js', array( 'jquery' ), $this->version, false );

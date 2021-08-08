@@ -1,6 +1,6 @@
 # File-Manager Plugin for Wordpress</br>
 
-<img src="https://i.ibb.co/Thk3WVy/filemanager.jpg" />
+<img src="https://i.ibb.co/64MqYVc/filemanager.jpg" />
 
 ## Installation
 
@@ -10,6 +10,7 @@
 
 ## Changelog
 
+- 0.7 - Add rename fonction.
 - 0.6 - Use smoothState.
 - 0.5 - Add PDF viewer and view image.
 - 0.4 - Add multi-uplaod fonction.

@@ -32,6 +32,8 @@
 
 				filemanager_createdir_files($, path);
 
+				filemanager_rename_files($);
+
 			}
 		};
 

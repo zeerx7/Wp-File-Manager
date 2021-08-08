@@ -40,19 +40,38 @@ function filemanager_shortcode() {
     $files = scandir($path);
     global $wp;
 
-    echo "<div id='sequentialupload' class='sequentialupload' data-object-id='$path'></div>"; 
+    if ( (is_dir($path) == true) && (is_user_logged_in()) ) {
+        echo "<div id='sequentialupload' class='sequentialupload' data-object-id='$path'></div>"; 
+    }
     echo "<div id='filemanager-wrapper' class='filemanager-wrapper'>";
-    echo "<div id='filemanagerbtn'><div class='navbar'><a class='btndelete'>Delete</a><div class='subnav'><button class='subnavbtn btnnewdir'>Create dir</i></button><div id='subnav-content' class='subnav-content'><span><input type='text' id='lname' name='lname'></input><button class='newdir'>ok</button><span></div></div></div></div>";
-    if ( is_dir($path.'/'.$file) == true ) {
-        echo "<table>";
+    if ( (is_dir($path) == true) && (is_user_logged_in()) ) {
+        ?><script type="text/javascript">document.getElementById("sequentialupload").style.display = "block";</script><?php
+        ?><div id='filemanagerbtn'>
+                <div class='navbar'>
+                    <a class='btndelete'>Delete</a>
+                    <div class='subnav'>
+                        <button class='subnavbtn btnnewdir'>Create dir</button>
+                        <div id='subnav-content' class='subnav-content'>
+                            <span>
+                                <input type='text' id='lname' name='lname'></input>
+                                <button class='newdir'>ok</button>
+                            <span>
+                        </div>
+                    </div>
+                    <div class='btnrename'>Rename</div>
+                </div>
+            </div><?php
+    }
+    if ( is_dir($path) == true ) {
+        echo "<table id='file-table'>";
             foreach($files as $file){
                 $pathfilezise = $path.'/'.$file;
                 $filesize = filesize($pathfilezise);
                 $realpath = realpath($path.'/'.$file);
                 if ( is_dir($path.'/'.$file) == true ) {
-                    echo "<tr><td><input class='checkbox' type='checkbox' name='$path/$file'/></td><td><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
                 } else {
-                    echo "<tr><td><input class='checkbox' type='checkbox' name='$path/$file'/></td><td><a id='file-id' class='filemanager-click-file' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
                 }
             }
         echo "</table>";
@@ -64,6 +83,8 @@ function filemanager_shortcode() {
         $basename = strtolower(basename($object_id));
         $ext = pathinfo($basename, PATHINFO_EXTENSION);
 
+        ?><script type="text/javascript">document.getElementById("sequentialupload").style.display = "none";</script><?php
+
         $link = get_home_path_() .'/files/'. $getname .'.'. $ext;
         echo exec('mkdir "'. get_home_path_() .'/files"');
         echo exec('rm "'. $link .'"');
@@ -71,15 +92,29 @@ function filemanager_shortcode() {
 
         if ($ext == 'jpeg' || $ext == 'jpg' || $ext == 'bmp') {
             echo '<img src="' . get_home_url() . '/files/' . $getname . '.' . $ext . '"></img>';
-        }
-
-        if ($ext == 'mp4' || $ext == 'mkv' || $ext == 'avi' ) {
-            echo '<video width="100%" height="575" controls src="' . get_home_url() . '/files/' . $getname . '.' . $ext . '" type="video/' . $ext . '"></video>';
-        }
-
-        if ($ext == 'pdf') {
+        } elseif ($ext == 'mp4' || $ext == 'mkv' || $ext == 'avi' ) {
+            echo '<div class="file-info">' . basename($object_id) . '</div>';
+            echo '<div id="dplayer"></div>';
+            ?><script type="text/javascript">
+            window.dp1 = new DPlayer({
+                container: document.getElementById('dplayer'),
+                preload: 'none',
+                volume: 0.7,
+                screenshot: true,
+                video: {
+                    url:  '<?php echo get_home_url() . '/files/' . $getname . '.' . $ext ?>',
+                    pic:  null,
+                    thumbnails: null
+                },
+                subtitle: {
+                    url: null
+                }
+            });</script><?php
+        } elseif ($ext == 'pdf') {
             echo '<div id="pdf"></div>';
             ?><script type="text/javascript">PDFObject.embed('<?php echo get_home_url() . '/files/' . $getname . '.' . $ext ?>', "#pdf");</script><?php
+        } else {
+            echo '<a href="' . get_home_url() . '/files/' . $getname . '.' . $ext . '">Download</a>';
         }
     }
     echo "</div>";

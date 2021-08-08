@@ -41,11 +41,13 @@
 }
 
 .subnav .subnavbtn {
-   font-size: 16px;  
+   font-size: 16px;
    border: none;
    outline: none;
    color: white;
-   padding: 14px 16px;
+   padding: 16px 16px;
+   font-weight: 600;
+   text-decoration: underline;
    background-color: inherit;
    font-family: inherit;
    margin: 0;
@@ -76,4 +78,23 @@
 
 .subnav-content-display {
    display: block;
+}
+
+.file-info {
+   float: right;
+}
+
+.dplayer {
+   width: 100%;
+}
+
+.btnrename{
+   display: table;
+   color: white;
+   top: 13.5px;
+   position: relative;
+   text-decoration: underline;
+   font-weight: 600;
+   padding-right: 18px;
+   padding-left: 15px;
 }

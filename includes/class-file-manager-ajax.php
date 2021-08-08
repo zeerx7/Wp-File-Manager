@@ -21,6 +21,10 @@ function wp_filemanager_ajax_scripts() {
     wp_register_script( 'wp-filemanager-ajax-createdir-files', $url . "js/ajax.filemanager.createdir.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-createdir-files', 'createdir_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
 	  wp_enqueue_script( 'wp-filemanager-ajax-createdir-files' );
+    
+    wp_register_script( 'wp-filemanager-ajax-rename-files', $url . "js/ajax.filemanager.rename.js", array( 'jquery' ), '1.0.0', true );
+    wp_localize_script( 'wp-filemanager-ajax-rename-files', 'rename_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
+	  wp_enqueue_script( 'wp-filemanager-ajax-rename-files' );
 	
 }
 
@@ -81,5 +85,28 @@ function createdir_filemanager_files($posts) {
   echo exec('mkdir "'. $object_id .'"');
 
 	return wp_send_json ( $object_id );
+
+}
+
+/* AJAX action callback */
+add_action( 'wp_ajax_rename_filemanager_files', 'rename_filemanager_files' );
+add_action( 'wp_ajax_nopriv_rename_filemanager_files', 'rename_filemanager_files' );
+
+function rename_filemanager_files($posts) {
+
+  global $wp;
+  $filename = $_POST['filename'];
+  $path = $_POST['path'];
+  $link = $_POST['link'];
+  $dirname = dirname($path);
+  $new_filename = $dirname . '/' . $filename;
+
+  if(rename($path, $new_filename) == true) {
+    $html[] = "<a id='file-id' class='filemanager-click' href='" . $link . "?path=$new_filename'>$filename</a>";
+  } else {
+    $html[] = "error";
+  }
+
+	return wp_send_json ( implode($html) );
 
 }
