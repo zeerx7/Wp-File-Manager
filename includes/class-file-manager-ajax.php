@@ -38,8 +38,29 @@ function get_filemanager_files($posts) {
     $object_id = $_POST['object_id'];
     $link = $_POST['link'];
 
-    $files = scandir($object_id);
-    $html[] = "<div id='filemanagerbtn'><div class='navbar'><a class='btndelete'>Delete</a><div class='subnav'><button class='subnavbtn btnnewdir'>Create dir</i></button><div id='subnav-content' class='subnav-content'><span><input type='text' id='lname' name='lname'></input><button class='newdir'>ok</button><span></div></div></div></div>";
+    $allFiles = scandir($object_id);
+    $files = array_diff($allFiles, array('.', '..'));
+
+    $html[] = "<div id='filemanagerbtn' class='filemanagerbtn'>
+                  <div class='navbar'>
+                      <div class='btndelete'>Delete</div>
+                      <div class='subnav'>
+                          <button class='subnavbtn btnnewdir'>Create dir</button>
+                          <div id='subnav-content' class='subnav-content'>
+                              <span>
+                                  <input type='text' id='lname' name='lname'></input>
+                                  <button class='newdir'>ok</button>
+                              <span>
+                          </div>
+                      </div>
+                      <div class='btnrename'>Rename</div>
+                  </div>
+              </div>
+              <div id='filemanagerbtn' class='filemanagerbtn'>
+                  <div class='navbar'>
+                      <a class='btnback_' href='" . $link . "/?path=" . dirname($object_id) . "'>Parent directory</a>
+                  </div>
+              </div>";
     $html[] .= "<table>";
     foreach($files as $file){
       $pathfilezise = $object_id.'/'.$file;

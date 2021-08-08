@@ -1,6 +1,6 @@
-# File-Manager Plugin for Wordpress</br>
+# FileManager Plugin for Wordpress</br>
 
-<img src="https://i.ibb.co/64MqYVc/filemanager.jpg" />
+<img src="https://i.ibb.co/wzsX0fJ/filemanager.jpg" />
 
 ## Installation
 

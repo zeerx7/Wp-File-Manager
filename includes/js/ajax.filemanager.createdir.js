@@ -49,6 +49,17 @@ function filemanager_createdir_files($, object_id) {
 
 }
 
+function filemanager_backdir_files($, object_id) {
+    
+    $('.btnback').on('click', function(event) {
+        event.preventDefault();
+        var link = location.protocol + '//' + location.host + location.pathname;
+        location.href = link+'?path='+object_id+'/..'
+    });
+
+}
+
 jQuery(document).ready(function($) {
+    filemanager_backdir_files($, $("#sequentialupload").data('object-id'));
 	filemanager_createdir_files($, $("#sequentialupload").data('object-id'));
 });

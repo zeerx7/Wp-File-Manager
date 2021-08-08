@@ -37,7 +37,9 @@ function filemanager_shortcode() {
         $path = get_home_path_();
     }
 
-    $files = scandir($path);
+    $allFiles = scandir($path);
+    $files = array_diff($allFiles, array('.', '..'));
+
     global $wp;
 
     if ( (is_dir($path) == true) && (is_user_logged_in()) ) {
@@ -46,9 +48,9 @@ function filemanager_shortcode() {
     echo "<div id='filemanager-wrapper' class='filemanager-wrapper'>";
     if ( (is_dir($path) == true) && (is_user_logged_in()) ) {
         ?><script type="text/javascript">document.getElementById("sequentialupload").style.display = "block";</script><?php
-        ?><div id='filemanagerbtn'>
+        ?><div id='filemanagerbtn' class='filemanagerbtn'>
                 <div class='navbar'>
-                    <a class='btndelete'>Delete</a>
+                    <div class='btndelete'>Delete</div>
                     <div class='subnav'>
                         <button class='subnavbtn btnnewdir'>Create dir</button>
                         <div id='subnav-content' class='subnav-content'>
@@ -59,6 +61,11 @@ function filemanager_shortcode() {
                         </div>
                     </div>
                     <div class='btnrename'>Rename</div>
+                </div>
+            </div>
+            <div id='filemanagerbtn' class='filemanagerbtn'>
+                <div class='navbar'>
+                    <a class='btnback_' href='<?php echo home_url($wp->request) . "/?path=" . dirname($path) ?>'>Parent directory</a>
                 </div>
             </div><?php
     }

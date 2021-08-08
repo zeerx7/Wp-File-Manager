@@ -8,6 +8,7 @@ function filemanager_uploads_files($, object_id) {
         fileName:"myfile",
         sequential:true,
         sequentialCount:1,
+        showDone:true,
         afterUploadAll: function(obj) {
             jQuery.ajax({    
                 type: 'post',

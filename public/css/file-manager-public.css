@@ -5,6 +5,7 @@
 
 .filemanager-wrapper table {
     width: 100%;
+    margin: 0;
 }
 
 .filemanager-wrapper tr td:first-child {
@@ -19,20 +20,28 @@
    height: 1200px;
 }
 
+.filemanagerbtn {
+   margin-bottom: 10px;
+}
+
 .navbar {
    overflow: hidden;
-   background-color: #333;
+   background-color: #fff;
    width: auto;
    display: table;
 }
 
-.navbar a {
+.navbar div, .navbar a {
    float: left;
    font-size: 16px;
-   color: white;
+   color: black;
    text-align: center;
-   padding: 14px 16px;
    text-decoration: none;
+   border: 0.25px solid black;
+   padding: 10px;
+   margin: 0 5px 0px 0;
+   text-decoration: none !important;
+   font-weight: 100 !important;
 }
 
 .subnav {
@@ -44,10 +53,8 @@
    font-size: 16px;
    border: none;
    outline: none;
-   color: white;
-   padding: 16px 16px;
-   font-weight: 600;
-   text-decoration: underline;
+   color: black;
+   font-weight: 100;
    background-color: inherit;
    font-family: inherit;
    margin: 0;
@@ -58,10 +65,11 @@
    position: absolute;
    width: auto;
    z-index: 1;
-   background-color: #333; 
+   background-color: white;
+   border: 0.25px solid black;
 }
 
-.subnav-content a {
+.subnav-content a  {
    float: left;
    color: white;
    text-decoration: none;
@@ -86,15 +94,4 @@
 
 .dplayer {
    width: 100%;
-}
-
-.btnrename{
-   display: table;
-   color: white;
-   top: 13.5px;
-   position: relative;
-   text-decoration: underline;
-   font-weight: 600;
-   padding-right: 18px;
-   padding-left: 15px;
 }
