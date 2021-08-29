@@ -10,6 +10,7 @@
 
 .filemanager-wrapper tr td:first-child {
    width: 50px;
+   display: none;
 }
 
 .filemanager-wrapper tr td:nth-child(2) {
@@ -94,4 +95,8 @@
 
 .dplayer {
    width: 100%;
+}
+
+tr.selected {
+   background-color: rgba(0,0,0,0.1);
 }

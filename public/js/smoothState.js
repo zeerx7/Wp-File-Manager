@@ -26,6 +26,10 @@
 				const urlParams = new URLSearchParams(queryString);
 				const path = urlParams.get('path')
 
+				document.getElementById('sequentialupload').setAttribute('data-object-id', path);
+
+				filemanager_select_files($, path);
+
 				filemanager_uploads_files($, path);
 
 				filemanager_delete_files($, path);

@@ -76,7 +76,7 @@ function filemanager_shortcode() {
     }
     echo "<div id='filemanager-wrapper' class='filemanager-wrapper'>";
     if ( (is_dir($path) == true) && (is_user_logged_in()) ) {
-        ?><script type="text/javascript">document.getElementById("sequentialupload").style.display = "block";</script><?php
+        ?><script type="text/javascript">document.getElementById("sequentialupload").style.display = "none";</script><?php
         ?><div id='filemanagerbtn' class='filemanagerbtn'>
                 <div class='navbar'>
                     <div class='btndelete'>Delete</div>
