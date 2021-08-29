@@ -9,6 +9,7 @@ function filemanager_delete_files($, object_id) {
 
         const path = [];
         var i = 0;
+        var link = location.protocol + '//' + location.host + location.pathname;
 
         $('.checkbox').each(function () {
             if($(this).is(':checked')){
@@ -35,6 +36,7 @@ function filemanager_delete_files($, object_id) {
                     url: get_filemanager_ajax_url,
                     data: {
                         'object_id': object_id,
+                        'link': link,
                         'action': 'get_filemanager_files'
                     },
                     dataType: 'json',
@@ -44,6 +46,7 @@ function filemanager_delete_files($, object_id) {
                         $('.filemanager-wrapper').append(data);
                         filemanager_delete_files($, object_id);
                         filemanager_createdir_files($, object_id);
+                        filemanager_uploads_files($, object_id);
                     },
                     error: function(errorThrown){
                         //error stuff here.text

@@ -10,10 +10,10 @@
  *
  * @link              https://jerl92.tk
  * @since             1.0.0
- * @package           File_Manager
+ * @package           FileManager
  *
  * @wordpress-plugin
- * Plugin Name:       File Manager
+ * Plugin Name:       FileManager
  * Plugin URI:        https://jerl92.tk
  * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
  * Version:           1.0.0
@@ -21,7 +21,7 @@
  * Author URI:        https://jerl92.tk
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       file-manager
+ * Text Domain:       filemanager
  * Domain Path:       /languages
  */
 
@@ -35,34 +35,34 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'FILE_MANAGER_VERSION', '1.0.0' );
+define( 'File_Manager_VERSION', '1.0.0' );
 
 /**
  * The code that runs during plugin activation.
- * This action is documented in includes/class-file-manager-activator.php
+ * This action is documented in includes/class-filemanager-activator.php
  */
-function activate_file_manager() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-file-manager-activator.php';
+function activate_FileManager() {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-filemanager-activator.php';
 	File_Manager_Activator::activate();
 }
 
 /**
  * The code that runs during plugin deactivation.
- * This action is documented in includes/class-file-manager-deactivator.php
+ * This action is documented in includes/class-filemanager-deactivator.php
  */
-function deactivate_file_manager() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-file-manager-deactivator.php';
+function deactivate_FileManager() {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-filemanager-deactivator.php';
 	File_Manager_Deactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'activate_file_manager' );
-register_deactivation_hook( __FILE__, 'deactivate_file_manager' );
+register_activation_hook( __FILE__, 'activate_FileManager' );
+register_deactivation_hook( __FILE__, 'deactivate_FileManager' );
 
 /**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path( __FILE__ ) . 'includes/class-file-manager.php';
+require plugin_dir_path( __FILE__ ) . 'includes/class-filemanager.php';
 
 /**
  * Begins execution of the plugin.
@@ -73,10 +73,10 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-file-manager.php';
  *
  * @since    1.0.0
  */
-function run_file_manager() {
+function run_FileManager() {
 
 	$plugin = new File_Manager();
 	$plugin->run();
 
 }
-run_file_manager();
+run_FileManager();

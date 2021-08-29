@@ -29,6 +29,35 @@ function getName($n) {
     return $randomString;
 }
 
+function formatSizeUnits($bytes) {
+    if ($bytes >= 1073741824)
+    {
+        $bytes = number_format($bytes / 1073741824, 2) . ' GB';
+    }
+    elseif ($bytes >= 1048576)
+    {
+        $bytes = number_format($bytes / 1048576, 2) . ' MB';
+    }
+    elseif ($bytes >= 1024)
+    {
+        $bytes = number_format($bytes / 1024, 2) . ' KB';
+    }
+    elseif ($bytes > 1)
+    {
+        $bytes = $bytes . ' bytes';
+    }
+    elseif ($bytes == 1)
+    {
+        $bytes = $bytes . ' byte';
+    }
+    else
+    {
+        $bytes = '0 bytes';
+    }
+
+    return $bytes;
+}
+
 function filemanager_shortcode() { 
 
     $path = $_GET['path'];
@@ -70,10 +99,10 @@ function filemanager_shortcode() {
             </div><?php
     }
     if ( is_dir($path) == true ) {
-        echo "<table id='file-table'>";
+        ?><div class='file-table'><table id='file-table'><?php
             foreach($files as $file){
                 $pathfilezise = $path.'/'.$file;
-                $filesize = filesize($pathfilezise);
+                $filesize = formatSizeUnits(filesize($pathfilezise));
                 $realpath = realpath($path.'/'.$file);
                 if ( is_dir($path.'/'.$file) == true ) {
                     echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
@@ -81,7 +110,7 @@ function filemanager_shortcode() {
                     echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
                 }
             }
-        echo "</table>";
+        echo "</table></div>";
     } else {
         $object_id = $path;
         $getname = getName(32);

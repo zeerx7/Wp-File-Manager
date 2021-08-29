@@ -33,6 +33,7 @@ function filemanager_createdir_files($, object_id) {
                             $('.filemanager-wrapper').append(data);
                             filemanager_delete_files($, object_id);
                             filemanager_createdir_files($, object_id);
+                            filemanager_uploads_files($, object_id);
                         },
                         error: function(errorThrown){
                             //error stuff here.text

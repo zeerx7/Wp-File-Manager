@@ -133,7 +133,7 @@
    				if(s.showQueueDiv)
 		        	obj.container =$("#"+s.showQueueDiv);
         		else
-		            obj.container = $("<div class='ajax-file-upload-container'></div>").insertAfter($(obj));
+		            obj.container = $("<div id='ajax-file-upload-container' class='ajax-file-upload-container'></div>").insertAfter($(obj));
         
                 s.onLoad.call(this, obj);
                 createCutomInputFile(obj, formGroup, s, uploadLabel);

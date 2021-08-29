@@ -67,12 +67,12 @@ class File_Manager {
 	 * @since    1.0.0
 	 */
 	public function __construct() {
-		if ( defined( 'FILE_MANAGER_VERSION' ) ) {
-			$this->version = FILE_MANAGER_VERSION;
+		if ( defined( 'FILEMANAGER_VERSION' ) ) {
+			$this->version = FILEMANAGER_VERSION;
 		} else {
 			$this->version = '1.0.0';
 		}
-		$this->plugin_name = 'file-manager';
+		$this->plugin_name = 'filemanager';
 
 		$this->load_dependencies();
 		$this->set_locale();
@@ -103,28 +103,28 @@ class File_Manager {
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-file-manager-loader.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-filemanager-loader.php';
 
 		/**
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-file-manager-i18n.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-filemanager-i18n.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-file-manager-admin.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-filemanager-admin.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-file-manager-public.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-filemanager-public.php';
 
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-file-manager-ajax.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-filemanager-ajax.php';
 
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-file-manager-shortcode.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-filemanager-shortcode.php';
 
 		$this->loader = new File_Manager_Loader();
 

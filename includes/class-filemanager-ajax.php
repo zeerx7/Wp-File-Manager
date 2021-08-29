@@ -61,10 +61,10 @@ function get_filemanager_files($posts) {
                       <a class='btnback_' href='" . $link . "/?path=" . dirname($object_id) . "'>Parent directory</a>
                   </div>
               </div>";
-    $html[] .= "<table>";
+    $html[] .= "<div class='file-table'><table id='file-table'>";
     foreach($files as $file){
       $pathfilezise = $object_id.'/'.$file;
-      $filesize = filesize($pathfilezise);
+      $filesize = formatSizeUnits(filesize($pathfilezise));
       $filepath = $link . '?path=' . $object_id . '/' . $file;
       if ( is_dir($object_id.'/'.$file) == true ) {
         $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$object_id/$file'/></td><td><a id='file-id' class='filemanager-click' href='$filepath'>$file</a></td><td>$filesize</td></tr>";
@@ -72,7 +72,7 @@ function get_filemanager_files($posts) {
         $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$object_id/$file'/></td><td><a id='file-id' class='filemanager-click-file' href='$filepath'>$file</a></td><td>$filesize</td></tr>";
       }
     }
-    $html[] .= "</table>";
+    $html[] .= "</table></div>";
 
 	return wp_send_json ( implode($html) );
 

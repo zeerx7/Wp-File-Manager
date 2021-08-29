@@ -6,7 +6,7 @@
 
 1. Unzip file in your /wp-content/plugins directory.
 2. Activate plugin in wp-admin.
-3. Use short code [filemanager-shortcode], in page.
+3. Use short code [filemanager-shortcode] in page.
 
 ## Changelog
 
