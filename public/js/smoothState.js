@@ -38,6 +38,8 @@
 
 				filemanager_rename_files($);
 
+				filemanager_info_files($);
+
 			}
 		};
 

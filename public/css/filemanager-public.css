@@ -29,7 +29,26 @@
    overflow: hidden;
    background-color: #fff;
    width: auto;
-   display: table;
+   display: block;
+}
+
+.btninfo {
+   float: right !important;
+}
+
+.info-window {
+   position: absolute;
+   top: 25%;
+   left: 25%;
+   width: 50%;
+   height: auto;
+   background-color: #fff;
+   border: 0.5px solid rgba(0,0,0,0.15);
+   padding: 25px;
+}
+
+.info-window-close{
+   float: right !important;
 }
 
 .navbar div, .navbar a {
@@ -99,4 +118,10 @@
 
 tr.selected {
    background-color: rgba(0,0,0,0.1);
+}
+
+.filepath {
+   padding: 5px 10px;
+   border: 0.5px solid black;
+   border-bottom: none;
 }

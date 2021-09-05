@@ -25,6 +25,11 @@ function wp_filemanager_ajax_scripts() {
     wp_register_script( 'wp-filemanager-ajax-rename-files', $url . "js/ajax.filemanager.rename.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-rename-files', 'rename_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
 	  wp_enqueue_script( 'wp-filemanager-ajax-rename-files' );
+
+        
+    wp_register_script( 'wp-filemanager-ajax-info-files', $url . "js/ajax.filemanager.info.js", array( 'jquery' ), '1.0.0', true );
+    wp_localize_script( 'wp-filemanager-ajax-info-files', 'info_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
+	  wp_enqueue_script( 'wp-filemanager-ajax-info-files' );
 	
 }
 
@@ -41,6 +46,8 @@ function get_filemanager_files($posts) {
     $allFiles = scandir($object_id);
     $files = array_diff($allFiles, array('.', '..'));
 
+    $path_parts = explode("/", $object_id);
+
     $html[] = "<div id='filemanagerbtn' class='filemanagerbtn'>
                   <div class='navbar'>
                       <div class='btndelete'>Delete</div>
@@ -54,6 +61,7 @@ function get_filemanager_files($posts) {
                           </div>
                       </div>
                       <div class='btnrename'>Rename</div>
+                      <div class='btninfo'>info</div>
                   </div>
               </div>
               <div id='filemanagerbtn' class='filemanagerbtn'>
@@ -61,6 +69,12 @@ function get_filemanager_files($posts) {
                       <a class='btnback_' href='" . $link . "/?path=" . dirname($object_id) . "'>Parent directory</a>
                   </div>
               </div>";
+              $html[] .= "<div class='filepath'>";
+                foreach($path_parts as $path_part) {
+                  $path_part_ .= $path_part.'/';
+                  $html[] .= "<a href='" . $link . "/?path=" .  $path_part_ . "'>" . $path_part . "</a>" . "/";
+                }
+                $html[] .= "</div>";
     $html[] .= "<div class='file-table'><table id='file-table'>";
     foreach($files as $file){
       $pathfilezise = $object_id.'/'.$file;
@@ -129,5 +143,69 @@ function rename_filemanager_files($posts) {
   }
 
 	return wp_send_json ( implode($html) );
+
+}
+
+function countFiles($path) {
+  $size = 0;
+  $ignore = array('.','..');
+  $files = scandir($path);
+  foreach($files as $t) {
+    if(in_array($t, $ignore)) continue;
+    if (is_dir(rtrim($path, '/') . '/' . $t)) {
+      $size += countFiles(rtrim($path, '/') . '/' . $t);
+    } else {
+      $size++;
+    }   
+  }
+  return $size;
+}
+
+function GetDirectorySize($path){
+  $bytestotal = 0;
+  $path = realpath($path);
+  if($path!==false && $path!='' && file_exists($path)){
+      foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)) as $object){
+          $bytestotal += $object->getSize();
+      }
+  }
+  return $bytestotal;
+}
+
+/* AJAX action callback */
+add_action( 'wp_ajax_info_filemanager_files', 'info_filemanager_files' );
+add_action( 'wp_ajax_nopriv_info_filemanager_files', 'info_filemanager_files' );
+function info_filemanager_files($posts) {
+
+  $paths = $_POST['path'];
+
+  foreach ( $paths as $path ) {
+    if ( $path != '') {
+      $i = 0;
+      $direname = dirname($path);
+      $basename = strtolower(basename($path));
+      $getpwuid = posix_getpwuid(fileowner($path));
+      $html .= "<div class='info-window'>";
+      $html .= "<div class='info-window-close'>X</div>";
+        $html .= "<div class='info-window-name'>" . $basename . "</div>";
+        $html .= "<div class='info-window-dir-name'>" . $direname . "</div>";
+        $html .= "<div class='info-window-fileperms'>" . fileperms($path) . "</div>";
+        foreach ($getpwuid as $username) {
+          if ($i <= 0) {
+            $html .= "<div class='info-window-getpwuid'>" . $username . "</div>";
+          }
+          $i++;
+        }
+        if (is_dir($path)) {
+          $html .= "<div class='info-window-count'>" . countFiles($path) . "</div>";
+          $html .= "<div class='info-window-count-size'>" . formatSizeUnits(GetDirectorySize($path)) . "</div>";
+        } else {
+          $html .= "<div class='info-window-size'>" . formatSizeUnits(filesize($path)) . "</div>";
+        }
+      $html .= "</div>";
+    }
+  }
+
+	return wp_send_json ( $html );
 
 }

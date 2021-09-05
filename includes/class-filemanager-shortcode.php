@@ -60,14 +60,16 @@ function formatSizeUnits($bytes) {
 
 function filemanager_shortcode() { 
 
-    $path = $_GET['path'];
+    $path = realpath($_GET['path']);
 
     if ($path == null) {
-        $path = get_home_path_();
+        $path = realpath(get_home_path_());
     }
 
     $allFiles = scandir($path);
     $files = array_diff($allFiles, array('.', '..'));
+
+    $path_parts = explode("/", $path);
 
     global $wp;
 
@@ -90,13 +92,20 @@ function filemanager_shortcode() {
                         </div>
                     </div>
                     <div class='btnrename'>Rename</div>
+                    <div class='btninfo'>info</div>
                 </div>
             </div>
             <div id='filemanagerbtn' class='filemanagerbtn'>
                 <div class='navbar'>
                     <a class='btnback_' href='<?php echo home_url($wp->request) . "/?path=" . dirname($path) ?>'>Parent directory</a>
                 </div>
-            </div><?php
+            </div>
+            <div class='filepath'><?php foreach($path_parts as $path_part) {
+                    $path_part_ .= $path_part.'/';
+                    ?><a href='<?php  echo home_url($wp->request) . "/?path=" .  $path_part_ ?>'><?php echo $path_part; ?></a><?php
+                    echo '/';
+                }?></div>
+            <?php
     }
     if ( is_dir($path) == true ) {
         ?><div class='file-table'><table id='file-table'><?php
