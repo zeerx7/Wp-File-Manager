@@ -452,22 +452,30 @@ function filemanager_shortcode() {
 
     if ($path == null && $home == null && $workplace == null) {
         
-        echo "<div id='filemanager-home' class='filemanager-home'>";
         if (is_user_logged_in()) {
-            ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/' . get_post_field( 'post_name' ); ?>/?home=<?php echo $my_option_name['title'] . esc_html($user->display_name) ?>'>Home</a></br><?php
-        }
 
-        foreach ($my_option_name['id_name'] as $id_name){
-            if (in_array($user->ID, str_split($id_read[$id_name]))) {
-                ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/' . get_post_field( 'post_name' ); ?>/?workplace=<?php echo $my_option_name['id_path'][$x] ?>'><?php echo $id_name ?></a></br><?php
+            echo "<div id='filemanager-home' class='filemanager-home'>";
+            if (is_user_logged_in()) {
+                ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/' . get_post_field( 'post_name' ); ?>/?home=<?php echo $my_option_name['title'] . esc_html($user->user_login) ?>'>Home</a></br><?php
             }
-            $x++;
-        }
 
-        if (in_array($user->ID, $id_read_path)) {
-            ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/' . get_post_field( 'post_name' ); ?>/?path=<?php echo ABSPATH ?>'>Path</a><?php
+            foreach ($my_option_name['id_name'] as $id_name){
+                if (in_array($user->ID, str_split($id_read[$id_name]))) {
+                    ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/' . get_post_field( 'post_name' ); ?>/?workplace=<?php echo $my_option_name['id_path'][$x] ?>'><?php echo $id_name ?></a></br><?php
+                }
+                $x++;
+            }
+
+            if (in_array($user->ID, $id_read_path)) {
+                ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/' . get_post_field( 'post_name' ); ?>/?path=<?php echo ABSPATH ?>'>Path</a><?php
+            }
+            echo "</div>";
+
+        } else {
+            ?><a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>" alt="<?php esc_attr_e( 'Login', 'textdomain' ); ?>">
+                <?php _e( 'Login', 'textdomain' ); ?>
+            </a><?php
         }
-        echo "</div>";
 
 
     } else {
@@ -475,7 +483,7 @@ function filemanager_shortcode() {
         if (isset($home)) {
             $blogusers = get_users();
             $path_implode = $home;
-            $path_default = $my_option_name['title'].$user->display_name;
+            $path_default = $my_option_name['title'].$user->user_login;
             if ($path_implode == $path_default) {
                 $workplace_last = true;
             }
@@ -488,7 +496,9 @@ function filemanager_shortcode() {
 
         if (isset($workplace)) { 
             foreach ($my_option_name['id_path'] as $id_path) {
-                if (strpos($workplace, $id_path) !== false) {
+                $id_path_ = rtrim($id_path, "/");
+                $workplace_ = rtrim($workplace, "/");
+                if (strpos($workplace_, $id_path_) !== false) {
                     if (in_array($user->ID, str_split($id_read[$my_option_name['id_name'][$i]]))) {
                         $read_path = true;
                     }
@@ -554,12 +564,6 @@ function filemanager_shortcode() {
                             <div class='btninfo'>info</div>
                         </div>
                     </div>
-            <?php } else { ?>
-                <div id='filemanagerbtn' class='filemanagerbtn'>
-                    <div class='navbar'>
-                        <div class='btninfo'>info</div>
-                    </div>
-                </div>
             <?php } ?>
             <div id='filemanagerbtn' class='filemanagerbtn'>
                 <div class='navbar'>
@@ -570,6 +574,9 @@ function filemanager_shortcode() {
                         } 
                         if ($path_parts[1] == '' || $workplace_last == true || $workplace_strpos != true) { ?>
                         <a class='btnback_home' href='<?php echo home_url($wp->request) ?>'>Home</a>
+                    <?php } ?>
+                    <?php if ($write_path != true) { ?>
+                        <div class='btninfo'>info</div>
                     <?php } ?>
                 </div>
             </div>
@@ -595,6 +602,9 @@ function filemanager_shortcode() {
                     if (isset($path)) {
                         echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
                     }
+                }
+                if ($files == null) {
+                    echo "<tr><td><input class='checkbox' type='checkbox' /></td><td class='filemanager-table'><a id='file-id' class='filemanager-click'>No file found</a></td></tr>";
                 }
             echo "</table></div>";
         } elseif ( isset($path) || isset($workplace) || isset($home)) {

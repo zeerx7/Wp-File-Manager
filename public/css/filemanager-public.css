@@ -130,6 +130,8 @@ tr.selected {
    margin-left: auto;
    margin-right: auto;
    display: table;
-   padding: 15px 25%;
+   padding: 15px 0;
    border: 0.25px solid rgba(0,0,0,0.25);
+   width: 50%;
+   text-align: center;
 }
