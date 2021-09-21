@@ -6,10 +6,12 @@
 
 1. Unzip file in your /wp-content/plugins directory.
 2. Activate plugin in wp-admin.
+3. Go to the admin setting page, and add workplace and give the read and write autorization to your user
 3. Use short code [filemanager-shortcode] in page.
 
 ## Changelog
 
+- 0.10 - Add admin setting page to create workplace.
 - 0.9 - Add dragable info windows.
 - 0.8 - Multi-upload anywhere while you browse.
 - 0.7 - Add rename fonction.
