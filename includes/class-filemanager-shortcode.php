@@ -547,7 +547,7 @@ function filemanager_shortcode() {
 
         if ( is_dir($path_implode) == true ) {
             if ($write_path == true) {
-                ?><div id='filemanagerbtn' class='filemanagerbtn'>
+                ?><div id='filemanagerbtnup' class='filemanagerbtn'>
                         <div class='navbar'>
                             <div id="uploadfiles" onclick="myFile()"><input type="file" id="pickerfiles" name="fileList" multiple style="display: none;">Upload files</div>
                             <div id="uploaddir" onclick="mydir()"><input type="file" id="pickerdir" name="fileList" webkitdirectory multiple style="display: none;">Upload Dir</div>
@@ -585,7 +585,10 @@ function filemanager_shortcode() {
                     </div>
             <?php } ?>
             <div id='filemanager-wrapper' class='filemanager-wrapper'>
-                <div id='filemanagerbtn' class='filemanagerbtn'>
+            <?php if ($write_path == true) { ?>
+                <script type="text/javascript">document.getElementById("filemanagerbtnup").style.display = "block";</script>
+            <?php } ?>
+                <div id='filemanagerbtndown' class='filemanagerbtn'>
                     <div class='navbar'>
                         <?php if ($path_parts[1] != '' && $workplace_strpos == true && $workplace_last != true){
                                 if (isset($home)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?home=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
@@ -633,13 +636,14 @@ function filemanager_shortcode() {
             $direname = dirname($object_id);
             $basename = strtolower(basename($object_id));
             $ext = pathinfo($basename, PATHINFO_EXTENSION);
-        
-            ?><script type="text/javascript">document.getElementById("sequentialupload").style.display = "none";</script><?php
-        
+       
             $link = get_home_path_() .'/files/'. $getname .''. $ext;
             echo exec('mkdir "'. get_home_path_() .'/files"');
             echo exec('rm "'. $link .'"');
             echo exec('ln -s "' . $target . '" "' . $link .'"');
+
+            echo "<div id='filemanager-wrapper' class='filemanager-wrapper'>";
+            ?><script type="text/javascript">document.getElementById("filemanagerbtnup").style.display = "none";</script><?php
         
             if ($ext == 'jpeg' || $ext == 'jpg' || $ext == 'bmp' || $ext == 'png') {
                 echo '<img src="' . get_home_url() . '/files/' . $getname . '' . $ext . '"></img>';
@@ -665,7 +669,9 @@ function filemanager_shortcode() {
                 echo '<div id="pdf"></div>';
                 ?><script type="text/javascript">PDFObject.embed('<?php echo get_home_url() . '/files/' . $getname . '' . $ext ?>', "#pdf");</script><?php
             } elseif ($ext == 'txt' || $ext == 'html' || $ext == 'php' || $ext == 'log') { 
-                echo '<div class="navbar"><div id="savefile" onclick="savefile();">Save</div></div>';
+                if ($write_path == true) {
+                    echo '<div class="navbar"><div id="savefile" onclick="savefile();">Save</div></div>';
+                }
                 echo '<div id="editor"> </div>';
             ?><script>
             var myCodeMirror = CodeMirror(
@@ -704,8 +710,8 @@ function filemanager_shortcode() {
             } else {
                 echo '<a href="' . get_home_url() . '/files/' . $getname . '' . $ext . '">Download</a>';
             }
+            echo "</div>";
         }
-        echo "</div>";
 
         }
 
