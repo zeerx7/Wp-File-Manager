@@ -135,3 +135,7 @@ tr.selected {
    width: 50%;
    text-align: center;
 }
+
+.CodeMirror {
+   height: auto;
+ }

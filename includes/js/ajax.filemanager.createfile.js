@@ -64,7 +64,7 @@ function filemanager_createfile_files($, object_id) {
             });
             document.getElementById("lnamefile").value = '';
             $("#subnav-content-file").toggleClass("subnav-content-display");
-        }, { once: true });
+        });
     });
 
 }

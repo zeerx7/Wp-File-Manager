@@ -552,11 +552,11 @@ function filemanager_shortcode() {
                             <div id="uploadfiles" onclick="myFile()"><input type="file" id="pickerfiles" name="fileList" multiple style="display: none;">Upload files</div>
                             <div id="uploaddir" onclick="mydir()"><input type="file" id="pickerdir" name="fileList" webkitdirectory multiple style="display: none;">Upload Dir</div>
                             <div class='subnav'>
-                                <button id='btnnewfile' class='subnavbtn'>Create file</button>
+                                <button class='subnavbtn btnnewfile'>Create file</button>
                                 <div id='subnav-content-file' class='subnav-content'>
                                     <span>
                                         <input type='text' id='lnamefile' name='lname'></input>
-                                        <button id='newfile'>Create</button>
+                                        <button class='newfile'>Create</button>
                                     <span>
                                 </div>
                             </div>
@@ -625,7 +625,7 @@ function filemanager_shortcode() {
                     if ($files == null) {
                         echo "<tr><td><input class='checkbox' type='checkbox' /></td><td class='filemanager-table'><a id='file-id' class='filemanager-click'>No file found</a></td></tr>";
                     }
-                echo "</table></div>";
+                echo "</table></div></div>";
         } elseif ( isset($path) || isset($workplace) || isset($home)) {
             $object_id = $path_implode;
             $getname = getName(32);
@@ -636,13 +636,13 @@ function filemanager_shortcode() {
         
             ?><script type="text/javascript">document.getElementById("sequentialupload").style.display = "none";</script><?php
         
-            $link = get_home_path_() .'/files/'. $getname .'.'. $ext;
+            $link = get_home_path_() .'/files/'. $getname .''. $ext;
             echo exec('mkdir "'. get_home_path_() .'/files"');
             echo exec('rm "'. $link .'"');
             echo exec('ln -s "' . $target . '" "' . $link .'"');
         
             if ($ext == 'jpeg' || $ext == 'jpg' || $ext == 'bmp' || $ext == 'png') {
-                echo '<img src="' . get_home_url() . '/files/' . $getname . '.' . $ext . '"></img>';
+                echo '<img src="' . get_home_url() . '/files/' . $getname . '' . $ext . '"></img>';
             } elseif ($ext == 'mp4' || $ext == 'mkv' || $ext == 'avi' ) {
                 echo '<div class="file-info">' . basename($object_id) . '</div>';
                 echo '<div id="dplayer"></div>';
@@ -653,7 +653,7 @@ function filemanager_shortcode() {
                     volume: 0.7,
                     screenshot: true,
                     video: {
-                        url:  '<?php echo get_home_url() . '/files/' . $getname . '.' . $ext ?>',
+                        url:  '<?php echo get_home_url() . '/files/' . $getname . '' . $ext ?>',
                         pic:  null,
                         thumbnails: null
                     },
@@ -663,9 +663,46 @@ function filemanager_shortcode() {
                 });</script><?php
             } elseif ($ext == 'pdf') {
                 echo '<div id="pdf"></div>';
-                ?><script type="text/javascript">PDFObject.embed('<?php echo get_home_url() . '/files/' . $getname . '.' . $ext ?>', "#pdf");</script><?php
+                ?><script type="text/javascript">PDFObject.embed('<?php echo get_home_url() . '/files/' . $getname . '' . $ext ?>', "#pdf");</script><?php
+            } elseif ($ext == 'txt' || $ext == 'html' || $ext == 'php' || $ext == 'log') { 
+                echo '<div class="navbar"><div id="savefile" onclick="savefile();">Save</div></div>';
+                echo '<div id="editor"> </div>';
+            ?><script>
+            var myCodeMirror = CodeMirror(
+            document.getElementById('editor'), {
+                lineNumbers: true,
+                mode: "text/html"
+            });
+            fetch('<?php echo get_home_url() . '/files/' . $getname . '' . $ext ?>')
+                .then(response => response.text())
+                .then(data => {
+                    // Do something with your data
+                    console.log(data);
+                    myCodeMirror.setValue(data);
+                });
+            function savefile() {
+                var getValue = myCodeMirror.getValue();
+                jQuery.ajax({
+                    type: 'post',
+                    url: save_filemanager_ajax_url,
+                    data: {
+                        'object_id': getValue,
+                        'link': '<?php echo $path_implode ?>',
+                        'action': 'save_filemanager_files'
+                    },
+                    dataType: 'json',
+                    success: function(data){
+                        console.log(data);
+                    },
+                    error: function(errorThrown){
+                        //error stuff here.text
+                    }
+                });
+                console.log(textFileAsBlob);
+            }
+            </script> <?php
             } else {
-                echo '<a href="' . get_home_url() . '/files/' . $getname . '.' . $ext . '">Download</a>';
+                echo '<a href="' . get_home_url() . '/files/' . $getname . '' . $ext . '">Download</a>';
             }
         }
         echo "</div>";

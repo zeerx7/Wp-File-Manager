@@ -14,6 +14,10 @@ function wp_filemanager_ajax_scripts() {
     wp_localize_script( 'wp-filemanager-ajax-get-files', 'get_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
 	  wp_enqueue_script( 'wp-filemanager-ajax-get-files' );
 
+    wp_register_script( 'wp-filemanager-ajax-save-files', $url . "js/ajax.filemanager.save.js", array( 'jquery' ), '1.0.0', true );
+    wp_localize_script( 'wp-filemanager-ajax-save-files', 'save_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
+	  wp_enqueue_script( 'wp-filemanager-ajax-save-files' );
+
     wp_register_script( 'wp-filemanager-ajax-delete-files', $url . "js/ajax.filemanager.delete.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-delete-files', 'delete_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
 	  wp_enqueue_script( 'wp-filemanager-ajax-delete-files' );
@@ -33,7 +37,6 @@ function wp_filemanager_ajax_scripts() {
     wp_register_script( 'wp-filemanager-ajax-moveto-files', $url . "js/ajax.filemanager.moveto.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-moveto-files', 'moveto_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
 	  wp_enqueue_script( 'wp-filemanager-ajax-moveto-files' );
-
         
     wp_register_script( 'wp-filemanager-ajax-info-files', $url . "js/ajax.filemanager.info.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-info-files', 'info_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
@@ -190,6 +193,23 @@ function get_filemanager_files($posts) {
             $html[] .= "</table></div>";
 
 	return wp_send_json ( implode($html) );
+
+}
+
+/* AJAX action callback */
+add_action( 'wp_ajax_save_filemanager_files', 'save_filemanager_files' );
+add_action( 'wp_ajax_nopriv_save_filemanager_files', 'save_filemanager_files' );
+
+function save_filemanager_files($posts) {
+
+  $object_id = stripslashes($_POST['object_id']);
+  $link = $_POST['link'];
+
+  $myfile = fopen($link, "w");
+  fwrite($myfile, $object_id);
+  fclose($myfile);
+
+	return wp_send_json ( $object_id );
 
 }
 

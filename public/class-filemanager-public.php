@@ -75,6 +75,8 @@ class File_Manager_Public {
 		 
 		wp_enqueue_style( 'uploadfile', plugin_dir_url( __FILE__ ) . 'css/uploadfile.css', array(), $this->version, 'all' );
 
+		wp_enqueue_style( 'codemirror', plugin_dir_url( __FILE__ ) . 'css/codemirror.css', array(), $this->version, 'all' );
+
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/filemanager-public.css', array(), $this->version, 'all' );
 
 	}
@@ -100,6 +102,8 @@ class File_Manager_Public {
 
 
 		wp_enqueue_script( 'jquery-ui', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js', array( 'jquery' ), $this->version, false );
+
+		wp_enqueue_script( 'codemirror', plugin_dir_url( __FILE__ ) . 'js/codemirror.js', array( 'jquery' ), $this->version, false );
 		
 		wp_enqueue_script( 'DPlayer.min', plugin_dir_url( __FILE__ ) . 'js/DPlayer.min.js', array( 'jquery' ), $this->version, false );
 

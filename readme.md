@@ -11,6 +11,7 @@
 
 ## Changelog
 
+- 0.12 - Add codemirror.js, code editor.
 - 0.11 - Add upload files and directory, create file and a move button.
 - 0.10 - Add admin setting page to create workplace.
 - 0.9 - Add dragable info windows.
