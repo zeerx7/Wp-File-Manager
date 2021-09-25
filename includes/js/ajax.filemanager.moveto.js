@@ -1,14 +1,16 @@
 
-function filemanager_createdir_files($, object_id) {
+function filemanager_moveto_files($, object_id) {
     
-    $('.btnnewdir').on('click', function(event) {
+    $('.btnmoveto').on('click', function(event) {
         event.preventDefault();
-        $("#subnav-content-dir").toggleClass("subnav-content-display");
+        $("#subnav-content-moveto").toggleClass("subnav-content-display");
 
-        $('.newdir').on('click', function(event) {
+        $('.moveto').on('click', function(event) {
             event.preventDefault();
-            
-            var inputVal = document.getElementById("lname").value;
+
+            const path = [];
+            var i = 0;
+            var inputVal = document.getElementById("lnamemoveto").value;
             var link = location.protocol + '//' + location.host + location.pathname;
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
@@ -27,12 +29,21 @@ function filemanager_createdir_files($, object_id) {
                 url_Params = 'path';
             }
 
+            $('.checkbox').each(function () {
+                if($(this).is(':checked')){
+                    console.log($(this).attr('name'));
+                    path[i] = $(this).attr('name');
+                    i++;
+                }
+            });
+
             jQuery.ajax({
                 type: 'post',
-                url: createdir_filemanager_ajax_url,
+                url: moveto_filemanager_ajax_url,
                 data: {
-                    'inputVal': object_id+'/'+inputVal,
-                    'action': 'createdir_filemanager_files'
+                    'inputVal': inputVal,
+                    'path': path,
+                    'action': 'moveto_filemanager_files'
                 },
                 dataType: 'json',
                 success: function(data){
@@ -51,7 +62,7 @@ function filemanager_createdir_files($, object_id) {
                             console.log(data);
                             $( '.filemanager-wrapper' ).empty();		
                             $('.filemanager-wrapper').append(data);
-                            filemanager_createdir_files($, object_id);
+                            filemanager_moveto_files($, object_id);
                             filemanager_select_files($);
                         },
                         error: function(errorThrown){
@@ -63,24 +74,13 @@ function filemanager_createdir_files($, object_id) {
                     //error stuff here.text
                 }
             });
-            document.getElementById("lname").value = '';
-            $("#subnav-content-dir").toggleClass("subnav-content-display");
+            document.getElementById("lnamemoveto").value = '';
+            $("#subnav-content-moveto").toggleClass("subnav-content-display");
         });
     });
 
 }
 
-function filemanager_backdir_files($, object_id) {
-    
-    $('.btnback').on('click', function(event) {
-        event.preventDefault();
-        var link = location.protocol + '//' + location.host + location.pathname;
-        location.href = link+'?path='+object_id+'/..'
-    });
-
-}
-
 jQuery(document).ready(function($) {
-    filemanager_backdir_files($, $("#sequentialupload").data('object-id'));
-	filemanager_createdir_files($, $("#sequentialupload").data('object-id'));
+    filemanager_moveto_files($, $("#sequentialupload").data('object-id'));
 });

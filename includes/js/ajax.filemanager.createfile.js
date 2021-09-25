@@ -1,14 +1,14 @@
 
-function filemanager_createdir_files($, object_id) {
+function filemanager_createfile_files($, object_id) {
     
-    $('.btnnewdir').on('click', function(event) {
+    $('.btnnewfile').on('click', function(event) {
         event.preventDefault();
-        $("#subnav-content-dir").toggleClass("subnav-content-display");
+        $("#subnav-content-file").toggleClass("subnav-content-display");
 
-        $('.newdir').on('click', function(event) {
+        $('.newfile').on('click', function(event) {
             event.preventDefault();
-            
-            var inputVal = document.getElementById("lname").value;
+
+            var inputVal = document.getElementById("lnamefile").value;
             var link = location.protocol + '//' + location.host + location.pathname;
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
@@ -26,13 +26,12 @@ function filemanager_createdir_files($, object_id) {
             if(urlpath != null){
                 url_Params = 'path';
             }
-
             jQuery.ajax({
                 type: 'post',
-                url: createdir_filemanager_ajax_url,
+                url: createfile_filemanager_ajax_url,
                 data: {
                     'inputVal': object_id+'/'+inputVal,
-                    'action': 'createdir_filemanager_files'
+                    'action': 'createfile_filemanager_files'
                 },
                 dataType: 'json',
                 success: function(data){
@@ -51,36 +50,25 @@ function filemanager_createdir_files($, object_id) {
                             console.log(data);
                             $( '.filemanager-wrapper' ).empty();		
                             $('.filemanager-wrapper').append(data);
-                            filemanager_createdir_files($, object_id);
-                            filemanager_select_files($);
                         },
                         error: function(errorThrown){
                             //error stuff here.text
                         }
                     });
+                    filemanager_createfile_files($, object_id);
+                    filemanager_select_files($);
                 },
                 error: function(errorThrown){
                     //error stuff here.text
                 }
             });
-            document.getElementById("lname").value = '';
-            $("#subnav-content-dir").toggleClass("subnav-content-display");
-        });
-    });
-
-}
-
-function filemanager_backdir_files($, object_id) {
-    
-    $('.btnback').on('click', function(event) {
-        event.preventDefault();
-        var link = location.protocol + '//' + location.host + location.pathname;
-        location.href = link+'?path='+object_id+'/..'
+            document.getElementById("lnamefile").value = '';
+            $("#subnav-content-file").toggleClass("subnav-content-display");
+        }, { once: true });
     });
 
 }
 
 jQuery(document).ready(function($) {
-    filemanager_backdir_files($, $("#sequentialupload").data('object-id'));
-	filemanager_createdir_files($, $("#sequentialupload").data('object-id'));
+    filemanager_createfile_files($, $("#sequentialupload").data('object-id'));
 });

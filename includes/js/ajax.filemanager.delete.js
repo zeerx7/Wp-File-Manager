@@ -10,6 +10,22 @@ function filemanager_delete_files($, object_id) {
         const path = [];
         var i = 0;
         var link = location.protocol + '//' + location.host + location.pathname;
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const urlhome = urlParams.get('home');
+        const urlworkplace = urlParams.get('workplace');
+        const urlpath = urlParams.get('path');
+        var url_Params;
+
+        if(urlhome != null){
+            url_Params = 'home';
+        }
+        if(urlworkplace != null){
+            url_Params = 'workplace';
+        }
+        if(urlpath != null){
+            url_Params = 'path';
+        }
 
         $('.checkbox').each(function () {
             if($(this).is(':checked')){
@@ -37,6 +53,7 @@ function filemanager_delete_files($, object_id) {
                     data: {
                         'object_id': object_id,
                         'link': link,
+                        'urlParams': url_Params,
                         'action': 'get_filemanager_files'
                     },
                     dataType: 'json',
@@ -44,11 +61,11 @@ function filemanager_delete_files($, object_id) {
                         console.log(data);
                         $( '.filemanager-wrapper' ).empty();		
                         $('.filemanager-wrapper').append(data);
-                        filemanager_delete_files($, object_id);
+                        filemanager_createfile_files($, object_id);
                         filemanager_createdir_files($, object_id);
-                        filemanager_uploads_files($, object_id);
+                        filemanager_moveto_files($, object_id);
+                        filemanager_delete_files($, object_id);
                         filemanager_select_files($);
-                        filemanager_info_files($);
                     },
                     error: function(errorThrown){
                         //error stuff here.text

@@ -87,7 +87,15 @@ function filemanager_select_files($) {
     } );
 
 }
-    
+
+function myFile() {
+	document.getElementById('pickerfiles').click();
+}
+
+function mydir() {
+	document.getElementById('pickerdir').click();
+}
+
 jQuery(document).ready(function($) {
 	filemanager_select_files($);
 } );

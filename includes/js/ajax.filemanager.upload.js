@@ -11,20 +11,7 @@ function filemanager_uploads_files($, object_id) {
         showDone:true
     }); 
 
-    $('.file-table').on('drop', function(event) {
-        event.preventDefault();
-        files = event.originalEvent.dataTransfer.files;
-        createFormData(files);
-    });
     
-    function createFormData(files_obj) {
-        var form_data = new FormData();
-        for(i=0; i<files_obj.length; i++) {
-            form_data.append('myfile', files_obj[i]);
-            uploadFormData(form_data, files_obj[i]);
-        }
-    }
-
     function makeid(length) {
         var result           = '';
         var characters       = '0123456789';
@@ -50,8 +37,26 @@ function filemanager_uploads_files($, object_id) {
     function uploadFormData(formData, files_obj) {
         var rand = makeid(6);
         var link = location.protocol + '//' + location.host + location.pathname;
-        $('#ajax-file-upload-container').append('<div id="progress_div'+rand+'" class="ajax-file-upload-statusbar" data-object-id="'+object_id+'" data-name="'+files_obj.name+'" data-rand="'+rand+'" data-size="'+formatBytes(files_obj.size)+'" style="display:flex;width: 100%;margin: 15px 0;"><div class="bar" style="width: 100%;">'+files_obj.name+'</div><div class="percent" id="percent'+rand+'" style="float: right;">0%</div><div class="ajax-file-upload-green done'+rand+'" id="done'+rand+'" style="display: none;margin: 0 15px;">Done</div></div>');
-        $('#file-table').append('<tr><td><input class="checkbox" type="checkbox" name="'+object_id+'/'+files_obj.name+'"/></td><td class="filemanager-table"><a id="file-id" class="filemanager-click" href="'+link+'?path='+object_id+'/'+files_obj.name+'">'+files_obj.name+'</a><div class="percent" id="_percent'+rand+'" style="float: right;">0%</div></td><td>'+ formatBytes(files_obj.size)+'</td></tr>');
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const urlhome = urlParams.get('home');
+        const urlworkplace = urlParams.get('workplace');
+        const urlpath = urlParams.get('path');
+        var url_Params;
+        const pickerdir = document.getElementById('pickerdir');
+
+        if(urlhome != null){
+            url_Params = 'home';
+        }
+        if(urlworkplace != null){
+            url_Params = 'workplace';
+        }
+        if(urlpath != null){
+            url_Params = 'path';
+        }
+
+        $('#ajax-file-upload-container').append('<div id="progress_div'+rand+'" class="ajax-file-upload-statusbar" data-object-id="'+object_id+'" data-name="'+files_obj.webkitRelativePath+'" data-rand="'+rand+'" data-size="'+formatBytes(files_obj.size)+'" style="display:flex;width: 100%;margin: 15px 0;"><div class="bar" style="width: 100%;">'+files_obj.webkitRelativePath+'</div><div class="percent" id="percent'+rand+'" style="float: right;">0%</div><div class="ajax-file-upload-green done'+rand+'" id="done'+rand+'" style="display: none;margin: 0 15px;">Done</div></div>');
+        $('#file-table').append('<tr><td><input class="checkbox" type="checkbox" name="'+object_id+'/'+files_obj.webkitRelativePath+'"/></td><td class="filemanager-table"><a id="file-id" class="filemanager-click" href="'+link+'?path='+object_id+'/'+files_obj.webkitRelativePath+'">'+files_obj.webkitRelativePath+'</a><div class="percent" id="_percent'+rand+'" style="float: right;">0%</div></td><td>'+ formatBytes(files_obj.size)+'</td></tr>');
 
         var table, rows, switching, i, x, y, shouldSwitch;
         table = document.getElementById("file-table");
@@ -95,19 +100,71 @@ function filemanager_uploads_files($, object_id) {
                         }
                     }
                 }, false);
-                return xhr;
-            },
-            url: "/wp-content/plugins/file-manager/includes/upload.php?upload_dir="+object_id+"/",
-            type: "POST",
-            data: formData,
-            contentType:false,
-            cache: false,
-            processData: false,
-            success: function(obj) {
+            return xhr;
+        },
+        url: "/wp-content/plugins/file-manager/includes/upload.php?upload_dir="+object_id+"/&relativepath="+files_obj.webkitRelativePath,
+        type: "POST",
+        data: formData,
+        contentType:false,
+        cache: false,
+        processData: false,
+        sequential:true,
+        sequentialCount:1,
+        success: function(obj) {
+            console.log(obj);
+            jQuery.ajax({
+                type: 'post',
+                url: get_filemanager_ajax_url,
+                data: {
+                    'object_id': object_id,
+                    'link': link,
+                    'urlParams': url_Params,
+                    'action': 'get_filemanager_files'
+                },
+                dataType: 'json',
+                success: function(data){
+                    console.log(data);
+                    $( '.filemanager-wrapper' ).empty();		
+                    $('.filemanager-wrapper').append(data);
+                    pickerdir.value = '';
+                },
+                error: function(errorThrown){
+                    //error stuff here.text
+                }
+            });
+        }});
 
-            }});
     }
 
+    function createFormData(files_obj) {
+        var form_data = new FormData();
+        for(i=0; i<files_obj.length; i++) {
+            console.log(files_obj[i]);
+            form_data.append('myfile', files_obj[i]);
+            uploadFormData(form_data, files_obj[i]);
+        }
+        filemanager_uploads_files($, object_id);
+        filemanager_select_files($);
+    }
+    
+    var table = document.getElementById("file-table");
+    table.addEventListener("drop", e => {
+        e.preventDefault();
+        createFormData(e.dataTransfer.files);
+    }, { once: true });
+
+    let pickerfiles = document.getElementById('pickerfiles');
+    pickerfiles.addEventListener('change', e => {
+        e.preventDefault();
+        createFormData(e.target.files);
+    }, { once: true });
+
+    let pickerdir = document.getElementById('pickerdir');
+    pickerdir.addEventListener('change', e => {
+        e.preventDefault();
+        createFormData(e.target.files);
+    }, { once: true });
+    
 }
 
 jQuery(document).ready(function($) {

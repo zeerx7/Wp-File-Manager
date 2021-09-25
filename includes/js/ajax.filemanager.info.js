@@ -35,11 +35,8 @@ function filemanager_info_files($) {
                     event.preventDefault();
                     $(this).parent().remove();
                 });
-                filemanager_delete_files($, $("#sequentialupload").data('object-id'));
-                filemanager_createdir_files($, $("#sequentialupload").data('object-id'));
-                filemanager_uploads_files($, $("#sequentialupload").data('object-id'));
-                filemanager_select_files($);
                 filemanager_info_files($);
+                filemanager_select_files($);
             },
             error: function(errorThrown){
                 //error stuff here.text

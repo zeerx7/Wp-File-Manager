@@ -1,6 +1,6 @@
 # FileManager Plugin for Wordpress</br>
 
-<img src="https://i.ibb.co/jrgKsnV/filemanager.png" />
+<img src="https://i.ibb.co/p3MP9vp/filemanager3486.png" />
 
 ## Installation
 
@@ -11,6 +11,7 @@
 
 ## Changelog
 
+- 0.11 - Add upload files and directory, create file and a move button.
 - 0.10 - Add admin setting page to create workplace.
 - 0.9 - Add dragable info windows.
 - 0.8 - Multi-upload anywhere while you browse.

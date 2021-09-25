@@ -1,34 +1,41 @@
 <?php
-$output_dir = $_GET['upload_dir'];;
-if(isset($_FILES["myfile"]))
-{
-	$ret = array();
-	
-//	This is for custom errors;	
-/*	$custom_error= array();
-	$custom_error['jquery-upload-file-error']="File already exists";
-	echo json_encode($custom_error);
-	die();
-*/
+$output_dir = $_GET['upload_dir'];
+$relativepath = $_GET['relativepath'];
+
+if(isset($_FILES["myfile"])) {
+	$ret = array();	
 	$error =$_FILES["myfile"]["error"];
-	//You need to handle  both cases
-	//If Any browser does not support serializing of multiple files using FormData() 
-	if(!is_array($_FILES["myfile"]["name"])) //single file
-	{
- 	 	$fileName = $_FILES["myfile"]["name"];
- 		move_uploaded_file($_FILES["myfile"]["tmp_name"],$output_dir.$fileName);
-    	$ret[]= $fileName;
-	}
-	else  //Multiple files, file[]
-	{
-	  $fileCount = count($_FILES["myfile"]["name"]);
-	  for($i=0; $i < $fileCount; $i++)
-	  {
-	  	$fileName = $_FILES["myfile"]["name"][$i];
-		move_uploaded_file($_FILES["myfile"]["tmp_name"][$i],$output_dir.$fileName);
-	  	$ret[]= $fileName;
+	if($relativepath != '') {
+		$relativepathparts = explode("/", $relativepath);
+		array_pop($relativepathparts);
+		echo exec('mkdir -p "' . $output_dir . '/' . implode('/', $relativepathparts) .'"');
+		if(!is_array($_FILES["myfile"]["name"])) {
+			$fileName = $_FILES["myfile"]["name"];
+		   	move_uploaded_file($_FILES["myfile"]["tmp_name"],$output_dir.$relativepath);
+		  	$ret[]= $output_dir.$relativepath;
+	  } else {
+		$fileCount = count($_FILES["myfile"]["name"]);
+		for($i=0; $i < $fileCount; $i++) {
+			$fileName = $_FILES["myfile"]["name"][$i];
+		 	 move_uploaded_file($_FILES["myfile"]["tmp_name"][$i],$output_dir.$relativepath);
+			$ret[]= $output_dir.$relativepath;
+		}
+	  
 	  }
-	
+	} else {
+		if(!is_array($_FILES["myfile"]["name"])) {
+			$fileName = $_FILES["myfile"]["name"];
+			move_uploaded_file($_FILES["myfile"]["tmp_name"],$output_dir.$fileName);
+			$ret[]= $fileName;
+		} else {
+		$fileCount = count($_FILES["myfile"]["name"]);
+		for($i=0; $i < $fileCount; $i++) {
+			$fileName = $_FILES["myfile"]["name"][$i];
+			move_uploaded_file($_FILES["myfile"]["tmp_name"][$i],$output_dir.$fileName);
+			$ret[]= $fileName;
+		}
+		
+		}
 	}
     echo json_encode($ret);
  }

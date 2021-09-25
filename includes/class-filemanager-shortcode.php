@@ -545,68 +545,87 @@ function filemanager_shortcode() {
         }
         ?><script type="text/javascript">document.getElementById("sequentialupload").style.display = "none";</script><?php
 
-        echo "<div id='filemanager-wrapper' class='filemanager-wrapper'>";
         if ( is_dir($path_implode) == true ) {
             if ($write_path == true) {
                 ?><div id='filemanagerbtn' class='filemanagerbtn'>
                         <div class='navbar'>
-                            <div class='btndelete'>Delete</div>
+                            <div id="uploadfiles" onclick="myFile()"><input type="file" id="pickerfiles" name="fileList" multiple style="display: none;">Upload files</div>
+                            <div id="uploaddir" onclick="mydir()"><input type="file" id="pickerdir" name="fileList" webkitdirectory multiple style="display: none;">Upload Dir</div>
+                            <div class='subnav'>
+                                <button id='btnnewfile' class='subnavbtn'>Create file</button>
+                                <div id='subnav-content-file' class='subnav-content'>
+                                    <span>
+                                        <input type='text' id='lnamefile' name='lname'></input>
+                                        <button id='newfile'>Create</button>
+                                    <span>
+                                </div>
+                            </div>
                             <div class='subnav'>
                                 <button class='subnavbtn btnnewdir'>Create dir</button>
-                                <div id='subnav-content' class='subnav-content'>
+                                <div id='subnav-content-dir' class='subnav-content'>
                                     <span>
                                         <input type='text' id='lname' name='lname'></input>
-                                        <button class='newdir'>ok</button>
+                                        <button class='newdir'>Create</button>
                                     <span>
                                 </div>
                             </div>
                             <div class='btnrename'>Rename</div>
+                            <div class='subnav'>
+                                <button class='subnavbtn btnmoveto'>Move</button>
+                                <div id='subnav-content-moveto' class='subnav-content'>
+                                    <span>
+                                        <input type='text' id='lnamemoveto' name='lname'></input>
+                                        <button class='moveto'>move</button>
+                                    <span>
+                                </div>
+                            </div>
+                            <div class='btndelete'>Delete</div>
                             <div class='btninfo'>info</div>
                         </div>
                     </div>
             <?php } ?>
-            <div id='filemanagerbtn' class='filemanagerbtn'>
-                <div class='navbar'>
-                    <?php if ($path_parts[1] != '' && $workplace_strpos == true && $workplace_last != true){
-                            if (isset($home)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?home=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
-                            if (isset($workplace)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?workplace=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
-                            if (isset($path)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?path=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
-                        } 
-                        if ($path_parts[1] == '' || $workplace_last == true || $workplace_strpos != true) { ?>
-                        <a class='btnback_home' href='<?php echo home_url($wp->request) ?>'>Home</a>
-                    <?php } ?>
-                    <?php if ($write_path != true) { ?>
-                        <div class='btninfo'>info</div>
-                    <?php } ?>
+            <div id='filemanager-wrapper' class='filemanager-wrapper'>
+                <div id='filemanagerbtn' class='filemanagerbtn'>
+                    <div class='navbar'>
+                        <?php if ($path_parts[1] != '' && $workplace_strpos == true && $workplace_last != true){
+                                if (isset($home)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?home=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
+                                if (isset($workplace)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?workplace=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
+                                if (isset($path)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?path=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
+                            } 
+                            if ($path_parts[1] == '' || $workplace_last == true || $workplace_strpos != true) { ?>
+                            <a class='btnback_home' href='<?php echo home_url($wp->request) ?>'>Home</a>
+                        <?php } ?>
+                        <?php if ($write_path != true) { ?>
+                            <div class='btninfo'>info</div>
+                        <?php } ?>
+                    </div>
                 </div>
-            </div>
-            <div class='filepath'><?php foreach($path_parts as $path_part) {
+                <div class='filepath'><?php foreach($path_parts as $path_part) {
                     $path_part_ .= '/'.$path_part;
                     if (isset($home)) { ?><a href='<?php  echo home_url($wp->request) . "/?home=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
                     if (isset($workplace)) { ?><a href='<?php  echo home_url($wp->request) . "/?workplace=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
                     if (isset($path)) { ?><a href='<?php  echo home_url($wp->request) . "/?path=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
                     echo '/';
-                }?></div>
-            <?php
-            ?><div class='file-table'><table id='file-table'><?php
-                foreach($files as $file){
-                    $pathfilezise = $path_implode.'/'.$file;
-                    $filesize = formatSizeUnits(filesize($pathfilezise));
-                    $realpath = realpath($path_implode.'/'.$file);
-                    if (isset($home)) {
-                        echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                }?></div><?php
+                ?><div class='file-table'><table id='file-table'><?php
+                    foreach($files as $file){
+                        $pathfilezise = $path_implode.'/'.$file;
+                        $filesize = formatSizeUnits(filesize($pathfilezise));
+                        $realpath = realpath($path_implode.'/'.$file);
+                        if (isset($home)) {
+                            echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                        }
+                        if (isset($workplace)) { 
+                            echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplace=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                        }
+                        if (isset($path)) {
+                            echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                        }
                     }
-                    if (isset($workplace)) { 
-                        echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplace=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                    if ($files == null) {
+                        echo "<tr><td><input class='checkbox' type='checkbox' /></td><td class='filemanager-table'><a id='file-id' class='filemanager-click'>No file found</a></td></tr>";
                     }
-                    if (isset($path)) {
-                        echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
-                    }
-                }
-                if ($files == null) {
-                    echo "<tr><td><input class='checkbox' type='checkbox' /></td><td class='filemanager-table'><a id='file-id' class='filemanager-click'>No file found</a></td></tr>";
-                }
-            echo "</table></div>";
+                echo "</table></div>";
         } elseif ( isset($path) || isset($workplace) || isset($home)) {
             $object_id = $path_implode;
             $getname = getName(32);

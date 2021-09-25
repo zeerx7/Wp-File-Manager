@@ -24,17 +24,34 @@
 
 				const queryString = window.location.search;
 				const urlParams = new URLSearchParams(queryString);
-				const path = urlParams.get('path')
+				const urlhome = urlParams.get('home');
+				const urlworkplace = urlParams.get('workplace');
+				const urlpath = urlParams.get('path');
+				var url_Params;
+		
+				if(urlhome != null){
+					url_Params = urlhome;
+				}
+				if(urlworkplace != null){
+					url_Params = urlworkplace;
+				}
+				if(urlpath != null){
+					url_Params = urlpath;
+				}
 
-				document.getElementById('sequentialupload').setAttribute('data-object-id', path);
+				document.getElementById('sequentialupload').setAttribute('data-object-id', url_Params);
 
-				filemanager_select_files($, path);
+				filemanager_select_files($);
 
-				filemanager_uploads_files($, path);
+				filemanager_uploads_files($, url_Params);
 
-				filemanager_delete_files($, path);
+				filemanager_delete_files($, url_Params);
 
-				filemanager_createdir_files($, path);
+				filemanager_createfile_files($, url_Params);
+
+				filemanager_createdir_files($, url_Params);
+
+				filemanager_moveto_files($, url_Params);
 
 				filemanager_rename_files($);
 
