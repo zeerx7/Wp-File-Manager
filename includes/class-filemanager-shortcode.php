@@ -213,7 +213,34 @@ class MySettingsPage
                                         echo 'Write<input type="checkbox" id="write-' . $id_name . '" name="my_option_name[write-' . $id_name . '][' . $m . ']" value="' . $bloguser->ID .'">';
                                     }
                                     $m++;
-                                } 
+                                }
+                                $read_ = false;
+                                $write_ = false;
+                                echo 'Public - ';
+                                $my_option_read = $my_option_name['read-'.$id_name];
+                                foreach ( $my_option_read as $read) {
+                                    if ($read == -1) {
+                                        $read_ = true;
+                                    }
+                                }
+                                if ($read_ == true) {
+                                    echo 'Read<input type="checkbox" id="read-' . $id_name . '" name="my_option_name[read-' . $id_name . '][' . $m . ']" value="-1" checked>';
+                                } else {
+                                    echo 'Read<input type="checkbox" id="read-' . $id_name . '" name="my_option_name[read-' . $id_name . '][' . $m . ']" value="-1">';
+                                }
+
+                                $my_option_write = $my_option_name['write-'.$id_name];
+                                foreach ( $my_option_write as $write) {
+                                    if ($write == -1) {
+                                        $write_ = true;
+                                    }
+                                }
+                                if ($write_ == true) {
+                                    echo 'Write<input type="checkbox" id="write-' . $id_name . '" name="my_option_name[write-' . $id_name . '][' . $m . ']" value="-1" checked>';
+                                } else {
+                                    echo 'Write<input type="checkbox" id="write-' . $id_name . '" name="my_option_name[write-' . $id_name . '][' . $m . ']" value="-1">';
+                                }
+                                $m++;
                             }
                             ?></div><?php
                             echo '</br>Acces to path</br>';
@@ -303,14 +330,14 @@ class MySettingsPage
             $x = 0; 
             foreach ($input['read-'.$id_number] as $id_read) {
                 if( isset( $id_read ) ) {
-                    $new_input['read-'.$id_number][$x] = $id_read;
+                    $new_input['read-'.$id_number][$x] .= $id_read.',';
                     $x++;
                 }
             }
             $y = 0;
             foreach ($input['write-'.$id_number] as $id_write) {
                 if( isset( $id_write ) ) {
-                    $new_input['write-'.$id_number][$y] = $id_write;
+                    $new_input['write-'.$id_number][$y] .= $id_write.',';
                     $y++;
                 }
             }
@@ -319,7 +346,7 @@ class MySettingsPage
         $m = 0;
         foreach ($input['read-path'] as $id_number) {
             if( isset( $id_number ) ) {
-                $new_input['read-path'][$m] = sanitize_text_field( $id_number );
+                $new_input['read-path'][$m] .= sanitize_text_field( $id_number );
                 $m++;
             }
         }
@@ -327,7 +354,7 @@ class MySettingsPage
         $n = 0;
         foreach ($input['write-path'] as $id_number) {
             if( isset( $id_number ) ) {
-                $new_input['write-path'][$n] = sanitize_text_field( $id_number );
+                $new_input['write-path'][$n] .= sanitize_text_field( $id_number );
                 $n++;
             }
         }
@@ -421,11 +448,16 @@ function formatSizeUnits($bytes) {
 
 function filemanager_shortcode() { 
 
+    if ( is_user_logged_in() ) {
+        $user = wp_get_current_user();   
+    } else {
+        $user->ID = '-1';
+    }
+
     $path = $_GET['path'];
     $home = $_GET['home'];
     $workplace = $_GET['workplace'];
     $my_option_name = get_option('my_option_name');
-    $user = wp_get_current_user();   
     global $wp;
     $i = 0;
     $x = 0;
@@ -451,37 +483,38 @@ function filemanager_shortcode() {
     }
 
     if ($path == null && $home == null && $workplace == null) {
-        
-        if (is_user_logged_in()) {
 
-            echo "<div id='filemanager-home' class='filemanager-home'>";
-            if (is_user_logged_in()) {
-                ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/' . get_post_field( 'post_name' ); ?>/?home=<?php echo $my_option_name['title'] . esc_html($user->user_login) ?>'>Home</a></br><?php
-            }
+    echo "<div id='filemanager-home' class='filemanager-home'>";
+    if ($user->ID != '-1') {
+        ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/' . get_post_field( 'post_name' ); ?>/?home=<?php echo $my_option_name['title'] . esc_html($user->user_login) ?>'>Home</a></br><?php
+    }
 
-            foreach ($my_option_name['id_name'] as $id_name){
-                if (in_array($user->ID, str_split($id_read[$id_name]))) {
-                    ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/' . get_post_field( 'post_name' ); ?>/?workplace=<?php echo $my_option_name['id_path'][$x] ?>'><?php echo $id_name ?></a></br><?php
-                }
-                $x++;
-            }
-
-            if (in_array($user->ID, $id_read_path)) {
-                ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/' . get_post_field( 'post_name' ); ?>/?path=<?php echo ABSPATH ?>'>Path</a><?php
-            }
-            echo "</div>";
-
-        } else {
-            ?><a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>" alt="<?php esc_attr_e( 'Login', 'textdomain' ); ?>">
-                <?php _e( 'Login', 'textdomain' ); ?>
-            </a><?php
+    foreach ($my_option_name['id_name'] as $id_name){
+        $explodeidread = explode(',', $id_read[$id_name]);
+        if (in_array($user->ID, $explodeidread)) {
+            ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) ?>/?workplace=<?php echo $my_option_name['id_path'][$x] ?>'><?php echo $id_name ?></a></br><?php
+            $i++;
         }
+        $x++;
+    }
 
+    if (in_array($user->ID, $id_read_path)) {
+        ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/' . get_post_field( 'post_name' ); ?>/?path=<?php echo ABSPATH ?>'>Path</a><?php
+    }
+
+    if($i > 1){
+        ?><script type="text/javascript">
+            const displayhome = document.getElementsByClassName("filemanager-home-click");
+            for(let i = 0; i < displayhome.length; i++) {
+                displayhome[i].style.display = "block";
+            }
+        </script><?php
+    }
+    echo "</div>";
 
     } else {
 
         if (isset($home)) {
-            $blogusers = get_users();
             $path_implode = $home;
             $path_default = $my_option_name['title'].$user->user_login;
             if ($path_implode == $path_default) {
@@ -499,10 +532,12 @@ function filemanager_shortcode() {
                 $id_path_ = rtrim($id_path, "/");
                 $workplace_ = rtrim($workplace, "/");
                 if (strpos($workplace_, $id_path_) !== false) {
-                    if (in_array($user->ID, str_split($id_read[$my_option_name['id_name'][$i]]))) {
+                    $explodeidread = explode(',', $id_read[$my_option_name['id_name'][$i]]);
+                    if (in_array($user->ID, $explodeidread)) {
                         $read_path = true;
                     }
-                    if (in_array($user->ID, str_split($id_write[$my_option_name['id_name'][$i]]))) {
+                    $explodeidwrite = explode(',', $id_write[$my_option_name['id_name'][$i]]);
+                    if (in_array($user->ID, $explodeidwrite)) {
                         $write_path = true;
                     }
                 }
@@ -538,6 +573,7 @@ function filemanager_shortcode() {
             echo "<script> location.href='" . home_url($wp->request) . '/' . get_post_field( 'post_name' ) . "'; </script>";
             exit;
         }
+
         $files = array_diff($allFiles, array('.', '..'));
         $path_parts = explode("/", $path_implode);
         if ($write_path == true) {
@@ -547,8 +583,9 @@ function filemanager_shortcode() {
 
         if ( is_dir($path_implode) == true ) {
             ?><div id='errorlog'></div><?php
+            ?><div id='filemanager-wrapper' class='filemanager-wrapper'><?php
             if ($write_path == true) {
-                ?><div id='filemanager-wrapper' class='filemanager-wrapper'>
+                ?>
                     <div id='filemanagerbtnup' class='filemanagerbtn'>
                         <div class='navbar'>
                             <div id="uploadfiles" onclick="myFile()"><input type="file" id="pickerfiles" name="fileList" multiple style="display: none;">Upload files</div>
@@ -581,7 +618,9 @@ function filemanager_shortcode() {
                                     <span>
                                 </div>
                             </div>
-                            <div class='btndelete'>Delete</div>
+                            <?php if($user->ID != '-1'){ ?>
+                                <div class='btndelete'>Delete</div>
+                            <?php } ?>
                             <div class='btninfo'>info</div>
                         </div>
                     </div>
@@ -630,22 +669,44 @@ function filemanager_shortcode() {
                 echo "</table></div></div>";
         } elseif ( isset($path) || isset($workplace) || isset($home)) {
             $object_id = $path_implode;
-            $getname = getName(32);
+            $getname = getName(6);
             $target =  $object_id;
             $direname = dirname($object_id);
             $basename = strtolower(basename($object_id));
             $ext = pathinfo($basename, PATHINFO_EXTENSION);
-       
-            $link = get_home_path_() .'/files/'. $getname .''. $ext;
-            echo exec('mkdir "'. get_home_path_() .'/files"');
-            echo exec('rm "'. $link .'"');
+
+            $sanitized_filename = remove_accents( $basename ); // Convert to ASCII
+
+            // Standard replacements
+            $invalid = array(
+                ' '   => '-',
+                '%20' => '-',
+                '_'   => '-',
+            );
+            $sanitized_filename = str_replace( array_keys( $invalid ), array_values( $invalid ), $sanitized_filename );
+    
+            $sanitized_filename = preg_replace('/[^A-Za-z0-9-\. ]/', '', $sanitized_filename); // Remove all non-alphanumeric except .
+            $sanitized_filename = preg_replace('/\.(?=.*\.)/', '', $sanitized_filename); // Remove all but last .
+            $sanitized_filename = preg_replace('/-+/', '-', $sanitized_filename); // Replace any more than one - in a row
+            $sanitized_filename = str_replace('-.', '.', $sanitized_filename); // Remove last - if at the end
+            $sanitized_filename = htmlspecialchars($sanitized_filename);
+            $sanitized_filename = strtolower( $sanitized_filename ); // Lowercase
+            $sanitized_filename = urlencode($sanitized_filename);
+
+
+            if($ext == 'pdf' || $ext == 'jpeg' || $ext == 'jpg' || $ext == 'bmp' || $ext == 'png'){
+                $link = get_home_path_() .'/files/'. $getname .'/'. $sanitized_filename . '';
+            } else {
+                $link = get_home_path_() .'/files/'. $getname .'/'. $sanitized_filename . '';
+            }
+            echo exec('mkdir -p "'. get_home_path_() .'/files/'. $getname .'/"');
             echo exec('ln -s "' . $target . '" "' . $link .'"');
 
             echo "<div id='filemanager-wrapper' class='filemanager-wrapper'>";
             ?><script type="text/javascript">document.getElementById("filemanagerbtnup").style.display = "none";</script><?php
         
-            if ($ext == 'jpeg' || $ext == 'jpg' || $ext == 'bmp' || $ext == 'png') {
-                echo '<img src="' . get_home_url() . '/files/' . $getname . '' . $ext . '"></img>';
+            if ($ext == 'jpeg' || $ext == 'jpg' || $ext == 'bmp' || $ext == 'png' || $ext == 'gif') {
+                echo '<img src="' . get_home_url() . '/files/'. $getname .'/'. $sanitized_filename .'"></img>';
             } elseif ($ext == 'mp4' || $ext == 'mkv' || $ext == 'avi' ) {
                 echo '<div class="file-info">' . basename($object_id) . '</div>';
                 echo '<div id="dplayer"></div>';
@@ -656,7 +717,7 @@ function filemanager_shortcode() {
                     volume: 0.7,
                     screenshot: true,
                     video: {
-                        url:  '<?php echo get_home_url() . '/files/' . $getname . '' . $ext ?>',
+                        url:  '<?php echo get_home_url() . '/files/'. $getname .'/'. $sanitized_filename; ?>',
                         pic:  null,
                         thumbnails: null
                     },
@@ -666,7 +727,7 @@ function filemanager_shortcode() {
                 });</script><?php
             } elseif ($ext == 'pdf') {
                 echo '<div id="pdf"></div>';
-                ?><script type="text/javascript">PDFObject.embed('<?php echo get_home_url() . '/files/' . $getname . '' . $ext ?>', "#pdf");</script><?php
+                ?><script type="text/javascript">PDFObject.embed('<?php echo get_home_url() . '/files/'. $getname .'/'. $sanitized_filename ?>', "#pdf");</script><?php
             } elseif ($ext == 'txt' || $ext == 'html' || $ext == 'php' || $ext == 'log') { 
                 if ($write_path == true) {
                     echo '<div class="navbar"><div id="savefile" onclick="savefile();">Save</div></div>';
@@ -678,7 +739,7 @@ function filemanager_shortcode() {
                 lineNumbers: true,
                 mode: "text/html"
             });
-            fetch('<?php echo get_home_url() . '/files/' . $getname . '' . $ext ?>')
+            fetch('<?php echo get_home_url() . '/files/'. $getname .'/'. $sanitized_filename ?>')
                 .then(response => response.text())
                 .then(data => {
                     // Do something with your data
@@ -707,7 +768,7 @@ function filemanager_shortcode() {
             }
             </script> <?php
             } else {
-                echo '<a href="' . get_home_url() . '/files/' . $getname . '' . $ext . '">Download</a>';
+                echo '<a href="' . get_home_url() . '/files/'. $getname .'/'. $sanitized_filename .'">Download</a>';
             }
             echo "</div>";
         }

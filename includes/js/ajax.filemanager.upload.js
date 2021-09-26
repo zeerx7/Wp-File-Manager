@@ -34,9 +34,44 @@ function filemanager_uploads_files($, object_id) {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
 
-    function uploadFormData(formData, files_obj) {
-        var rand = makeid(6);
+    function createFormData(files_obj) {
+        $("#errorlog").empty();	
+        var form_data = new FormData();
         var link = location.protocol + '//' + location.host + location.pathname;
+        for(i=0; i<files_obj.length; i++) {
+            var rand = makeid(6);
+            if(files_obj[i].webkitRelativePath === ''){
+                $('#ajax-file-upload-container').append('<div id="progress_div'+rand+'" class="ajax-file-upload-statusbar" data-object-id="'+object_id+'" data-name="'+files_obj[i].name+'" data-rand="'+rand+'" data-size="'+formatBytes(files_obj[i].size)+'" style="display:flex;width: 100%;margin: 15px 0;"><div class="bar" style="width: 100%;">'+files_obj[i].name+'</div><div class="percent" id="percent'+rand+'" style="float: right;">0%</div><div class="ajax-file-upload-green done'+rand+'" id="done'+rand+'" style="display: none;margin: 0 15px;">Done</div></div>');
+                $('#file-table').append('<tr><td><input class="checkbox" type="checkbox" name="'+object_id+'/'+files_obj[i].name+'"/></td><td class="filemanager-table">'+files_obj[i].name+'<div class="percent" id="_percent'+rand+'" style="float: right;">0%</div></td><td>'+ formatBytes(files_obj[i].size)+'</td></tr>');
+            } else {
+                $('#ajax-file-upload-container').append('<div id="progress_div'+rand+'" class="ajax-file-upload-statusbar" data-object-id="'+object_id+'" data-name="'+files_obj[i].webkitRelativePath+'" data-rand="'+rand+'" data-size="'+formatBytes(files_obj[i].size)+'" style="display:flex;width: 100%;margin: 15px 0;"><div class="bar" style="width: 100%;">'+files_obj[i].webkitRelativePath+'</div><div class="percent" id="percent'+rand+'" style="float: right;">0%</div><div class="ajax-file-upload-green done'+rand+'" id="done'+rand+'" style="display: none;margin: 0 15px;">Done</div></div>');
+                $('#file-table').append('<tr><td><input class="checkbox" type="checkbox" name="'+object_id+'/'+files_obj[i].webkitRelativePath+'"/></td><td class="filemanager-table">'+files_obj[i].webkitRelativePath+'<div class="percent" id="_percent'+rand+'" style="float: right;">0%</div></td><td>'+ formatBytes(files_obj[i].size)+'</td></tr>');
+            }
+            form_data.append('myfile', files_obj[i]);
+            uploadFormData(form_data, files_obj[i], rand, link, files_obj.length);
+        }
+    }
+    
+    var table = document.getElementById("file-table");
+    table.addEventListener("drop", e => {
+        e.preventDefault();
+        createFormData(e.dataTransfer.files);
+    }, { once: true });
+
+    let pickerfiles = document.getElementById('pickerfiles');
+    pickerfiles.addEventListener('change', e => {
+        e.preventDefault();
+        console.log(e.target.files);
+        createFormData(e.target.files);
+    }, { once: true });
+
+    let pickerdir = document.getElementById('pickerdir');
+    pickerdir.addEventListener('change', e => {
+        e.preventDefault();
+        createFormData(e.target.files);
+    }, { once: true });
+
+    function uploadFormData(formData, files_obj, rand, link, length) {
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
         const urlhome = urlParams.get('home');
@@ -54,10 +89,7 @@ function filemanager_uploads_files($, object_id) {
         if(urlpath != null){
             url_Params = 'path';
         }
-
-        $('#ajax-file-upload-container').append('<div id="progress_div'+rand+'" class="ajax-file-upload-statusbar" data-object-id="'+object_id+'" data-name="'+files_obj.webkitRelativePath+'" data-rand="'+rand+'" data-size="'+formatBytes(files_obj.size)+'" style="display:flex;width: 100%;margin: 15px 0;"><div class="bar" style="width: 100%;">'+files_obj.webkitRelativePath+'</div><div class="percent" id="percent'+rand+'" style="float: right;">0%</div><div class="ajax-file-upload-green done'+rand+'" id="done'+rand+'" style="display: none;margin: 0 15px;">Done</div></div>');
-        $('#file-table').append('<tr><td><input class="checkbox" type="checkbox" name="'+object_id+'/'+files_obj.webkitRelativePath+'"/></td><td class="filemanager-table"><a id="file-id" class="filemanager-click" href="'+link+'?path='+object_id+'/'+files_obj.webkitRelativePath+'">'+files_obj.webkitRelativePath+'</a><div class="percent" id="_percent'+rand+'" style="float: right;">0%</div></td><td>'+ formatBytes(files_obj.size)+'</td></tr>');
-
+        
         var table, rows, switching, i, x, y, shouldSwitch;
         table = document.getElementById("file-table");
         switching = true;
@@ -100,76 +132,48 @@ function filemanager_uploads_files($, object_id) {
                         }
                     }
                 }, false);
-            return xhr;
-        },
-        url: "/wp-content/plugins/file-manager/includes/upload.php?upload_dir="+object_id+"/&relativepath="+files_obj.webkitRelativePath,
-        type: "POST",
-        data: formData,
-        contentType:false,
-        cache: false,
-        processData: false,
-        sequential:true,
-        sequentialCount:1,
-        success: function(obj) {
-            console.log(obj);
-            jQuery.ajax({
-                type: 'post',
-                url: get_filemanager_ajax_url,
-                data: {
-                    'object_id': object_id,
-                    'link': link,
-                    'urlParams': url_Params,
-                    'action': 'get_filemanager_files'
-                },
-                dataType: 'json',
-                success: function(data){
-                    console.log(data);
-                    $( '.filemanager-wrapper' ).empty();		
-                    $('.filemanager-wrapper').append(data);
-                    filemanager_select_files($);
-                    filemanager_uploads_files($, $("#sequentialupload").data('object-id'));                       
-                    filemanager_createfile_files($, $("#sequentialupload").data('object-id'));            
-                    filemanager_createdir_files($, $("#sequentialupload").data('object-id'));            
-                    filemanager_moveto_files($, $("#sequentialupload").data('object-id'));            
-                    filemanager_rename_files($);           
-                    filemanager_delete_files($, $("#sequentialupload").data('object-id'));
-                    filemanager_info_files($);
-                },
-                error: function(errorThrown){
-                    //error stuff here.text
-                }
-            });
-        }});
-
+                return xhr;
+            },
+            url: "/wp-content/plugins/file-manager/includes/upload.php?upload_dir="+object_id+"/&relativepath="+files_obj.webkitRelativePath,
+            type: "POST",
+            data: formData,
+            contentType:false,
+            cache: false,
+            processData: false,
+            sequential:true,
+            sequentialCount:1,
+            success: function(obj) {
+                console.log(obj);
+                jQuery.ajax({
+                    type: 'post',
+                    url: get_filemanager_ajax_url,
+                    data: {
+                        'object_id': object_id,
+                        'link': link,
+                        'urlParams': url_Params,
+                        'action': 'get_filemanager_files'
+                    },
+                    dataType: 'json',
+                    success: function(data){
+                        console.log(data);
+                        $( '.filemanager-wrapper' ).empty();		
+                        $('.filemanager-wrapper').append(data);
+                        filemanager_select_files($);
+                        filemanager_uploads_files($, $("#sequentialupload").data('object-id'));                       
+                        filemanager_createfile_files($, $("#sequentialupload").data('object-id'));            
+                        filemanager_createdir_files($, $("#sequentialupload").data('object-id'));            
+                        filemanager_moveto_files($, $("#sequentialupload").data('object-id'));            
+                        filemanager_rename_files($);           
+                        filemanager_delete_files($, $("#sequentialupload").data('object-id'));
+                        filemanager_info_files($);
+                    },
+                    error: function(errorThrown){
+                        //error stuff here.text
+                    }
+                });
+            }
+        });
     }
-
-    function createFormData(files_obj) {
-        $("#errorlog").empty();	
-        var form_data = new FormData();
-        for(i=0; i<files_obj.length; i++) {
-            console.log(files_obj[i]);
-            form_data.append('myfile', files_obj[i]);
-            uploadFormData(form_data, files_obj[i]);
-        }
-    }
-    
-    var table = document.getElementById("file-table");
-    table.addEventListener("drop", e => {
-        e.preventDefault();
-        createFormData(e.dataTransfer.files);
-    }, { once: true });
-
-    let pickerfiles = document.getElementById('pickerfiles');
-    pickerfiles.addEventListener('change', e => {
-        e.preventDefault();
-        createFormData(e.target.files);
-    }, { once: true });
-
-    let pickerdir = document.getElementById('pickerdir');
-    pickerdir.addEventListener('change', e => {
-        e.preventDefault();
-        createFormData(e.target.files);
-    }, { once: true });
     
 }
 

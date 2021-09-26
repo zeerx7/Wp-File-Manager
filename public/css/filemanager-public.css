@@ -134,6 +134,13 @@ tr.selected {
    border: 0.25px solid rgba(0,0,0,0.25);
    width: 50%;
    text-align: center;
+   display: none;
+}
+
+#filemanager-wrapper img {
+   margin-left: auto;
+   margin-right: auto;
+   display: flex;
 }
 
 .CodeMirror {

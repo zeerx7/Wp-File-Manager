@@ -1,33 +1,14 @@
 (function( $ ) {
 	'use strict';
 
-	/**
-	 * All of the code for your public-facing JavaScript source
-	 * should reside in this file.
-	 *
-	 * Note: It has been assumed you will write jQuery code here, so the
-	 * $ function reference has been prepared for usage within the scope
-	 * of this function.
-	 *
-	 * This enables you to define handlers, for when the DOM is ready:
-	 *
-	 * $(function() {
-	 *
-	 * });
-	 *
-	 * When the window is loaded:
-	 *
-	 * $( window ).load(function() {
-	 *
-	 * });
-	 *
-	 * ...and/or other possibilities.
-	 *
-	 * Ideally, it is not considered best practise to attach more than a
-	 * single DOM-ready or window-load handler for a particular page.
-	 * Although scripts in the WordPress core, Plugins and Themes may be
-	 * practising this, we should strive to set a better example in our own work.
-	 */
+	$(function() {
+		console.log('test');
+		var filemanagerhomehrefcount = $('.filemanager-home-click').length;
+		if(filemanagerhomehrefcount === 1){
+			var filemanagerhomehref = $('.filemanager-home-click').attr('href');
+			window.location = filemanagerhomehref;
+		}
+	});
 
 })( jQuery );
 
@@ -36,7 +17,6 @@ function filemanager_select_files($) {
     $.fn.ready();
 	'use strict';
 
-	var link = location.protocol + '//' + location.host + location.pathname;
 	$('.ajax-file-upload-statusbar').each(function(i, obj) {
 		var data_path_attr = $(obj).data('object-id');
 		var data_path_name = $(obj).data('name');
@@ -46,12 +26,9 @@ function filemanager_select_files($) {
 		
 		var upload_curent_path_element = document.getElementById("sequentialupload");
 		var upload_curent_path = upload_curent_path_element.getAttribute('data-object-id');
-		if( data_path_attr === upload_curent_path) {
-			$('#file-table').append('<tr><td><input class="checkbox" type="checkbox" name="'+data_path_attr+'/'+data_path_name+'"/></td><td class="filemanager-table"><a id="file-id" class="filemanager-click" href="'+link+'?path='+data_path_attr+'/'+data_path_name+'">'+data_path_name+'</a><div class="percent" id="_percent'+data_path_rand+'" style="float: right;">'+data_path_percent.innerHTML+'</div></td><td>'+ data_path_size+'</td></tr>');
+		if(data_path_attr.includes(upload_curent_path)) {
+			$('#file-table').append('<tr><td><input class="checkbox" type="checkbox" name="'+data_path_attr+'/'+data_path_name+'"/></td><td class="filemanager-table">'+data_path_name+'<div class="percent" id="_percent'+data_path_rand+'" style="float: right;">'+data_path_percent.innerHTML+'</div></td><td>'+ data_path_size+'</td></tr>');
 		}
-
-		console.log(data_path_percent.innerHTML);
-
 	});
 
 	var table, rows, switching, i, x, y, shouldSwitch;

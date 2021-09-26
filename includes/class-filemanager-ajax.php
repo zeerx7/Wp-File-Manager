@@ -180,9 +180,11 @@ function get_filemanager_files($posts) {
                         <button class='moveto'>move</button>
                     <span>
                 </div>
-            </div>
-            <div class='btndelete'>Delete</div>
-            <div class='btninfo'>info</div>
+            </div>";
+            if(is_user_logged_in()){
+              $html[] .= "<div class='btndelete'>Delete</div>";
+            }
+            $html[] .= "<div class='btninfo'>info</div>
         </div>
       </div>";
     }
