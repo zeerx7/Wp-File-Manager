@@ -148,7 +148,46 @@ function get_filemanager_files($posts) {
     $files = array_diff($allFiles, array('.', '..'));
     $path_parts = explode("/", $path_implode);
 
-    $html[] = "<div id='filemanagerbtn' class='filemanagerbtn'>
+    if ($write_path == true) {
+      $html[] = "<div id='filemanagerbtnup' class='filemanagerbtn'>
+        <div class='navbar'>
+            <div id='uploadfiles' onclick='myFile()'><input type='file' id='pickerfiles' name='fileList' multiple style='display: none;'>Upload files</div>
+            <div id='uploaddir' onclick='mydir()'><input type='file' id='pickerdir' name='fileList' webkitdirectory multiple style='display: none;'>Upload Dir</div>
+            <div class='subnav'>
+                <button class='subnavbtn btnnewfile'>Create file</button>
+                <div id='subnav-content-file' class='subnav-content'>
+                    <span>
+                        <input type='text' id='lnamefile' name='lname'></input>
+                        <button class='newfile'>Create</button>
+                    <span>
+                </div>
+            </div>
+            <div class='subnav'>
+                <button class='subnavbtn btnnewdir'>Create dir</button>
+                <div id='subnav-content-dir' class='subnav-content'>
+                    <span>
+                        <input type='text' id='lname' name='lname'></input>
+                        <button class='newdir'>Create</button>
+                    <span>
+                </div>
+            </div>
+            <div class='btnrename'>Rename</div>
+            <div class='subnav'>
+                <button class='subnavbtn btnmoveto'>Move</button>
+                <div id='subnav-content-moveto' class='subnav-content'>
+                    <span>
+                        <input type='text' id='lnamemoveto' name='lname'></input>
+                        <button class='moveto'>move</button>
+                    <span>
+                </div>
+            </div>
+            <div class='btndelete'>Delete</div>
+            <div class='btninfo'>info</div>
+        </div>
+      </div>";
+    }
+
+    $html[] .= "<div id='filemanagerbtn' class='filemanagerbtn'>
                   <div class='navbar'>";
                           if ($path_parts[1] != '' && $workplace_strpos == true && $workplace_last != true){
                               if (isset($home)) { $html[] .= "<a class='btnback_' href='" . $link . "/?home=" . dirname($path_implode) . "'>Parent directory</a>"; }
@@ -291,17 +330,21 @@ function moveto_filemanager_files($posts) {
 
   global $wp;
 
+  $i = 0;
   $paths = $_POST['path'];
   $object_id = $_POST['inputVal'];
 
   foreach ($paths as $path) {
     $path_part = explode("/", $path);
     $filename = end($path_part);
-    rename($path, $object_id.$filename);
-    $html[] .= $object_id.$filename;
+    if (rename($path, $object_id.$filename) == false){
+      $html[$i][0] .= $path;
+      $html[$i][1] .= 'false';
+      $i++;
+    }
   }
 
-	return wp_send_json ( implode($html) );
+	return wp_send_json ( $html );
 
 }
 

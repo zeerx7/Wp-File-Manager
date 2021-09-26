@@ -3,6 +3,7 @@ function filemanager_createfile_files($, object_id) {
     
     $('.btnnewfile').on('click', function(event) {
         event.preventDefault();
+        $("#errorlog").empty();	
         $("#subnav-content-file").toggleClass("subnav-content-display");
 
         $('.newfile').on('click', function(event) {
@@ -55,8 +56,14 @@ function filemanager_createfile_files($, object_id) {
                             //error stuff here.text
                         }
                     });
-                    filemanager_createfile_files($, object_id);
                     filemanager_select_files($);
+                    filemanager_uploads_files($, object_id);                       
+                    filemanager_createfile_files($, object_id);            
+                    filemanager_createdir_files($, object_id);            
+                    filemanager_moveto_files($, object_id);            
+                    filemanager_rename_files($);           
+                    filemanager_delete_files($, object_id);  
+                    filemanager_info_files($);
                 },
                 error: function(errorThrown){
                     //error stuff here.text

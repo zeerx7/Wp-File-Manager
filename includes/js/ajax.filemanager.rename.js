@@ -30,6 +30,7 @@ function filemanager_rename_files($, object_id) {
 
         $('.rename_btn').on('click', function(event) {
             event.preventDefault();
+            $("#errorlog").empty();	
         
             var object_id = $(this).attr('data-object-id');
             var path_id = $(this).attr('data-path');

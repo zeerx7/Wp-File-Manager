@@ -126,7 +126,14 @@ function filemanager_uploads_files($, object_id) {
                     console.log(data);
                     $( '.filemanager-wrapper' ).empty();		
                     $('.filemanager-wrapper').append(data);
-                    pickerdir.value = '';
+                    filemanager_select_files($);
+                    filemanager_uploads_files($, $("#sequentialupload").data('object-id'));                       
+                    filemanager_createfile_files($, $("#sequentialupload").data('object-id'));            
+                    filemanager_createdir_files($, $("#sequentialupload").data('object-id'));            
+                    filemanager_moveto_files($, $("#sequentialupload").data('object-id'));            
+                    filemanager_rename_files($);           
+                    filemanager_delete_files($, $("#sequentialupload").data('object-id'));
+                    filemanager_info_files($);
                 },
                 error: function(errorThrown){
                     //error stuff here.text
@@ -137,14 +144,13 @@ function filemanager_uploads_files($, object_id) {
     }
 
     function createFormData(files_obj) {
+        $("#errorlog").empty();	
         var form_data = new FormData();
         for(i=0; i<files_obj.length; i++) {
             console.log(files_obj[i]);
             form_data.append('myfile', files_obj[i]);
             uploadFormData(form_data, files_obj[i]);
         }
-        filemanager_uploads_files($, object_id);
-        filemanager_select_files($);
     }
     
     var table = document.getElementById("file-table");

@@ -546,8 +546,10 @@ function filemanager_shortcode() {
         ?><script type="text/javascript">document.getElementById("sequentialupload").style.display = "none";</script><?php
 
         if ( is_dir($path_implode) == true ) {
+            ?><div id='errorlog'></div><?php
             if ($write_path == true) {
-                ?><div id='filemanagerbtnup' class='filemanagerbtn'>
+                ?><div id='filemanager-wrapper' class='filemanager-wrapper'>
+                    <div id='filemanagerbtnup' class='filemanagerbtn'>
                         <div class='navbar'>
                             <div id="uploadfiles" onclick="myFile()"><input type="file" id="pickerfiles" name="fileList" multiple style="display: none;">Upload files</div>
                             <div id="uploaddir" onclick="mydir()"><input type="file" id="pickerdir" name="fileList" webkitdirectory multiple style="display: none;">Upload Dir</div>
@@ -583,9 +585,6 @@ function filemanager_shortcode() {
                             <div class='btninfo'>info</div>
                         </div>
                     </div>
-            <?php } ?>
-            <div id='filemanager-wrapper' class='filemanager-wrapper'>
-            <?php if ($write_path == true) { ?>
                 <script type="text/javascript">document.getElementById("filemanagerbtnup").style.display = "block";</script>
             <?php } ?>
                 <div id='filemanagerbtndown' class='filemanagerbtn'>

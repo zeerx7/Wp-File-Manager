@@ -6,6 +6,7 @@ function filemanager_info_files($) {
 
     $('.btninfo').on('click', function(event) {
         event.preventDefault();
+        $("#errorlog").empty();	
 
         const path = [];
         var i = 0;
@@ -35,8 +36,14 @@ function filemanager_info_files($) {
                     event.preventDefault();
                     $(this).parent().remove();
                 });
-                filemanager_info_files($);
                 filemanager_select_files($);
+                filemanager_uploads_files($, $("#sequentialupload").data('object-id'));                       
+                filemanager_createfile_files($, $("#sequentialupload").data('object-id'));            
+                filemanager_createdir_files($, $("#sequentialupload").data('object-id'));            
+                filemanager_moveto_files($, $("#sequentialupload").data('object-id'));            
+                filemanager_rename_files($);           
+                filemanager_delete_files($, $("#sequentialupload").data('object-id'));
+                filemanager_info_files($);
             },
             error: function(errorThrown){
                 //error stuff here.text

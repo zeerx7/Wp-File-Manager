@@ -3,6 +3,7 @@ function filemanager_moveto_files($, object_id) {
     
     $('.btnmoveto').on('click', function(event) {
         event.preventDefault();
+        $("#errorlog").empty();
         $("#subnav-content-moveto").toggleClass("subnav-content-display");
 
         $('.moveto').on('click', function(event) {
@@ -59,23 +60,32 @@ function filemanager_moveto_files($, object_id) {
                         },
                         dataType: 'json',
                         success: function(data){
-                            console.log(data);
                             $( '.filemanager-wrapper' ).empty();		
                             $('.filemanager-wrapper').append(data);
-                            filemanager_moveto_files($, object_id);
                             filemanager_select_files($);
+                            filemanager_uploads_files($, object_id);                       
+                            filemanager_createfile_files($, object_id);            
+                            filemanager_createdir_files($, object_id);            
+                            filemanager_moveto_files($, object_id);            
+                            filemanager_rename_files($);           
+                            filemanager_delete_files($, object_id);  
+                            filemanager_info_files($);
                         },
                         error: function(errorThrown){
                             //error stuff here.text
                         }
                     });
+                    if(data[0][0] != ''){
+                        data.forEach(function(element, index) {
+                            console.log(element);
+                            $("#errorlog").append(element[0]+' ERROR');
+                        });
+                    }
                 },
                 error: function(errorThrown){
                     //error stuff here.text
                 }
             });
-            document.getElementById("lnamemoveto").value = '';
-            $("#subnav-content-moveto").toggleClass("subnav-content-display");
         });
     });
 

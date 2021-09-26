@@ -6,7 +6,8 @@ function filemanager_delete_files($, object_id) {
     
     $('.btndelete').on('click', function(event) {
         event.preventDefault();
-
+        $("#errorlog").empty();
+        
         const path = [];
         var i = 0;
         var link = location.protocol + '//' + location.host + location.pathname;
@@ -61,11 +62,14 @@ function filemanager_delete_files($, object_id) {
                         console.log(data);
                         $( '.filemanager-wrapper' ).empty();		
                         $('.filemanager-wrapper').append(data);
-                        filemanager_createfile_files($, object_id);
-                        filemanager_createdir_files($, object_id);
-                        filemanager_moveto_files($, object_id);
-                        filemanager_delete_files($, object_id);
                         filemanager_select_files($);
+                        filemanager_uploads_files($, object_id);                       
+                        filemanager_createfile_files($, object_id);            
+                        filemanager_createdir_files($, object_id);            
+                        filemanager_moveto_files($, object_id);            
+                        filemanager_rename_files($);           
+                        filemanager_delete_files($, object_id);  
+                        filemanager_info_files($);
                     },
                     error: function(errorThrown){
                         //error stuff here.text
