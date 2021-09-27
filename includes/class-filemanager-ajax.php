@@ -41,6 +41,10 @@ function wp_filemanager_ajax_scripts() {
     wp_register_script( 'wp-filemanager-ajax-info-files', $url . "js/ajax.filemanager.info.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-info-files', 'info_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
 	  wp_enqueue_script( 'wp-filemanager-ajax-info-files' );
+
+    wp_register_script( 'wp-filemanager-ajax-zip-files', $url . "js/ajax.filemanager.zip.js", array( 'jquery' ), '1.0.0', true );
+    wp_localize_script( 'wp-filemanager-ajax-zip-files', 'zip_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
+	  wp_enqueue_script( 'wp-filemanager-ajax-zip-files' );
 	
 }
 
@@ -184,7 +188,15 @@ function get_filemanager_files($posts) {
             if(is_user_logged_in()){
               $html[] .= "<div class='btndelete'>Delete</div>";
             }
-            $html[] .= "<div class='btninfo'>info</div>
+            $html[] .= "<div class='subnav subnavzip'>
+              <button class='subnavbtn btnzip'>Create zip</button>
+              <div id='subnav-content-zip' class='subnav-content'>
+                  <span>
+                      <input type='text' id='lnamezip' name='lname'></input>
+                      <button class='zipbtn'>create</button>
+                  <span>
+              </div>
+          </div>
         </div>
       </div>";
     }
@@ -199,9 +211,7 @@ function get_filemanager_files($posts) {
                           if ($path_parts[1] == '' || $workplace_last == true || $workplace_strpos != true) {
                           $html[] .= "<a class='btnback_home' href='" . $link . "'>Home</a>";
                           }
-                          if ($write_path != true) {
-                            $html[] .= "<div class='btninfo'>info</div>";
-                          }
+                          $html[] .= "<div class='btninfo'>info</div>";
                 $html[] .= "</div>";
               $html[] .= "</div>";
               $html[] .= "<div class='filepath'>";
@@ -409,6 +419,27 @@ function info_filemanager_files($posts) {
       $html .= "</div>";
     }
   }
+
+	return wp_send_json ( $html );
+
+}
+
+/* AJAX action callback */
+add_action( 'wp_ajax_zip_filemanager_files', 'zip_filemanager_files' );
+add_action( 'wp_ajax_nopriv_zip_filemanager_files', 'zip_filemanager_files' );
+function zip_filemanager_files($posts) {
+
+  $paths = array_values(array_filter($_POST['path']));
+  $inputVal = $_POST['inputVal'];
+  $direname = pathinfo($paths[0]);
+  $zip = new ZipArchive();
+
+  $zip->open($inputVal, ZipArchive::CREATE);
+  foreach ( $paths as $path ) {
+      $zip->addFile($path);
+      $html[] .= $path;
+  }
+  $zip->close();
 
 	return wp_send_json ( $html );
 

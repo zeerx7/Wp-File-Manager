@@ -2,7 +2,7 @@
 	'use strict';
 
 	$(function() {
-		console.log('test');
+		$('#filemanagervideo').bind('contextmenu',function() { return false; });
 		var filemanagerhomehrefcount = $('.filemanager-home-click').length;
 		if(filemanagerhomehrefcount === 1){
 			var filemanagerhomehref = $('.filemanager-home-click').attr('href');

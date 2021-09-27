@@ -105,7 +105,11 @@ class File_Manager_Public {
 
 		wp_enqueue_script( 'codemirror', plugin_dir_url( __FILE__ ) . 'js/codemirror.js', array( 'jquery' ), $this->version, false );
 		
-		wp_enqueue_script( 'DPlayer.min', plugin_dir_url( __FILE__ ) . 'js/DPlayer.min.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( 'FileSaver', plugin_dir_url( __FILE__ ) . 'js/FileSaver.js', array( 'jquery' ), $this->version, false );
+
+		wp_enqueue_script( 'jszip-utils', plugin_dir_url( __FILE__ ) . 'js/jszip-utils.js', array( 'jquery' ), $this->version, false );
+
+		wp_enqueue_script( 'jszip', plugin_dir_url( __FILE__ ) . 'js/jszip.js', array( 'jquery' ), $this->version, false );
 
 		wp_enqueue_script( 'pdfobject', plugin_dir_url( __FILE__ ) . 'js/pdfobject.js', array( 'jquery' ), $this->version, false );
 

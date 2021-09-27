@@ -621,7 +621,15 @@ function filemanager_shortcode() {
                             <?php if($user->ID != '-1'){ ?>
                                 <div class='btndelete'>Delete</div>
                             <?php } ?>
-                            <div class='btninfo'>info</div>
+                            <div class='subnav subnavzip'>
+                                <button class='subnavbtn btnzip'>Create zip</button>
+                                <div id='subnav-content-zip' class='subnav-content'>
+                                    <span>
+                                        <input type='text' id='lnamezip' name='lname'></input>
+                                        <button class='zipbtn'>create</button>
+                                    <span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 <script type="text/javascript">document.getElementById("filemanagerbtnup").style.display = "block";</script>
@@ -636,9 +644,7 @@ function filemanager_shortcode() {
                             if ($path_parts[1] == '' || $workplace_last == true || $workplace_strpos != true) { ?>
                             <a class='btnback_home' href='<?php echo home_url($wp->request) ?>'>Home</a>
                         <?php } ?>
-                        <?php if ($write_path != true) { ?>
-                            <div class='btninfo'>info</div>
-                        <?php } ?>
+                        <div class='btninfo'>info</div>
                     </div>
                 </div>
                 <div class='filepath'><?php foreach($path_parts as $path_part) {
@@ -709,22 +715,9 @@ function filemanager_shortcode() {
                 echo '<img src="' . get_home_url() . '/files/'. $getname .'/'. $sanitized_filename .'"></img>';
             } elseif ($ext == 'mp4' || $ext == 'mkv' || $ext == 'avi' ) {
                 echo '<div class="file-info">' . basename($object_id) . '</div>';
-                echo '<div id="dplayer"></div>';
-                ?><script type="text/javascript">
-                window.dp1 = new DPlayer({
-                    container: document.getElementById('dplayer'),
-                    preload: 'none',
-                    volume: 0.7,
-                    screenshot: true,
-                    video: {
-                        url:  '<?php echo get_home_url() . '/files/'. $getname .'/'. $sanitized_filename; ?>',
-                        pic:  null,
-                        thumbnails: null
-                    },
-                    subtitle: {
-                        url: null
-                    }
-                });</script><?php
+                ?><video id='filemanagervideo' controls controlsList="nodownload">
+                    <source src="<?php echo get_home_url() . '/files/'. $getname .'/'. $sanitized_filename; ?>" type="video/<?php echo $ext ?>">
+                </video><?php
             } elseif ($ext == 'pdf') {
                 echo '<div id="pdf"></div>';
                 ?><script type="text/javascript">PDFObject.embed('<?php echo get_home_url() . '/files/'. $getname .'/'. $sanitized_filename ?>', "#pdf");</script><?php
