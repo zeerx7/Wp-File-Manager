@@ -34,6 +34,10 @@ function wp_filemanager_ajax_scripts() {
     wp_localize_script( 'wp-filemanager-ajax-rename-files', 'rename_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
 	  wp_enqueue_script( 'wp-filemanager-ajax-rename-files' );
 
+    wp_register_script( 'wp-filemanager-ajax-copy-files', $url . "js/ajax.filemanager.copy.js", array( 'jquery' ), '1.0.0', true );
+    wp_localize_script( 'wp-filemanager-ajax-copy-files', 'copy_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
+	  wp_enqueue_script( 'wp-filemanager-ajax-copy-files' );
+
     wp_register_script( 'wp-filemanager-ajax-moveto-files', $url . "js/ajax.filemanager.moveto.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-moveto-files', 'moveto_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
 	  wp_enqueue_script( 'wp-filemanager-ajax-moveto-files' );
@@ -177,6 +181,15 @@ function get_filemanager_files($posts) {
             </div>
             <div class='btnrename'>Rename</div>
             <div class='subnav'>
+              <button class='subnavbtn btncopy'>Copy</button>
+              <div id='subnav-content-copy' class='subnav-content'>
+                  <span>
+                      <input type='text' id='lnamecopy' name='lname'></input>
+                      <button class='copy'>Copy</button>
+                  <span>
+              </div>
+            </div>
+            <div class='subnav'>
                 <button class='subnavbtn btnmoveto'>Move</button>
                 <div id='subnav-content-moveto' class='subnav-content'>
                     <span>
@@ -211,7 +224,7 @@ function get_filemanager_files($posts) {
                           if ($path_parts[1] == '' || $workplace_last == true || $workplace_strpos != true) {
                           $html[] .= "<a class='btnback_home' href='" . $link . "'>Home</a>";
                           }
-                          $html[] .= "<div class='btninfo'>info</div>";
+                          $html[] .= "<div class='btninfo'>Info</div>";
                 $html[] .= "</div>";
               $html[] .= "</div>";
               $html[] .= "<div class='filepath'>";
@@ -331,6 +344,57 @@ function rename_filemanager_files($posts) {
   }
 
 	return wp_send_json ( implode($html) );
+
+}
+
+/* AJAX action callback */
+add_action( 'wp_ajax_copy_filemanager_files', 'copy_filemanager_files' );
+add_action( 'wp_ajax_nopriv_copy_filemanager_files', 'copy_filemanager_files' );
+
+function copy_filemanager_files($posts) {
+
+  global $wp;
+
+  $i = 0;
+  $paths = $_POST['path'];
+  $object_id = $_POST['inputVal'];
+
+  foreach ($paths as $path) {
+    $path_part = explode("/", $path);
+    $filename = end($path_part);
+
+    if ($path != '') {
+      if (!file_exists($object_id.$filename)) {
+        if (is_dir($object_id)) {
+          if (copy($path, $object_id.$filename) == false){
+            $html[$i][0] .= $path;
+            $html[$i][1] .= 'false';
+            $i++;
+          }
+        } else {
+          if (copy($path, $object_id) == false){
+            $html[$i][0] .= $path;
+            $html[$i][1] .= 'false';
+            $i++;
+          }
+        }
+      } else {
+        if (is_dir($object_id)) {
+            $html[$i][0] .= $path;
+            $html[$i][1] .= 'File already existe';
+            $i++;
+        } else {
+          if (copy($path, $object_id) == false){
+            $html[$i][0] .= $path;
+            $html[$i][1] .= 'false';
+            $i++;
+          }
+        }
+      }
+    }
+  }
+
+	return wp_send_json ( $html );
 
 }
 

@@ -159,12 +159,14 @@ function filemanager_uploads_files($, object_id) {
                         $( '.filemanager-wrapper' ).empty();		
                         $('.filemanager-wrapper').append(data);
                         filemanager_select_files($);
-                        filemanager_uploads_files($, $("#sequentialupload").data('object-id'));                       
-                        filemanager_createfile_files($, $("#sequentialupload").data('object-id'));            
-                        filemanager_createdir_files($, $("#sequentialupload").data('object-id'));            
-                        filemanager_moveto_files($, $("#sequentialupload").data('object-id'));            
+                        filemanager_uploads_files($, object_id);                       
+                        filemanager_createfile_files($, object_id);            
+                        filemanager_createdir_files($, object_id);       
+                        filemanager_copy_files($, object_id);     
+                        filemanager_moveto_files($, object_id);            
                         filemanager_rename_files($);           
-                        filemanager_delete_files($, $("#sequentialupload").data('object-id'));
+                        filemanager_delete_files($, object_id);
+                        filemanager_zip_files($, object_id);  
                         filemanager_info_files($);
                     },
                     error: function(errorThrown){

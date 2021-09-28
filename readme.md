@@ -1,6 +1,6 @@
 # FileManager Plugin for Wordpress</br>
 
-<img src="https://i.ibb.co/p3MP9vp/filemanager3486.png" />
+<img src="https://i.ibb.co/KVBY8LD/filemanager.png" />
 
 ## Installation
 
@@ -11,6 +11,7 @@
 
 ## Changelog
 
+- 0.13 - Add copy button.
 - 0.13 - Menu top is now part of smoothState wrapper.
 - 0.12 - Add codemirror.js, code editor.
 - 0.11 - Add upload files and directory, create file and a move button.

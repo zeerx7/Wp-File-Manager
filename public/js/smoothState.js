@@ -51,7 +51,11 @@
 
 				filemanager_createdir_files($, url_Params);
 
+				filemanager_copy_files($, url_Params);
+
 				filemanager_moveto_files($, url_Params);
+
+				filemanager_zip_files($, url_Params);
 
 				filemanager_rename_files($);
 

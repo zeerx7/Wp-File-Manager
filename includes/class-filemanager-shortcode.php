@@ -610,6 +610,15 @@ function filemanager_shortcode() {
                             </div>
                             <div class='btnrename'>Rename</div>
                             <div class='subnav'>
+                                <button class='subnavbtn btncopy'>Copy</button>
+                                <div id='subnav-content-copy' class='subnav-content'>
+                                    <span>
+                                        <input type='text' id='lnamecopy' name='lname'></input>
+                                        <button class='copy'>Copy</button>
+                                    <span>
+                                </div>
+                            </div>
+                            <div class='subnav'>
                                 <button class='subnavbtn btnmoveto'>Move</button>
                                 <div id='subnav-content-moveto' class='subnav-content'>
                                     <span>
@@ -644,7 +653,7 @@ function filemanager_shortcode() {
                             if ($path_parts[1] == '' || $workplace_last == true || $workplace_strpos != true) { ?>
                             <a class='btnback_home' href='<?php echo home_url($wp->request) ?>'>Home</a>
                         <?php } ?>
-                        <div class='btninfo'>info</div>
+                        <div class='btninfo'>Info</div>
                     </div>
                 </div>
                 <div class='filepath'><?php foreach($path_parts as $path_part) {

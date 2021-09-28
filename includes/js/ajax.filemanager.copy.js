@@ -1,23 +1,19 @@
 
-function filemanager_zip_files($, object_id) {
-
-    $.fn.ready();
-	'use strict';
+function filemanager_copy_files($, object_id) {
 
     document.getElementById('lnamecopy').value = object_id;
-
-    $('.btnzip').on('click', function(event) {
+    
+    $('.btncopy').on('click', function(event) {
         event.preventDefault();
-        $("#errorlog").empty();	
-        $("#subnav-content-zip").toggleClass("subnav-content-display");
+        $("#errorlog").empty();
+        $("#subnav-content-copy").toggleClass("subnav-content-display");
 
-        $('.zipbtn').on('click', function(event) {
+        $('.copy').on('click', function(event) {
             event.preventDefault();
 
             const path = [];
             var i = 0;
-            var x = 0
-            var inputVal = document.getElementById("lnamezip").value;
+            var inputVal = document.getElementById("lnamecopy").value;
             var link = location.protocol + '//' + location.host + location.pathname;
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
@@ -35,21 +31,22 @@ function filemanager_zip_files($, object_id) {
             if(urlpath != null){
                 url_Params = 'path';
             }
-    
+
             $('.checkbox').each(function () {
                 if($(this).is(':checked')){
+                    console.log($(this).attr('name'));
                     path[i] = $(this).attr('name');
+                    i++;
                 }
-                i++;
             });
 
             jQuery.ajax({
                 type: 'post',
-                url: zip_filemanager_ajax_url,
+                url: copy_filemanager_ajax_url,
                 data: {
-                    'path': path,
                     'inputVal': inputVal,
-                    'action': 'zip_filemanager_files'
+                    'path': path,
+                    'action': 'copy_filemanager_files'
                 },
                 dataType: 'json',
                 success: function(data){
@@ -82,17 +79,22 @@ function filemanager_zip_files($, object_id) {
                             //error stuff here.text
                         }
                     });
+                    data.forEach(function(element, index) {
+                        if(data[index][0] != null){
+                            console.log(element);
+                            $("#errorlog").append(element[0]+' '+element[1]+' ERROR');
+                        }
+                    });
                 },
                 error: function(errorThrown){
                     //error stuff here.text
                 }
             });
         });
-
     });
 
 }
 
 jQuery(document).ready(function($) {
-	filemanager_zip_files($, $("#sequentialupload").data('object-id'));
+    filemanager_copy_files($, $("#sequentialupload").data('object-id'));
 });

@@ -59,10 +59,12 @@ function filemanager_createfile_files($, object_id) {
                     filemanager_select_files($);
                     filemanager_uploads_files($, object_id);                       
                     filemanager_createfile_files($, object_id);            
-                    filemanager_createdir_files($, object_id);            
+                    filemanager_createdir_files($, object_id);       
+                    filemanager_copy_files($, object_id);     
                     filemanager_moveto_files($, object_id);            
                     filemanager_rename_files($);           
-                    filemanager_delete_files($, object_id);  
+                    filemanager_delete_files($, object_id);
+                    filemanager_zip_files($, object_id);  
                     filemanager_info_files($);
                 },
                 error: function(errorThrown){

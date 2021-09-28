@@ -32,8 +32,12 @@
    display: block;
 }
 
-.btninfo, .subnavzip {
+.btninfo, .subnavzip {  
    float: right !important;
+}
+
+#lnamecopy, #lnamemoveto, #lnamezip {
+   width: 250px;
 }
 
 .info-window {
