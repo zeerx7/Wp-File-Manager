@@ -1,17 +1,3 @@
-(function( $ ) {
-	'use strict';
-
-	$(function() {
-		$('#filemanagervideo').bind('contextmenu',function() { return false; });
-		var filemanagerhomehrefcount = $('.filemanager-home-click').length;
-		if(filemanagerhomehrefcount === 1){
-			var filemanagerhomehref = $('.filemanager-home-click').attr('href');
-			window.location = filemanagerhomehref;
-		}
-	});
-
-})( jQuery );
-
 function filemanager_select_files($) {
 
     $.fn.ready();
@@ -31,25 +17,16 @@ function filemanager_select_files($) {
 		}
 	});
 
-	var table, rows, switching, i, x, y, shouldSwitch;
-	table = document.getElementById("file-table");
-	switching = true;
-	while (switching) {
-	  switching = false;
-	  rows = table.rows;
-	  for (i = 1; i < (rows.length - 1); i++) {
-		shouldSwitch = false;
-		x = rows[i].getElementsByTagName("TD")[1];
-		y = rows[i + 1].getElementsByTagName("TD")[1];
-		if (x.innerText.toLowerCase() > y.innerText.toLowerCase()) {
-		  shouldSwitch = true;
-		  break;
+	const displayhome = document.getElementsByClassName("filemanager-home-click");
+	if(displayhome.length > 1){
+		for(let i = 0; i < displayhome.length; i++) {
+			displayhome[i].style.display = "block";
 		}
-	  }
-	  if (shouldSwitch) {
-		rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-		switching = true;
-	  }
+	}
+	var filemanagerhomehrefcount = $('.filemanager-home-click').length;
+	if(filemanagerhomehrefcount === 1){
+		var filemanagerhomehref = $('.filemanager-home-click').attr('href');
+		window.location = filemanagerhomehref;
 	}
 
     $('#file-table tbody').on( 'click', 'tr', function () {
@@ -62,6 +39,29 @@ function filemanager_select_files($) {
 		}
 
     } );
+
+	var table, rows, switching, i, x, y, shouldSwitch;
+	table = document.getElementById("file-table");
+	switching = true;
+	if(table){
+		while (switching) {
+			switching = false;
+			rows = table.rows;
+			for (i = 1; i < (rows.length - 1); i++) {
+			  shouldSwitch = false;
+			  x = rows[i].getElementsByTagName("TD")[1];
+			  y = rows[i + 1].getElementsByTagName("TD")[1];
+			  if (x.innerText.toLowerCase() > y.innerText.toLowerCase()) {
+				shouldSwitch = true;
+				break;
+			  }
+			}
+			if (shouldSwitch) {
+			  rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+			  switching = true;
+			}
+		  }
+	}
 
 }
 

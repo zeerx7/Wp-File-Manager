@@ -179,7 +179,6 @@ function get_filemanager_files($posts) {
                     <span>
                 </div>
             </div>
-            <div class='btnrename'>Rename</div>
             <div class='subnav'>
               <button class='subnavbtn btncopy'>Copy</button>
               <div id='subnav-content-copy' class='subnav-content'>
@@ -197,7 +196,8 @@ function get_filemanager_files($posts) {
                         <button class='moveto'>move</button>
                     <span>
                 </div>
-            </div>";
+            </div>
+            <div class='btnrename'>Rename</div>";
             if(is_user_logged_in()){
               $html[] .= "<div class='btndelete'>Delete</div>";
             }
@@ -241,14 +241,43 @@ function get_filemanager_files($posts) {
                       $pathfilezise = $path_implode.'/'.$file;
                       $filesize = formatSizeUnits(filesize($pathfilezise));
                       $realpath = realpath($path_implode.'/'.$file);
-                      if (isset($home)) {
-                        $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?home=$realpath'>$file</a></td><td>$filesize</td></tr>";
-                      }
-                      if (isset($workplace)) { 
-                        $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?workplace=$realpath'>$file</a></td><td>$filesize</td></tr>";
-                      }
-                      if (isset($path)) {
-                        $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                      if ( is_dir($realpath) == true ) {
+                        if (isset($home)) {
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?home=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                        }
+                        if (isset($workplace)) { 
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?workplace=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                        }
+                        if (isset($path)) {
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                        }
+                      } else {
+                        $getname = getName(32);
+                        $getoauth = uniqid(time().'||'.$getname.'||'.$realpath.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
+                        if (isset($home)) {
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?home=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                        }
+                        if (isset($workplace)) { 
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?workplace=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                        }
+                        if (isset($path)) {
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?path=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                        }
+
+                        $TOKEN_DIR = get_home_path() . 'wp-content/plugins/file-manager/includes/tokens';
+
+                        // Create a protected directory to store keys
+                        if(!is_dir($TOKEN_DIR)) {
+                            mkdir(TOKEN_DIR);
+                            $file = fopen($TOKEN_DIR.'/.htaccess','w');
+                            fwrite($file,"Order allow,deny\nDeny from all");
+                            fclose($file);
+                        }
+                        
+                        // Write the key to the keys list
+                        $file = fopen($TOKEN_DIR.'/oauth','a');
+                        fwrite($file, "{$getoauth}\n");
+                        fclose($file);
                       }
                   }
                   if ($files == null) {

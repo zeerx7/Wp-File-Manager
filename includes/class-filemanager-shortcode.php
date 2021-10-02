@@ -482,6 +482,63 @@ function filemanager_shortcode() {
             $id_write_path[] .= $write_path_id;
     }
 
+    if (isset($home)) {
+        $path_implode = $home;
+        $path_default = $my_option_name['title'].$user->user_login;
+        if ($path_implode == $path_default) {
+            $workplace_last = true;
+        }
+        if (strpos($path_implode, $path_default) !== false) {
+            $workplace_strpos = true;
+        }
+        $read_path = true;
+        $write_path = true;
+    } elseif (isset($workplace)) { 
+        foreach ($my_option_name['id_path'] as $id_path) {
+            $id_path_ = rtrim($id_path, "/");
+            $workplace_ = rtrim($workplace, "/");
+            if (strpos($workplace_, $id_path_) !== false) {
+                $explodeidread = explode(',', $id_read[$my_option_name['id_name'][$i]]);
+                if (in_array($user->ID, $explodeidread)) {
+                    $read_path = true;
+                }
+                $explodeidwrite = explode(',', $id_write[$my_option_name['id_name'][$i]]);
+                if (in_array($user->ID, $explodeidwrite)) {
+                    $write_path = true;
+                }
+            }
+            $i++;
+        }
+        foreach($my_option_name['id_path'] as $id_path) {
+            $id_path_ = rtrim($id_path, "/");
+            $workplace_ = rtrim($workplace, "/");
+            if ($workplace_ == $id_path_) {
+                $workplace_last = true;
+            }
+            if (strpos($workplace, $id_path_) !== false) {
+                $workplace_strpos = true;
+            }
+        }
+        $path_implode = $workplace;
+    } elseif (isset($path)) {
+        if (in_array($user->ID, $id_read_path)) {
+            $read_path = true;
+            $workplace_strpos = true;
+        }
+        if (in_array($user->ID, $id_write_path)) {
+            $write_path = true;
+        }
+        $path_implode = $path;
+    } else {
+        $path_implode = null;
+    }
+
+    echo "<div id='sequentialupload' class='sequentialupload' data-object-id='$path_implode'></div>"; 
+    ?><script type="text/javascript">document.getElementById("sequentialupload").style.display = "none";</script><?php
+
+    ?><div id='errorlog'></div><?php
+    ?><div id='filemanager-wrapper' class='filemanager-wrapper'><?php
+
     if ($path == null && $home == null && $workplace == null) {
 
     echo "<div id='filemanager-home' class='filemanager-home'>";
@@ -502,70 +559,9 @@ function filemanager_shortcode() {
         ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/' . get_post_field( 'post_name' ); ?>/?path=<?php echo ABSPATH ?>'>Path</a><?php
     }
 
-    if($i > 1){
-        ?><script type="text/javascript">
-            const displayhome = document.getElementsByClassName("filemanager-home-click");
-            for(let i = 0; i < displayhome.length; i++) {
-                displayhome[i].style.display = "block";
-            }
-        </script><?php
-    }
     echo "</div>";
 
     } else {
-
-        if (isset($home)) {
-            $path_implode = $home;
-            $path_default = $my_option_name['title'].$user->user_login;
-            if ($path_implode == $path_default) {
-                $workplace_last = true;
-            }
-            if (strpos($path_implode, $path_default) !== false) {
-                $workplace_strpos = true;
-            }
-            $read_path = true;
-            $write_path = true;
-        }
-
-        if (isset($workplace)) { 
-            foreach ($my_option_name['id_path'] as $id_path) {
-                $id_path_ = rtrim($id_path, "/");
-                $workplace_ = rtrim($workplace, "/");
-                if (strpos($workplace_, $id_path_) !== false) {
-                    $explodeidread = explode(',', $id_read[$my_option_name['id_name'][$i]]);
-                    if (in_array($user->ID, $explodeidread)) {
-                        $read_path = true;
-                    }
-                    $explodeidwrite = explode(',', $id_write[$my_option_name['id_name'][$i]]);
-                    if (in_array($user->ID, $explodeidwrite)) {
-                        $write_path = true;
-                    }
-                }
-                $i++;
-            }
-            foreach($my_option_name['id_path'] as $id_path) {
-                $id_path_ = rtrim($id_path, "/");
-                $workplace_ = rtrim($workplace, "/");
-                if ($workplace_ == $id_path_) {
-                    $workplace_last = true;
-                }
-                if (strpos($workplace, $id_path_) !== false) {
-                    $workplace_strpos = true;
-                }
-            }
-            $path_implode = $workplace;
-        }
-
-        if (isset($path)) {
-            if (in_array($user->ID, $id_read_path)) {
-                $read_path = true;
-                $workplace_strpos = true;
-            }
-            if (in_array($user->ID, $id_write_path)) {
-                $write_path = true;
-            }
-            $path_implode = $path;
-        }
 
         if ($workplace_strpos == true && $read_path == true){
             $allFiles = scandir($path_implode);
@@ -576,14 +572,7 @@ function filemanager_shortcode() {
 
         $files = array_diff($allFiles, array('.', '..'));
         $path_parts = explode("/", $path_implode);
-        if ($write_path == true) {
-            echo "<div id='sequentialupload' class='sequentialupload' data-object-id='$path_implode'></div>"; 
-        }
-        ?><script type="text/javascript">document.getElementById("sequentialupload").style.display = "none";</script><?php
-
         if ( is_dir($path_implode) == true ) {
-            ?><div id='errorlog'></div><?php
-            ?><div id='filemanager-wrapper' class='filemanager-wrapper'><?php
             if ($write_path == true) {
                 ?>
                     <div id='filemanagerbtnup' class='filemanagerbtn'>
@@ -608,7 +597,6 @@ function filemanager_shortcode() {
                                     <span>
                                 </div>
                             </div>
-                            <div class='btnrename'>Rename</div>
                             <div class='subnav'>
                                 <button class='subnavbtn btncopy'>Copy</button>
                                 <div id='subnav-content-copy' class='subnav-content'>
@@ -627,6 +615,7 @@ function filemanager_shortcode() {
                                     <span>
                                 </div>
                             </div>
+                            <div class='btnrename'>Rename</div>
                             <?php if($user->ID != '-1'){ ?>
                                 <div class='btndelete'>Delete</div>
                             <?php } ?>
@@ -668,68 +657,119 @@ function filemanager_shortcode() {
                         $pathfilezise = $path_implode.'/'.$file;
                         $filesize = formatSizeUnits(filesize($pathfilezise));
                         $realpath = realpath($path_implode.'/'.$file);
-                        if (isset($home)) {
-                            echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath'>$file</a></td><td>$filesize</td></tr>";
-                        }
-                        if (isset($workplace)) { 
-                            echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplace=$realpath'>$file</a></td><td>$filesize</td></tr>";
-                        }
-                        if (isset($path)) {
-                            echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
-                        }
+                        if ( is_dir($realpath) == true ) {
+                            if (isset($home)) {
+                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                            }
+                            if (isset($workplace)) { 
+                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplace=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                            }
+                            if (isset($path)) {
+                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                            }
+                        } else {
+                            $getname = getName(32);
+                            $getoauth = uniqid(time().'||'.$getname.'||'.$realpath.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
+                            if (isset($home)) {
+                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                            }
+                            if (isset($workplace)) { 
+                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplace=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                            }
+                            if (isset($path)) {
+                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                            }
+                            
+                                // Include the configuration file
+                                require_once dirname(__FILE__) . '/config.php';
+
+                                // Create a protected directory to store keys
+                                if(!is_dir(TOKEN_DIR)) {
+                                    mkdir(TOKEN_DIR);
+                                    $file = fopen(TOKEN_DIR.'/.htaccess','w');
+                                    fwrite($file,"Order allow,deny\nDeny from all");
+                                    fclose($file);
+                                }
+                                
+                                // Write the key to the keys list
+                                $file = fopen(TOKEN_DIR.'/oauth','a');
+                                fwrite($file, "{$getoauth}\n");
+                                fclose($file);
+                            }
                     }
                     if ($files == null) {
                         echo "<tr><td><input class='checkbox' type='checkbox' /></td><td class='filemanager-table'><a id='file-id' class='filemanager-click'>No file found</a></td></tr>";
                     }
                 echo "</table></div></div>";
         } elseif ( isset($path) || isset($workplace) || isset($home)) {
+            // Include the configuration file
+            require_once dirname(__FILE__) . '/config.php';
+
             $object_id = $path_implode;
             $getname = getName(6);
             $target =  $object_id;
             $direname = dirname($object_id);
-            $basename = strtolower(basename($object_id));
-            $ext = pathinfo($basename, PATHINFO_EXTENSION);
+            $basename = basename($object_id);
+            $path_ = pathinfo($basename);
+            $ext = $path_['extension'];
 
-            $sanitized_filename = remove_accents( $basename ); // Convert to ASCII
+            $filepath = $object_id;
 
-            // Standard replacements
-            $invalid = array(
-                ' '   => '-',
-                '%20' => '-',
-                '_'   => '-',
-            );
-            $sanitized_filename = str_replace( array_keys( $invalid ), array_values( $invalid ), $sanitized_filename );
-    
-            $sanitized_filename = preg_replace('/[^A-Za-z0-9-\. ]/', '', $sanitized_filename); // Remove all non-alphanumeric except .
-            $sanitized_filename = preg_replace('/\.(?=.*\.)/', '', $sanitized_filename); // Remove all but last .
-            $sanitized_filename = preg_replace('/-+/', '-', $sanitized_filename); // Replace any more than one - in a row
-            $sanitized_filename = str_replace('-.', '.', $sanitized_filename); // Remove last - if at the end
-            $sanitized_filename = htmlspecialchars($sanitized_filename);
-            $sanitized_filename = strtolower( $sanitized_filename ); // Lowercase
-            $sanitized_filename = urlencode($sanitized_filename);
+            $key = trim($_GET['oauth']);
 
+            // Retrieve the keys from the tokens file
+            $keys = file(TOKEN_DIR.'/oauth');
+            $match = false;
 
-            if($ext == 'pdf' || $ext == 'jpeg' || $ext == 'jpg' || $ext == 'bmp' || $ext == 'png'){
-                $link = get_home_path_() .'/files/'. $getname .'/'. $sanitized_filename . '';
-            } else {
-                $link = get_home_path_() .'/files/'. $getname .'/'. $sanitized_filename . '';
+            // Loop through the keys to find a match
+            // When the match is found, remove it
+            foreach($keys as &$one){
+                $keyone = explode('||',$one);
+                $currentTime = time();
+                $expTime = strtotime(EXPIRATION_TIME, $keyone[0]);            
+                if($key==$keyone[1]){
+                    if($currentTime >= $expTime) {
+                        $one = '';
+                    } else {
+                        $one = $one;
+                        if($basename == basename($keyone[2])) {
+                            if($keyone[3] == $_SERVER["HTTP_CF_CONNECTING_IP"]) {
+                                $match = true;   
+                            }
+                        }
+                    }
+                }
             }
-            echo exec('mkdir -p "'. get_home_path_() .'/files/'. $getname .'/"');
-            echo exec('ln -s "' . $target . '" "' . $link .'"');
 
-            echo "<div id='filemanager-wrapper' class='filemanager-wrapper'>";
+            // Put the remaining keys back into the tokens file
+            file_put_contents(TOKEN_DIR.'/oauth',$keys);
+
+            // Verify the oauth password
+            if($match != true){
+                echo "false";
+                // Return 404 error, if not a correct path
+                header("HTTP/1.0 404 Not Found");
+                exit;
+            }else{    
+                // If the files exist
+                if($key){
+                    // Generate download link
+                    $download_link = DOWNLOAD_PATH."?key=".$key; 
+                }
+            }  
+              
             ?><script type="text/javascript">document.getElementById("filemanagerbtnup").style.display = "none";</script><?php
         
             if ($ext == 'jpeg' || $ext == 'jpg' || $ext == 'bmp' || $ext == 'png' || $ext == 'gif') {
-                echo '<img src="' . get_home_url() . '/files/'. $getname .'/'. $sanitized_filename .'"></img>';
+                echo '<img src="' . $download_link . '"></img>';
             } elseif ($ext == 'mp4' || $ext == 'mkv' || $ext == 'avi' ) {
                 echo '<div class="file-info">' . basename($object_id) . '</div>';
-                ?><video id='filemanagervideo' controls controlsList="nodownload">
-                    <source src="<?php echo get_home_url() . '/files/'. $getname .'/'. $sanitized_filename; ?>" type="video/<?php echo $ext ?>">
+                ?><video id='filemanagervideo' controls="controls" preload="auto" controlsList="nodownload" name="media">
+                    <source src="<?php echo $download_link ?>" type="video/mp4">
                 </video><?php
             } elseif ($ext == 'pdf') {
                 echo '<div id="pdf"></div>';
-                ?><script type="text/javascript">PDFObject.embed('<?php echo get_home_url() . '/files/'. $getname .'/'. $sanitized_filename ?>', "#pdf");</script><?php
+                ?><script type="text/javascript">PDFObject.embed('<?php echo $download_link ?>', "#pdf");</script><?php
             } elseif ($ext == 'txt' || $ext == 'html' || $ext == 'php' || $ext == 'log') { 
                 if ($write_path == true) {
                     echo '<div class="navbar"><div id="savefile" onclick="savefile();">Save</div></div>';
@@ -741,7 +781,7 @@ function filemanager_shortcode() {
                 lineNumbers: true,
                 mode: "text/html"
             });
-            fetch('<?php echo get_home_url() . '/files/'. $getname .'/'. $sanitized_filename ?>')
+            fetch('<?php echo $download_link ?>')
                 .then(response => response.text())
                 .then(data => {
                     // Do something with your data
@@ -755,7 +795,7 @@ function filemanager_shortcode() {
                     url: save_filemanager_ajax_url,
                     data: {
                         'object_id': getValue,
-                        'link': '<?php echo $path_implode ?>',
+                        'link': '<?php echo $target ?>',
                         'action': 'save_filemanager_files'
                     },
                     dataType: 'json',
@@ -770,14 +810,16 @@ function filemanager_shortcode() {
             }
             </script> <?php
             } else {
-                echo '<a href="' . get_home_url() . '/files/'. $getname .'/'. $sanitized_filename .'">Download</a>';
+                echo '<a href="' . $download_link . '">Download</a>';
             }
             echo "</div>";
         }
 
         }
 
-    }
+    ?></div><?php
+
+}
 
     
 add_shortcode('filemanager-shortcode', 'filemanager_shortcode');
