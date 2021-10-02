@@ -53,10 +53,12 @@ function filemanager_uploads_files($, object_id) {
     }
     
     var table = document.getElementById("file-table");
-    table.addEventListener("drop", e => {
-        e.preventDefault();
-        createFormData(e.dataTransfer.files);
-    }, { once: true });
+    if(table) { 
+        table.addEventListener("drop", e => {
+            e.preventDefault();
+            createFormData(e.dataTransfer.files);
+        }, { once: true });
+    }
 
     let pickerfiles = document.getElementById('pickerfiles');
     pickerfiles.addEventListener('change', e => {

@@ -457,6 +457,7 @@ function filemanager_shortcode() {
     $path = $_GET['path'];
     $home = $_GET['home'];
     $workplace = $_GET['workplace'];
+    $share = $_GET['share'];
     $my_option_name = get_option('my_option_name');
     global $wp;
     $i = 0;
@@ -529,6 +530,52 @@ function filemanager_shortcode() {
             $write_path = true;
         }
         $path_implode = $path;
+    } elseif (isset($share)) {
+            $args = array(
+                'posts_per_page' => -1,
+                'post_type' => 'shares',
+                'meta_query' => array(
+                    array(
+                        'key' => '_share_key',
+                        'value' => $share,
+                        'compare' => 'LIKE'
+                    )
+                )
+            );
+
+            $my_query = get_posts( $args );
+
+            if ($my_query) {
+                foreach ( $my_query as $post ) { 
+                    $path_implode = get_post_meta( $post->ID, '_share_path', true);
+                }                   
+            }
+
+            if ($path_implode) {
+                $getname = getName(32);
+                $getoauth = uniqid(time().'||'.$getname.'||'.$path_implode.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
+            
+                // Include the configuration file
+                require_once dirname(__FILE__) . '/config.php';
+    
+                // Create a protected directory to store keys
+                if(!is_dir(TOKEN_DIR)) {
+                    mkdir(TOKEN_DIR);
+                    $file = fopen(TOKEN_DIR.'/.htaccess','w');
+                    fwrite($file,"Order allow,deny\nDeny from all");
+                    fclose($file);
+                }
+                
+                // Write the key to the keys list
+                $file = fopen(TOKEN_DIR.'/oauth','a');
+                fwrite($file, "{$getoauth}\n");
+                fclose($file);
+                $read_path = true;
+                $workplace_strpos = true;
+                if(!$_GET['oauth']){
+                    echo "<script>location.href='?share=".$_GET['share']."&oauth=".$getname."';</script>";
+                }
+            }
     } else {
         $path_implode = null;
     }
@@ -539,7 +586,7 @@ function filemanager_shortcode() {
     ?><div id='errorlog'></div><?php
     ?><div id='filemanager-wrapper' class='filemanager-wrapper'><?php
 
-    if ($path == null && $home == null && $workplace == null) {
+    if ($path == null && $home == null && $workplace == null && $share == null) {
 
     echo "<div id='filemanager-home' class='filemanager-home'>";
     if ($user->ID != '-1') {
@@ -565,256 +612,277 @@ function filemanager_shortcode() {
 
         if ($workplace_strpos == true && $read_path == true){
             $allFiles = scandir($path_implode);
-        } else {
-            echo "<script> location.href='" . home_url($wp->request) . '/' . get_post_field( 'post_name' ) . "'; </script>";
-            exit;
-        }
-
-        $files = array_diff($allFiles, array('.', '..'));
-        $path_parts = explode("/", $path_implode);
-        if ( is_dir($path_implode) == true ) {
-            if ($write_path == true) {
-                ?>
-                    <div id='filemanagerbtnup' class='filemanagerbtn'>
-                        <div class='navbar'>
-                            <div id="uploadfiles" onclick="myFile()"><input type="file" id="pickerfiles" name="fileList" multiple style="display: none;">Upload files</div>
-                            <div id="uploaddir" onclick="mydir()"><input type="file" id="pickerdir" name="fileList" webkitdirectory multiple style="display: none;">Upload Dir</div>
-                            <div class='subnav'>
-                                <button class='subnavbtn btnnewfile'>Create file</button>
-                                <div id='subnav-content-file' class='subnav-content'>
-                                    <span>
-                                        <input type='text' id='lnamefile' name='lname'></input>
-                                        <button class='newfile'>Create</button>
-                                    <span>
+            $files = array_diff($allFiles, array('.', '..'));
+            $path_parts = explode("/", $path_implode);
+            if ( is_dir($path_implode) == true ) {
+                if ($write_path == true) {
+                    ?>
+                        <div id='filemanagerbtnup' class='filemanagerbtn'>
+                            <div class='navbar'>
+                                <div id="uploadfiles" onclick="myFile()"><input type="file" id="pickerfiles" name="fileList" multiple style="display: none;">Upload files</div>
+                                <div id="uploaddir" onclick="mydir()"><input type="file" id="pickerdir" name="fileList" webkitdirectory multiple style="display: none;">Upload Dir</div>
+                                <div class='subnav'>
+                                    <button class='subnavbtn btnnewfile'>Create file</button>
+                                    <div id='subnav-content-file' class='subnav-content'>
+                                        <span>
+                                            <input type='text' id='lnamefile' name='lname'></input>
+                                            <button class='newfile'>Create</button>
+                                        <span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class='subnav'>
-                                <button class='subnavbtn btnnewdir'>Create dir</button>
-                                <div id='subnav-content-dir' class='subnav-content'>
-                                    <span>
-                                        <input type='text' id='lname' name='lname'></input>
-                                        <button class='newdir'>Create</button>
-                                    <span>
+                                <div class='subnav'>
+                                    <button class='subnavbtn btnnewdir'>Create dir</button>
+                                    <div id='subnav-content-dir' class='subnav-content'>
+                                        <span>
+                                            <input type='text' id='lname' name='lname'></input>
+                                            <button class='newdir'>Create</button>
+                                        <span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class='subnav'>
-                                <button class='subnavbtn btncopy'>Copy</button>
-                                <div id='subnav-content-copy' class='subnav-content'>
-                                    <span>
-                                        <input type='text' id='lnamecopy' name='lname'></input>
-                                        <button class='copy'>Copy</button>
-                                    <span>
+                                <div class='subnav'>
+                                    <button class='subnavbtn btncopy'>Copy</button>
+                                    <div id='subnav-content-copy' class='subnav-content'>
+                                        <span>
+                                            <input type='text' id='lnamecopy' name='lname'></input>
+                                            <button class='copy'>Copy</button>
+                                        <span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class='subnav'>
-                                <button class='subnavbtn btnmoveto'>Move</button>
-                                <div id='subnav-content-moveto' class='subnav-content'>
-                                    <span>
-                                        <input type='text' id='lnamemoveto' name='lname'></input>
-                                        <button class='moveto'>move</button>
-                                    <span>
+                                <div class='subnav'>
+                                    <button class='subnavbtn btnmoveto'>Move</button>
+                                    <div id='subnav-content-moveto' class='subnav-content'>
+                                        <span>
+                                            <input type='text' id='lnamemoveto' name='lname'></input>
+                                            <button class='moveto'>move</button>
+                                        <span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class='btnrename'>Rename</div>
-                            <?php if($user->ID != '-1'){ ?>
-                                <div class='btndelete'>Delete</div>
-                            <?php } ?>
-                            <div class='subnav subnavzip'>
-                                <button class='subnavbtn btnzip'>Create zip</button>
-                                <div id='subnav-content-zip' class='subnav-content'>
-                                    <span>
-                                        <input type='text' id='lnamezip' name='lname'></input>
-                                        <button class='zipbtn'>create</button>
-                                    <span>
+                                <div class='btnrename'>Rename</div>
+                                <?php if($user->ID != '-1'){ ?>
+                                    <div class='btndelete'>Delete</div>
+                                <?php } ?>
+                                <div class='subnav subnavzip'>
+                                    <button class='subnavbtn btnzip'>Create zip</button>
+                                    <div id='subnav-content-zip' class='subnav-content'>
+                                        <span>
+                                            <input type='text' id='lnamezip' name='lname'></input>
+                                            <button class='zipbtn'>create</button>
+                                        <span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    <script type="text/javascript">document.getElementById("filemanagerbtnup").style.display = "block";</script>
+                <?php } ?>
+                    <div id='filemanagerbtndown' class='filemanagerbtn'>
+                        <div class='navbar'>
+                            <?php if ($path_parts[1] != '' && $workplace_strpos == true && $workplace_last != true){
+                                    if (isset($home)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?home=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
+                                    if (isset($workplace)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?workplace=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
+                                    if (isset($path)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?path=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
+                                } 
+                                if ($path_parts[1] == '' || $workplace_last == true || $workplace_strpos != true) { ?>
+                                <a class='btnback_home' href='<?php echo home_url($wp->request) ?>'>Home</a>
+                            <?php } ?>
+                            <div class='btninfo'>Info</div>
+                        </div>
                     </div>
-                <script type="text/javascript">document.getElementById("filemanagerbtnup").style.display = "block";</script>
-            <?php } ?>
-                <div id='filemanagerbtndown' class='filemanagerbtn'>
-                    <div class='navbar'>
-                        <?php if ($path_parts[1] != '' && $workplace_strpos == true && $workplace_last != true){
-                                if (isset($home)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?home=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
-                                if (isset($workplace)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?workplace=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
-                                if (isset($path)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?path=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
-                            } 
-                            if ($path_parts[1] == '' || $workplace_last == true || $workplace_strpos != true) { ?>
-                            <a class='btnback_home' href='<?php echo home_url($wp->request) ?>'>Home</a>
-                        <?php } ?>
-                        <div class='btninfo'>Info</div>
-                    </div>
-                </div>
-                <div class='filepath'><?php foreach($path_parts as $path_part) {
-                    $path_part_ .= '/'.$path_part;
-                    if (isset($home)) { ?><a href='<?php  echo home_url($wp->request) . "/?home=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
-                    if (isset($workplace)) { ?><a href='<?php  echo home_url($wp->request) . "/?workplace=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
-                    if (isset($path)) { ?><a href='<?php  echo home_url($wp->request) . "/?path=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
-                    echo '/';
-                }?></div><?php
-                ?><div class='file-table'><table id='file-table'><?php
-                    foreach($files as $file){
-                        $pathfilezise = $path_implode.'/'.$file;
-                        $filesize = formatSizeUnits(filesize($pathfilezise));
-                        $realpath = realpath($path_implode.'/'.$file);
-                        if ( is_dir($realpath) == true ) {
-                            if (isset($home)) {
-                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath'>$file</a></td><td>$filesize</td></tr>";
-                            }
-                            if (isset($workplace)) { 
-                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplace=$realpath'>$file</a></td><td>$filesize</td></tr>";
-                            }
-                            if (isset($path)) {
-                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
-                            }
-                        } else {
-                            $getname = getName(32);
-                            $getoauth = uniqid(time().'||'.$getname.'||'.$realpath.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
-                            if (isset($home)) {
-                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
-                            }
-                            if (isset($workplace)) { 
-                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplace=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
-                            }
-                            if (isset($path)) {
-                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
-                            }
-                            
-                                // Include the configuration file
-                                require_once dirname(__FILE__) . '/config.php';
-
-                                // Create a protected directory to store keys
-                                if(!is_dir(TOKEN_DIR)) {
-                                    mkdir(TOKEN_DIR);
-                                    $file = fopen(TOKEN_DIR.'/.htaccess','w');
-                                    fwrite($file,"Order allow,deny\nDeny from all");
-                                    fclose($file);
+                    <div class='filepath'><?php foreach($path_parts as $path_part) {
+                        $path_part_ .= '/'.$path_part;
+                        if (isset($home)) { ?><a href='<?php  echo home_url($wp->request) . "/?home=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
+                        if (isset($workplace)) { ?><a href='<?php  echo home_url($wp->request) . "/?workplace=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
+                        if (isset($path)) { ?><a href='<?php  echo home_url($wp->request) . "/?path=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
+                        echo '/';
+                    }?></div><?php
+                    ?><div class='file-table'><table id='file-table'><?php
+                        foreach($files as $file){
+                            $pathfilezise = $path_implode.'/'.$file;
+                            $filesize = formatSizeUnits(filesize($pathfilezise));
+                            $realpath = realpath($path_implode.'/'.$file);
+                            if ( is_dir($realpath) == true ) {
+                                if (isset($home)) {
+                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                                }
+                                if (isset($workplace)) { 
+                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplace=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                                }
+                                if (isset($path)) {
+                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                                }
+                            } else {
+                                $getname = getName(32);
+                                $getoauth = uniqid(time().'||'.$getname.'||'.$realpath.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
+                                if (isset($home)) {
+                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                                }
+                                if (isset($workplace)) { 
+                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplace=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                                }
+                                if (isset($path)) {
+                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
                                 }
                                 
-                                // Write the key to the keys list
-                                $file = fopen(TOKEN_DIR.'/oauth','a');
-                                fwrite($file, "{$getoauth}\n");
-                                fclose($file);
-                            }
-                    }
-                    if ($files == null) {
-                        echo "<tr><td><input class='checkbox' type='checkbox' /></td><td class='filemanager-table'><a id='file-id' class='filemanager-click'>No file found</a></td></tr>";
-                    }
-                echo "</table></div></div>";
-        } elseif ( isset($path) || isset($workplace) || isset($home)) {
-            // Include the configuration file
-            require_once dirname(__FILE__) . '/config.php';
+                                    // Include the configuration file
+                                    require_once dirname(__FILE__) . '/config.php';
+    
+                                    // Create a protected directory to store keys
+                                    if(!is_dir(TOKEN_DIR)) {
+                                        mkdir(TOKEN_DIR);
+                                        $file = fopen(TOKEN_DIR.'/.htaccess','w');
+                                        fwrite($file,"Order allow,deny\nDeny from all");
+                                        fclose($file);
+                                    }
+                                    
+                                    // Write the key to the keys list
+                                    $file = fopen(TOKEN_DIR.'/oauth','a');
+                                    fwrite($file, "{$getoauth}\n");
+                                    fclose($file);
+                                }
+                        }
+                        if ($files == null) {
+                            echo "<tr><td><input class='checkbox' type='checkbox' /></td><td class='filemanager-table'><a id='file-id' class='filemanager-click'>No file found</a></td></tr>";
+                        }
+                    echo "</table></div></div>";
 
-            $object_id = $path_implode;
-            $getname = getName(6);
-            $target =  $object_id;
-            $direname = dirname($object_id);
-            $basename = basename($object_id);
-            $path_ = pathinfo($basename);
-            $ext = $path_['extension'];
-
-            $filepath = $object_id;
-
-            $key = trim($_GET['oauth']);
-
-            // Retrieve the keys from the tokens file
-            $keys = file(TOKEN_DIR.'/oauth');
-            $match = false;
-
-            // Loop through the keys to find a match
-            // When the match is found, remove it
-            foreach($keys as &$one){
-                $keyone = explode('||',$one);
-                $currentTime = time();
-                $expTime = strtotime(EXPIRATION_TIME, $keyone[0]);            
-                if($key==$keyone[1]){
-                    if($currentTime >= $expTime) {
-                        $one = '';
-                    } else {
-                        $one = $one;
-                        if($basename == basename($keyone[2])) {
-                            if($keyone[3] == $_SERVER["HTTP_CF_CONNECTING_IP"]) {
-                                $match = true;   
+                } elseif ( isset($path) || isset($workplace) || isset($home) || isset($share)) {
+                    // Include the configuration file
+                    require_once dirname(__FILE__) . '/config.php';
+        
+                    $object_id = $path_implode;
+                    $getname = getName(6);
+                    $target =  $object_id;
+                    $direname = dirname($object_id);
+                    $basename = basename($object_id);
+                    $path_ = pathinfo($basename);
+                    $ext = $path_['extension'];
+                    $key = trim($_GET['oauth']);
+        
+                    // Retrieve the keys from the tokens file
+                    $keys = file(TOKEN_DIR.'/oauth');
+                    $match = false;
+        
+                    // Loop through the keys to find a match
+                    // When the match is found, remove it
+                    foreach($keys as &$one){
+                        $keyone = explode('||',$one);
+                        $currentTime = time();
+                        $expTime = strtotime(EXPIRATION_TIME, $keyone[0]);            
+                        if($key==$keyone[1]){
+                            if($currentTime >= $expTime) {
+                                $one = '';
+                            } else {
+                                $one = $one;
+                                if($basename == basename($keyone[2])) {
+                                    if($keyone[3] == $_SERVER["HTTP_CF_CONNECTING_IP"]) {
+                                        $match = true;   
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            }
-
-            // Put the remaining keys back into the tokens file
-            file_put_contents(TOKEN_DIR.'/oauth',$keys);
-
-            // Verify the oauth password
-            if($match != true){
-                echo "false";
-                // Return 404 error, if not a correct path
-                header("HTTP/1.0 404 Not Found");
-                exit;
-            }else{    
-                // If the files exist
-                if($key){
-                    // Generate download link
-                    $download_link = DOWNLOAD_PATH."?key=".$key; 
-                }
-            }  
-              
-            ?><script type="text/javascript">document.getElementById("filemanagerbtnup").style.display = "none";</script><?php
         
-            if ($ext == 'jpeg' || $ext == 'jpg' || $ext == 'bmp' || $ext == 'png' || $ext == 'gif') {
-                echo '<img src="' . $download_link . '"></img>';
-            } elseif ($ext == 'mp4' || $ext == 'mkv' || $ext == 'avi' ) {
-                echo '<div class="file-info">' . basename($object_id) . '</div>';
-                ?><video id='filemanagervideo' controls="controls" preload="auto" controlsList="nodownload" name="media">
-                    <source src="<?php echo $download_link ?>" type="video/mp4">
-                </video><?php
-            } elseif ($ext == 'pdf') {
-                echo '<div id="pdf"></div>';
-                ?><script type="text/javascript">PDFObject.embed('<?php echo $download_link ?>', "#pdf");</script><?php
-            } elseif ($ext == 'txt' || $ext == 'html' || $ext == 'php' || $ext == 'log') { 
-                if ($write_path == true) {
-                    echo '<div class="navbar"><div id="savefile" onclick="savefile();">Save</div></div>';
-                }
-                echo '<div id="editor"> </div>';
-            ?><script>
-            var myCodeMirror = CodeMirror(
-            document.getElementById('editor'), {
-                lineNumbers: true,
-                mode: "text/html"
-            });
-            fetch('<?php echo $download_link ?>')
-                .then(response => response.text())
-                .then(data => {
-                    // Do something with your data
-                    console.log(data);
-                    myCodeMirror.setValue(data);
-                });
-            function savefile() {
-                var getValue = myCodeMirror.getValue();
-                jQuery.ajax({
-                    type: 'post',
-                    url: save_filemanager_ajax_url,
-                    data: {
-                        'object_id': getValue,
-                        'link': '<?php echo $target ?>',
-                        'action': 'save_filemanager_files'
-                    },
-                    dataType: 'json',
-                    success: function(data){
-                        console.log(data);
-                    },
-                    error: function(errorThrown){
-                        //error stuff here.text
+                    // Put the remaining keys back into the tokens file
+                    file_put_contents(TOKEN_DIR.'/oauth',$keys);
+        
+                    // Verify the oauth password
+                    if($match != true){
+                        if($share){
+                            echo "<script>location.href='?share=".$_GET['share']."';</script>";
+                        } else {
+                            echo "false";
+                            // Return 404 error, if not a correct path
+                            header("HTTP/1.0 404 Not Found");
+                            exit;
+                        }
+                    }else{    
+                        // If the files exist
+                        if($key){
+                            // Generate download link
+                            $download_link = DOWNLOAD_PATH."?key=".$key; 
+                        }
+                    }  
+                      
+                    ?><script type="text/javascript">document.getElementById("filemanagerbtnup").style.display = "none";</script><?php
+        
+                    if(!$share){
+                        echo "<div class='navbar'>
+                            <div class='subnav'>
+                                <button class='subnavbtn btnshare'>Share file</button>
+                                <div id='subnav-content-share' class='subnav-content'>
+                                    <span>
+                                        <input type='text' id='lnameshare' readonly></span>
+                                        <button class='newsharelink'>Create share link</button>
+                                    <span>
+                                </div>
+                            </div>
+                        </div>";
                     }
-                });
-                console.log(textFileAsBlob);
-            }
-            </script> <?php
-            } else {
-                echo '<a href="' . $download_link . '">Download</a>';
-            }
-            echo "</div>";
-        }
 
+                    ?><script type="text/javascript">jQuery(document).ready(function($) {
+                        filemanager_share_files($);
+                    });</script><?php
+                
+                    if ($ext == 'jpeg' || $ext == 'jpg' || $ext == 'bmp' || $ext == 'png' || $ext == 'gif') {
+                        echo '<img src="' . $download_link . '"></img>';
+                    } elseif ($ext == 'mp4' || $ext == 'mkv' || $ext == 'avi' ) {
+                        echo '<div class="file-info">' . basename($object_id) . '</div>';
+                        ?><video id='filemanagervideo' controls="controls" preload="auto" controlsList="nodownload" name="media">
+                            <source src="<?php echo $download_link ?>" type="video/mp4">
+                        </video><?php
+                    } elseif ($ext == 'pdf') {
+                        echo '<div id="pdf"></div>';
+                        ?><script type="text/javascript">PDFObject.embed('<?php echo $download_link ?>', "#pdf");</script><?php
+                    } elseif ($ext == 'txt' || $ext == 'html' || $ext == 'php' || $ext == 'log') { 
+                        if ($write_path == true) {
+                            echo '<div class="navbar"><div id="savefile" onclick="savefile();">Save</div></div>';
+                        }
+                        echo '<div id="editor"> </div>';
+                    ?><script>
+                    var myCodeMirror = CodeMirror(
+                    document.getElementById('editor'), {
+                        lineNumbers: true,
+                        mode: "text/html"
+                    });
+                    fetch('<?php echo $download_link ?>')
+                        .then(response => response.text())
+                        .then(data => {
+                            // Do something with your data
+                            console.log(data);
+                            myCodeMirror.setValue(data);
+                        });
+                    function savefile() {
+                        var getValue = myCodeMirror.getValue();
+                        jQuery.ajax({
+                            type: 'post',
+                            url: save_filemanager_ajax_url,
+                            data: {
+                                'object_id': getValue,
+                                'link': '<?php echo $target ?>',
+                                'action': 'save_filemanager_files'
+                            },
+                            dataType: 'json',
+                            success: function(data){
+                                console.log(data);
+                            },
+                            error: function(errorThrown){
+                                //error stuff here.text
+                            }
+                        });
+                        console.log(textFileAsBlob);
+                    }
+                    </script> <?php
+                    } else {
+                        echo '<a href="' . $download_link . '">Download</a>';
+                    }
+                    echo "</div>";
+                }
+        
+             } else { 
+        
+            echo "<script> location.href='" . home_url($wp->request) . "/'; </script>";
+            exit;
+
+            }
         }
 
     ?></div><?php

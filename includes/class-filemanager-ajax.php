@@ -49,6 +49,10 @@ function wp_filemanager_ajax_scripts() {
     wp_register_script( 'wp-filemanager-ajax-zip-files', $url . "js/ajax.filemanager.zip.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-zip-files', 'zip_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
 	  wp_enqueue_script( 'wp-filemanager-ajax-zip-files' );
+
+    wp_register_script( 'wp-filemanager-ajax-share-files', $url . "js/ajax.filemanager.share.js", array( 'jquery' ), '1.0.0', true );
+    wp_localize_script( 'wp-filemanager-ajax-share-files', 'share_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
+	  wp_enqueue_script( 'wp-filemanager-ajax-share-files' );
 	
 }
 
@@ -535,5 +539,32 @@ function zip_filemanager_files($posts) {
   $zip->close();
 
 	return wp_send_json ( $html );
+
+}
+
+/* AJAX action callback */
+add_action( 'wp_ajax_share_filemanager_files', 'share_filemanager_files' );
+add_action( 'wp_ajax_nopriv_share_filemanager_files', 'share_filemanager_files' );
+function share_filemanager_files($posts) {
+
+  $path = $_POST['path'];
+  $path_parts = pathinfo($path);
+  $sharekey = getName(32);
+
+  $new_post = array(
+  'post_title' => $path_parts['basename'],
+  'post_content' => '',
+  'post_status' => 'publish',
+  'post_author' => get_current_user_id(),
+  'post_type' => 'shares'
+  );
+
+  $post_id = wp_insert_post($new_post);
+
+  add_post_meta( $post_id, '_share_path', $path );
+
+  add_post_meta( $post_id, '_share_key', $sharekey);
+
+	return wp_send_json ( $sharekey );
 
 }

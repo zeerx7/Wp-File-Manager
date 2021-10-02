@@ -116,11 +116,15 @@ class File_Manager {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-filemanager-admin.php';
 
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/partials/filemanager-admin-display.php';
+
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-filemanager-public.php';
+
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-filemanager-cpt.php';
 
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-filemanager-ajax.php';
 

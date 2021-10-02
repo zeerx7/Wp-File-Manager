@@ -60,6 +60,8 @@
 				filemanager_rename_files($);
 
 				filemanager_info_files($);
+
+				filemanager_share_files($);
 				
 				$("#errorlog").empty();	
 

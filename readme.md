@@ -11,6 +11,7 @@
 
 ## Changelog
 
+- 0.14 - Add public share link to file.
 - 0.14 - Add unique key to download link.
 - 0.13 - Add copy button.
 - 0.13 - Menu top is now part of smoothState wrapper.
