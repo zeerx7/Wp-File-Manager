@@ -62,6 +62,113 @@ function save_share_meta_box($post_id, $post, $update) {
 }
 add_action("save_post", "save_share_meta_box", 10, 3);
 
+function custom_meta_box_workplace($object)
+{
+wp_nonce_field(basename(__FILE__), "meta-box-nonce");
+$blogusers = get_users();
+?>
+    <div style="text-align: center;">
+        <label>workplace Path</label>
+        <br>
+        <?php $workplace_path = get_post_meta($object->ID, "_workplace_path", true); ?>
+        <input name="workplace-path-textarea" type="text" id="workplace-path-textarea" value="<?php echo $workplace_path; ?>" size="30">
+        <br>
+        <label>User right</label>
+        <br>
+        <?php $workplace_right = get_post_meta($object->ID, "_workplace_right", true); ?>
+        <?php foreach ($blogusers as $bloguser) {
+            $read_ = false;
+            $write_ = false;
+            echo $bloguser->user_login . ' - ';
+            $my_option_read = $workplace_right[$bloguser->ID]['read'];
+            if ($my_option_read == 1) {
+                $read_ = true;
+            }
+            if ($read_ == true) {
+                echo 'Read<input type="checkbox" id="read" name="read[]" value="' . $bloguser->ID .'" checked>';
+            } else {
+                echo 'Read<input type="checkbox" id="read" name="read[]" value="' . $bloguser->ID .'">';
+            }
+
+            $my_option_write = $workplace_right[$bloguser->ID]['write'];
+            if ($my_option_write == 1) {
+                $write_ = true;
+            }
+            if ($write_ == true) {
+                echo 'Write<input type="checkbox" id="write" name="write[]" value="' . $bloguser->ID .'" checked>';
+            } else {
+                echo 'Write<input type="checkbox" id="write" name="write[]" value="' . $bloguser->ID .'">';
+            }
+            echo "<br>";
+        }
+        $read_ = false;
+        $write_ = false;
+        echo 'Public - ';
+        $my_option_read = $workplace_right[-1]['read'];
+        if ($my_option_read == 1) {
+            $read_ = true;
+        }
+        if ($read_ == true) {
+            echo 'Read<input type="checkbox" id="read" name="read[]" value="-1" checked>';
+        } else {
+            echo 'Read<input type="checkbox" id="read" name="read[]" value="-1">';
+        }
+
+        $my_option_write = $workplace_right[-1]['write'];
+        if ($my_option_write == 1) {
+            $write_ = true;
+        }
+        if ($write_ == true) {
+            echo 'Write<input type="checkbox" id="write" name="write[]" value="-1" checked>';
+        } else {
+            echo 'Write<input type="checkbox" id="write" name="write[]" value="-1">';
+        }
+        echo "<br>";?>
+        <br>
+    </div>
+
+<?php  
+}
+
+function add_workplace_meta_box()
+{
+    add_meta_box("date-meta-box", "Workplace Path", "custom_meta_box_workplace", "workplace", "normal", "low", null);
+}
+add_action("add_meta_boxes", "add_workplace_meta_box");
+
+function save_workplace_meta_box($post_id, $post, $update) {
+    if (!isset($_POST["meta-box-nonce"]) || !wp_verify_nonce($_POST["meta-box-nonce"], basename(__FILE__)))
+    return $post_id;
+    if(!current_user_can("edit_post", $post_id))
+        return $post_id;
+    if(defined("DOING_AUTOSAVE") && DOING_AUTOSAVE)
+        return $post_id;
+    $slug = "workplace";
+    if($slug != $post->post_type)
+        return $post_id;
+
+    if( ! isset( $_POST['workplace-path-textarea'] ) )
+    return; 
+    update_post_meta( $post_id, "_workplace_path", $_POST['workplace-path-textarea'] );
+
+    
+    if( ! isset( $_POST['read'] ) )
+    return; 
+    foreach($_POST['read'] as $read_id) {
+        $array[$read_id]['read'] = true;
+    }
+   
+    if( ! isset( $_POST['write'] ) )
+    return; 
+    foreach($_POST['write'] as $read_id) {
+        $array[$read_id]['write'] = true;
+    }
+
+    update_post_meta( $post_id, "_workplace_right", $array );
+
+}
+add_action("save_post", "save_workplace_meta_box", 10, 3);
+
 function my_edit_shares_columns( $columns ) {
 
     $columns = array(
@@ -99,4 +206,37 @@ function my_manage_shares_columns( $column, $post_id ) {
     }
 }
 add_action( 'manage_shares_posts_custom_column', 'my_manage_shares_columns', 10, 2 );
+
+function my_edit_workplace_columns( $columns ) {
+
+    $columns = array(
+        'cb' => '<input type="checkbox" />',
+        'title' => __( 'Title' ),
+        'author' => __( 'Author' ),
+        'workplace_path' => __( 'Path' )
+    );
+
+    return $columns;
+}
+add_filter( 'manage_edit-workplace_columns', 'my_edit_workplace_columns' ) ;
+
+function my_manage_workplace_columns( $column, $post_id ) {
+    global $post;
+
+    switch( $column ) {
+
+        case 'author' :
+            echo the_author();
+        break;
+
+        case 'workplace_path' :
+            echo get_post_meta( $post->ID, '_workplace_path', true);
+        break;
+
+        /* Just break out of the switch statement for everything else. */
+        default :
+        break;
+    }
+}
+add_action( 'manage_workplace_posts_custom_column', 'my_manage_workplace_columns', 10, 2 );
 ?>

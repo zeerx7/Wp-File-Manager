@@ -460,27 +460,24 @@ function filemanager_shortcode() {
     $share = $_GET['share'];
     $my_option_name = get_option('my_option_name');
     global $wp;
+    $workplace_strpos = false;
+    $workplace_last = false;
+    $read_path = false;
+    $write_path = false;
     $i = 0;
     $x = 0;
 
-    foreach ($my_option_name['id_name'] as $id_name){
-        foreach( $my_option_name['read-'.$id_name] as $read_id ){
-            $id_read[$id_name] .= $read_id;
-        }
-    }
+    $posts = get_posts( array(
+        'post_type'      => 'workplace',
+        'posts_per_page' => -1,
+        'orderby'        => 'modified',
+        'no_found_rows'  => true
+    ));
 
-    foreach ($my_option_name['id_name'] as $id_name){
-        foreach( $my_option_name['write-'.$id_name] as $write_id ){
-            $id_write[$id_name] .= $write_id;
-        }
-    }
-
-    foreach( $my_option_name['read-path'] as $read_path_id ){
-            $id_read_path[] .= $read_path_id;
-    }
-            
-    foreach( $my_option_name['write-path'] as $write_path_id ){
-            $id_write_path[] .= $write_path_id;
+    foreach($posts as $post) {
+        $title = get_the_title($post->ID); 
+        $workplacepath[$post->ID] = get_post_meta( $post->ID, "_workplace_path", true);
+        $workplaceright[$post->ID] = get_post_meta( $post->ID, "_workplace_right", true);
     }
 
     if (isset($home)) {
@@ -494,30 +491,23 @@ function filemanager_shortcode() {
         }
         $read_path = true;
         $write_path = true;
-    } elseif (isset($workplace)) { 
-        foreach ($my_option_name['id_path'] as $id_path) {
+    } elseif (isset($workplace)) {
+        foreach ($workplacepath as $id_path) {
             $id_path_ = rtrim($id_path, "/");
             $workplace_ = rtrim($workplace, "/");
             if (strpos($workplace_, $id_path_) !== false) {
-                $explodeidread = explode(',', $id_read[$my_option_name['id_name'][$i]]);
-                if (in_array($user->ID, $explodeidread)) {
-                    $read_path = true;
-                }
-                $explodeidwrite = explode(',', $id_write[$my_option_name['id_name'][$i]]);
-                if (in_array($user->ID, $explodeidwrite)) {
-                    $write_path = true;
-                }
-            }
-            $i++;
-        }
-        foreach($my_option_name['id_path'] as $id_path) {
-            $id_path_ = rtrim($id_path, "/");
-            $workplace_ = rtrim($workplace, "/");
-            if ($workplace_ == $id_path_) {
-                $workplace_last = true;
-            }
-            if (strpos($workplace, $id_path_) !== false) {
                 $workplace_strpos = true;
+                if ($workplace_ == $id_path_) {
+                    $workplace_last = true;
+                }
+                foreach($workplaceright as $userright) {
+                    if($userright[$user->ID]['read'] == 1) {
+                        $read_path = true;
+                    }
+                    if($userright[$user->ID]['write'] == 1) {
+                        $write_path = true;
+                    }
+                }
             }
         }
         $path_implode = $workplace;
@@ -590,20 +580,19 @@ function filemanager_shortcode() {
 
     echo "<div id='filemanager-home' class='filemanager-home'>";
     if ($user->ID != '-1') {
-        ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/' . get_post_field( 'post_name' ); ?>/?home=<?php echo $my_option_name['title'] . esc_html($user->user_login) ?>'>Home</a></br><?php
+        ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/?home=/home/' . esc_html($user->user_login) ?>'>Home</a></br><?php
     }
 
-    foreach ($my_option_name['id_name'] as $id_name){
-        $explodeidread = explode(',', $id_read[$id_name]);
-        if (in_array($user->ID, $explodeidread)) {
-            ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) ?>/?workplace=<?php echo $my_option_name['id_path'][$x] ?>'><?php echo $id_name ?></a></br><?php
-            $i++;
+    foreach ($workplacepath as $postid=>$id_path){
+        foreach($workplaceright[$postid] as $userid=>$right) {
+            if ($user->ID == $userid) {
+                ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/?workplace=' . esc_html( $id_path ) ?>'><?php echo get_the_title( $postid ) ?></a></br><?php
+            }
         }
-        $x++;
     }
 
     if (in_array($user->ID, $id_read_path)) {
-        ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/' . get_post_field( 'post_name' ); ?>/?path=<?php echo ABSPATH ?>'>Path</a><?php
+        ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/?path=' . esc_html( ABSPATH ) ?>'>Path</a><?php
     }
 
     echo "</div>";
@@ -698,7 +687,7 @@ function filemanager_shortcode() {
                                     if (isset($path)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?path=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
                                 } 
                                 if ($path_parts[1] == '' || $workplace_last == true || $workplace_strpos != true) { ?>
-                                <a class='btnback_home' href='<?php echo home_url($wp->request) ?>'>Home</a>
+                                <a class='btnback_home' href='<?php echo home_url($wp->request) ?>/'>Home</a>
                             <?php } ?>
                             <div class='btninfo'>Info</div>
                         </div>
