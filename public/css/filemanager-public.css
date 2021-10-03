@@ -151,6 +151,16 @@ tr.selected {
    width: 100%;
 }
 
+.filemanagerpagination {
+   margin-left: auto;
+   margin-right: auto;
+   display: table;
+}
+
+.filemanagerpagination a {
+   padding: 0 2.5px;
+}
+
 .CodeMirror {
    height: auto;
  }

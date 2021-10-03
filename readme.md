@@ -11,6 +11,7 @@
 
 ## Changelog
 
+- 0.15 - add Pagination in scandir().
 - 0.14 - Add public share link to file.
 - 0.14 - Add unique key to download link.
 - 0.13 - Add copy button.

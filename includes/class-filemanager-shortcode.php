@@ -611,8 +611,23 @@ function filemanager_shortcode() {
     } else {
 
         if ($workplace_strpos == true && $read_path == true){
-            $allFiles = scandir($path_implode);
+            if ($dh = opendir($path_implode)) {
+                while (($file = readdir($dh)) !== false) {
+                    $allFiles[] = $file;
+                }
+                closedir($dh);
+            }
             $files = array_diff($allFiles, array('.', '..'));
+
+            $perpage = 100;
+            $page = $_GET['pages'];
+            if(!$page) $page = 1;
+            $offset = ($page-1)*$perpage;
+
+            $total_files = sizeof($files);
+            $total_pages = ceil($total_files/$perpage);
+            $files = array_slice($files, $offset, $perpage);
+
             $path_parts = explode("/", $path_implode);
             if ( is_dir($path_implode) == true ) {
                 if ($write_path == true) {
@@ -738,11 +753,29 @@ function filemanager_shortcode() {
                                     fwrite($file, "{$getoauth}\n");
                                     fclose($file);
                                 }
+
                         }
                         if ($files == null) {
                             echo "<tr><td><input class='checkbox' type='checkbox' /></td><td class='filemanager-table'><a id='file-id' class='filemanager-click'>No file found</a></td></tr>";
                         }
-                    echo "</table></div></div>";
+                    echo "</table></div>";
+
+                    if (isset($home)) { $arg = 'home'; }
+
+                    if (isset($workplace)) { $arg = 'workplace'; }
+
+                    if (isset($path)) { $arg = 'path'; }
+
+                    if($total_pages > 1) {
+                        echo '<div class="filemanagerpagination">';
+                        echo '<a class="page" href="?'.$arg.'='.$path_implode.'&pages='.(($page-1>1)?($page-1):1).'"><<</a>';
+                        for($p=1; $p<=$total_pages; $p++) {
+                            echo ' <a class="page" href="?'.$arg.'='.$path_implode.'&pages='.$p.'">'.$p.'</a> ';                      
+                        }
+                        echo '<a class="page" href="?'.$arg.'='.$path_implode.'&pages='.(($page+1>$total_pages)?$total_pages:($page+1)).'">>></a>';
+                    }
+
+                echo "</div>";
 
                 } elseif ( isset($path) || isset($workplace) || isset($home) || isset($share)) {
                     // Include the configuration file
@@ -754,7 +787,7 @@ function filemanager_shortcode() {
                     $direname = dirname($object_id);
                     $basename = basename($object_id);
                     $path_ = pathinfo($basename);
-                    $ext = $path_['extension'];
+                    $ext = strtolower($path_['extension']);
                     $key = trim($_GET['oauth']);
         
                     // Retrieve the keys from the tokens file
