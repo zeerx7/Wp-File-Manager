@@ -529,12 +529,27 @@ function zip_filemanager_files($posts) {
   $paths = array_values(array_filter($_POST['path']));
   $inputVal = $_POST['inputVal'];
   $direname = pathinfo($paths[0]);
+  $zipfilepath = $direname['dirname'].'/'.$inputVal;
   $zip = new ZipArchive();
 
-  $zip->open($inputVal, ZipArchive::CREATE);
+  $html[] = $zipfilepath;
+  $zip->open($zipfilepath, ZipArchive::CREATE);
   foreach ( $paths as $path ) {
-      $zip->addFile($path);
-      $html[] .= $path;
+      if(is_dir($path)) {
+        $directory = new \RecursiveDirectoryIterator($path);
+        $iterator = new \RecursiveIteratorIterator($directory);
+        foreach ($iterator as $info) {
+          if($info->getFilename() != "." && $info->getFilename() != "..") {
+            $workingdir = str_replace($direname['dirname'], '',  $info->getPathname());
+            $zip->addFile($info->getPathname(), $workingdir);
+            $html[] .= $workingdir;
+          }
+        }
+      } else {
+        $path_parts = pathinfo($path);
+        $zip->addFile($path, $path_parts['basename']);
+        $html[] .= $path_parts['basename'];
+      }
   }
   $zip->close();
 

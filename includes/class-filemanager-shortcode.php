@@ -681,6 +681,7 @@ function filemanager_shortcode() {
                                     <div id='subnav-content-zip' class='subnav-content'>
                                         <span>
                                             <input type='text' id='lnamezip' name='lname'></input>
+                                            <div id='loadzip'></div>
                                             <button class='zipbtn'>create</button>
                                         <span>
                                     </div>
@@ -715,14 +716,15 @@ function filemanager_shortcode() {
                             $filesize = formatSizeUnits(filesize($pathfilezise));
                             $realpath = realpath($path_implode.'/'.$file);
                             if ( is_dir($realpath) == true ) {
+                                $filesizedir = formatSizeUnits(GetDirectorySize($realpath));
                                 if (isset($home)) {
-                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath'>$file</a></td><td>$filesizedir</td></tr>";
                                 }
                                 if (isset($workplace)) { 
-                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplace=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplace=$realpath'>$file</a></td><td>$filesizedir</td></tr>";
                                 }
                                 if (isset($path)) {
-                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesizedir</td></tr>";
                                 }
                             } else {
                                 $getname = getName(32);

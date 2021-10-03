@@ -52,6 +52,9 @@ function filemanager_zip_files($, object_id) {
                     'action': 'zip_filemanager_files'
                 },
                 dataType: 'json',
+                beforeSend: function() {
+                    $("#loadzip").css('display', 'block');
+                },
                 success: function(data){
                     console.log(data);
                     jQuery.ajax({
