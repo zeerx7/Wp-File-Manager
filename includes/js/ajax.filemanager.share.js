@@ -40,7 +40,11 @@ function filemanager_share_files($) {
                 dataType: 'json',
                 success: function(data){
                     console.log(data);
-                    document.getElementById('lnameshare').value = link+'?share='+data;
+                    if(data[1]){
+                        document.getElementById('lnameshare').value = link+'?share='+data[0]+'&sharepath='+data[1];
+                    } else {
+                        document.getElementById('lnameshare').value = link+'?share='+data[0];
+                    }
                 },
                 error: function(errorThrown){
                     //error stuff here.text

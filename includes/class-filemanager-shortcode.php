@@ -1,5 +1,6 @@
 <?php
 
+
 class MySettingsPage
 {
     /**
@@ -14,9 +15,6 @@ class MySettingsPage
     {
         add_action( 'admin_menu', array( $this, 'add_plugin_page' ) );
         add_action( 'admin_init', array( $this, 'page_init' ) );
-        add_action( 'wp_ajax_my_action', array( $this, 'my_action') );
-        add_action( 'wp_ajax_id_remove', array( $this, 'id_remove') );
-        add_action( 'admin_footer', array( $this, 'my_action_javascript') ); // Write our JS below here
     }
 
     /**
@@ -26,112 +24,30 @@ class MySettingsPage
     {
     // add top level menu page
 	add_menu_page(
-            'Settings Admin', 
-            'My Settings', 
+            'File Manager', 
+            'File Manager', 
             'manage_options', 
             'my-setting-admin', 
             array( $this, 'create_admin_page' )
         );
-    }
-
-    function my_action() {
-        global $wpdb; // this is how you get access to the database
-
-        $my_option_name = get_option('my_option_name');
-    
-        $count = intval( $_POST['count'] );
-
-        $html = '<div>';
-    
-        $html .= '<input type="text" id="id_name" class="id_name" name="my_option_name[id_name][' . $count . ']" value="' . $my_option_name['id_name'][$count] . '" />';
-
-        $html .= '<input type="text" id="id_path" class="id_path" name="my_option_name[id_path][' . $count . ']" value="' . $my_option_name['id_path'][$count] . '" />';
-    
-        $html .= '</div>';
-    
-        return wp_send_json ( $html );
-    }
-
-    function id_remove() {
-        global $wpdb; // this is how you get access to the database
-
-        $count = intval( $_POST['dataid'] );
-        $i = 0;
-        
-        $my_option_name = get_option('my_option_name');
-        
-        unset($my_option_name['id_name'][$count]);
-        unset($my_option_name['id_path'][$count]);
-
-        Sort($my_option_name['id_name']);
-        Sort($my_option_name['id_path']);
-
-        update_option('my_option_name',  $my_option_name);
-
-        foreach ( $my_option_name['id_name'] as $id_name ) {
-            $html .= '<table>';
-                $html .= '<td><input type="text" id="id_name" class="id_name" name="my_option_name[id_name][' . $i . ']" value="' . $id_name . '" /></td>';
-                $html .= '<td><input type="text" id="id_path" class="id_path" name="my_option_name[id_path][' . $i . ']" value="' . $my_option_name['id_path'][$i] . '" /></td>';                           
-                $html .= '<td class="id_remove_btn" data-id="' . $i . '">X</td>';
-            $html .= '</table>';
-            $i++;
-        }
-
-        return wp_send_json ( $html );
-    }
-    
-    
-    
-    function my_action_javascript() { ?>
-        <script type="text/javascript" >
-        function add_chart_data($) {
-    
-            $("#add-workspace-btn").on( "click", function(event) {
-            event.preventDefault();
-    
-                var data = {
-                    'action': 'my_action',
-                    'postid': $("#chart-data-table").attr('data-chartid'),
-                    'whatever': $(".tr-char").length,
-                    'count_del': $(".meta-box-btn-remove").length,
-                    'count': $(".id_name").length
-                };
-    
-                // since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
-                jQuery.post(ajaxurl, data, function(response) {
-                    console.log(response);
-                    $("#my-setting-workplace").append(response);
-                });
-    
-            });
-    
-        }
-
-        function remove_btn_data($) {
-        $(".id_remove_btn").on( "click", function(event) {
-            event.preventDefault();
-    
-                var data = {
-                    'action': 'id_remove',
-                    'dataid': $(this).attr('data-id')
-                };
-
-                // since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
-                jQuery.post(ajaxurl, data, function(response) {
-                    console.log(response);
-                    $("#my-setting-workplace").empty();
-                    $("#my-setting-workplace").append(response);
-                    remove_btn_data($);
-                });
-    
-            });
-        }
-
-        jQuery(document).ready(function($) {
-            add_chart_data($);
-            remove_btn_data($);
-        });
-        </script> <?php
+         // seconde option du sous-menu
+         add_submenu_page( 
+            "my-setting-admin",   // slug du menu parent
+            __( "Mon thème - Mon sous-menu - Configuration", "montheme" ),  // texte de la balise <title>
+            __( "Workplace", "montheme" ),   // titre de l'option de sous-menu
+            "manage_options",  // droits requis pour voir l'option de menu
+            'edit.php?post_type=workplace',
+            false // fonction de rappel pour créer la page
+         );
+        // seconde option du sous-menu
+        add_submenu_page( 
+            "my-setting-admin",   // slug du menu parent
+            __( "Mon thème - Mon sous-menu - Configuration", "montheme" ),  // texte de la balise <title>
+            __( "Shares Links", "montheme" ),   // titre de l'option de sous-menu
+            "manage_options",  // droits requis pour voir l'option de menu
+            'edit.php?post_type=shares',
+            false // fonction de rappel pour créer la page
+        );
     }
 
     /**
@@ -178,71 +94,7 @@ class MySettingsPage
                         settings_fields( 'my_option_group' );
                         do_settings_sections( 'my-setting-admin' );
                         ?><div id="my-setting-workplace">
-                            <?php foreach ($my_option_name['id_name'] as $id_name ) { ?>
-                            <table>
-                                <?php echo '<td><input type="text" id="id_name" class="id_name" name="my_option_name[id_name][' . $i . ']" value="' . $id_name . '" /></td>'; ?>
-                                <?php echo '<td><input type="text" id="id_path" class="id_path" name="my_option_name[id_path][' . $i . ']" value="' . $my_option_name['id_path'][$i] . '" /></td>'; ?>                             
-                                <?php echo '<td class="id_remove_btn" data-id="' . $i . '">X</td>'; ?>
-                                <?php $i++; ?>
-                            </table>
-                            <?php foreach ($blogusers as $bloguser) {
-                                    $read_ = false;
-                                    $write_ = false;
-                                    echo $bloguser->user_login . ' - ';
-                                    $my_option_read = $my_option_name['read-'.$id_name];
-                                    foreach ( $my_option_read as $read) {
-                                        if ($read == $bloguser->ID) {
-                                            $read_ = true;
-                                        }
-                                    }
-                                    if ($read_ == true) {
-                                        echo 'Read<input type="checkbox" id="read-' . $id_name . '" name="my_option_name[read-' . $id_name . '][' . $m . ']" value="' . $bloguser->ID .'" checked>';
-                                    } else {
-                                        echo 'Read<input type="checkbox" id="read-' . $id_name . '" name="my_option_name[read-' . $id_name . '][' . $m . ']" value="' . $bloguser->ID .'">';
-                                    }
-
-                                    $my_option_write = $my_option_name['write-'.$id_name];
-                                    foreach ( $my_option_write as $write) {
-                                        if ($write == $bloguser->ID) {
-                                            $write_ = true;
-                                        }
-                                    }
-                                    if ($write_ == true) {
-                                        echo 'Write<input type="checkbox" id="write-' . $id_name . '" name="my_option_name[write-' . $id_name . '][' . $m . ']" value="' . $bloguser->ID .'" checked>';
-                                    } else {
-                                        echo 'Write<input type="checkbox" id="write-' . $id_name . '" name="my_option_name[write-' . $id_name . '][' . $m . ']" value="' . $bloguser->ID .'">';
-                                    }
-                                    $m++;
-                                }
-                                $read_ = false;
-                                $write_ = false;
-                                echo 'Public - ';
-                                $my_option_read = $my_option_name['read-'.$id_name];
-                                foreach ( $my_option_read as $read) {
-                                    if ($read == -1) {
-                                        $read_ = true;
-                                    }
-                                }
-                                if ($read_ == true) {
-                                    echo 'Read<input type="checkbox" id="read-' . $id_name . '" name="my_option_name[read-' . $id_name . '][' . $m . ']" value="-1" checked>';
-                                } else {
-                                    echo 'Read<input type="checkbox" id="read-' . $id_name . '" name="my_option_name[read-' . $id_name . '][' . $m . ']" value="-1">';
-                                }
-
-                                $my_option_write = $my_option_name['write-'.$id_name];
-                                foreach ( $my_option_write as $write) {
-                                    if ($write == -1) {
-                                        $write_ = true;
-                                    }
-                                }
-                                if ($write_ == true) {
-                                    echo 'Write<input type="checkbox" id="write-' . $id_name . '" name="my_option_name[write-' . $id_name . '][' . $m . ']" value="-1" checked>';
-                                } else {
-                                    echo 'Write<input type="checkbox" id="write-' . $id_name . '" name="my_option_name[write-' . $id_name . '][' . $m . ']" value="-1">';
-                                }
-                                $m++;
-                            }
-                            ?></div><?php
+                            <?php
                             echo '</br>Acces to path</br>';
                             foreach ($blogusers as $bloguser) {
                                 $read_ = false;
@@ -370,7 +222,7 @@ class MySettingsPage
      */
     public function print_section_info()
     {
-        print '<div id="add-workspace-btn">Add Workplace</div>';
+       // print '<div id="add-workspace-btn">Add Workplace</div>';
     }
 
     /** 
@@ -458,6 +310,7 @@ function filemanager_shortcode() {
     $home = $_GET['home'];
     $workplace = $_GET['workplace'];
     $share = $_GET['share'];
+    $sharepath = $_GET['sharepath'];
     $my_option_name = get_option('my_option_name');
     global $wp;
     $workplace_strpos = false;
@@ -467,7 +320,7 @@ function filemanager_shortcode() {
     $i = 0;
     $x = 0;
 
-    $posts = get_posts( array(
+        $posts = get_posts( array(
         'post_type'      => 'workplace',
         'posts_per_page' => -1,
         'orderby'        => 'modified',
@@ -478,6 +331,26 @@ function filemanager_shortcode() {
         $title = get_the_title($post->ID); 
         $workplacepath[$post->ID] = get_post_meta( $post->ID, "_workplace_path", true);
         $workplaceright[$post->ID] = get_post_meta( $post->ID, "_workplace_right", true);
+    }
+
+    foreach ($my_option_name['id_name'] as $id_name){
+        foreach( $my_option_name['read-'.$id_name] as $read_id ){
+            $id_read[$id_name] .= $read_id;
+        }
+    }
+
+    foreach ($my_option_name['id_name'] as $id_name){
+        foreach( $my_option_name['write-'.$id_name] as $write_id ){
+            $id_write[$id_name] .= $write_id;
+        }
+    }
+
+    foreach( $my_option_name['read-path'] as $read_path_id ){
+            $id_read_path[] .= $read_path_id;
+    }
+            
+    foreach( $my_option_name['write-path'] as $write_path_id ){
+            $id_write_path[] .= $write_path_id;
     }
 
     if (isset($home)) {
@@ -520,52 +393,106 @@ function filemanager_shortcode() {
             $write_path = true;
         }
         $path_implode = $path;
-    } elseif (isset($share)) {
-            $args = array(
-                'posts_per_page' => -1,
-                'post_type' => 'shares',
-                'meta_query' => array(
-                    array(
-                        'key' => '_share_key',
-                        'value' => $share,
-                        'compare' => 'LIKE'
-                    )
+    } elseif (isset($share) && !isset($sharepath)) {
+        $args = array(
+            'posts_per_page' => -1,
+            'post_type' => 'shares',
+            'meta_query' => array(
+                array(
+                    'key' => '_share_key',
+                    'value' => $share,
+                    'compare' => 'LIKE'
                 )
-            );
+            )
+        );
 
-            $my_query = get_posts( $args );
+        $my_query = get_posts( $args );
 
-            if ($my_query) {
-                foreach ( $my_query as $post ) { 
-                    $path_implode = get_post_meta( $post->ID, '_share_path', true);
-                }                   
-            }
+        if ($my_query) {
+            foreach ( $my_query as $post ) { 
+                $path_implode = get_post_meta( $post->ID, '_share_path', true);
+            }                   
+        }
 
-            if ($path_implode) {
-                $getname = getName(32);
-                $getoauth = uniqid(time().'||'.$getname.'||'.$path_implode.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
-            
-                // Include the configuration file
-                require_once dirname(__FILE__) . '/config.php';
-    
-                // Create a protected directory to store keys
-                if(!is_dir(TOKEN_DIR)) {
-                    mkdir(TOKEN_DIR);
-                    $file = fopen(TOKEN_DIR.'/.htaccess','w');
-                    fwrite($file,"Order allow,deny\nDeny from all");
-                    fclose($file);
-                }
-                
-                // Write the key to the keys list
-                $file = fopen(TOKEN_DIR.'/oauth','a');
-                fwrite($file, "{$getoauth}\n");
+        if ($path_implode) {
+            $getname = getName(32);
+            $getoauth = uniqid(time().'||'.$getname.'||'.$path_implode.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
+        
+            // Include the configuration file
+            require_once dirname(__FILE__) . '/config.php';
+
+            // Create a protected directory to store keys
+            if(!is_dir(TOKEN_DIR)) {
+                mkdir(TOKEN_DIR);
+                $file = fopen(TOKEN_DIR.'/.htaccess','w');
+                fwrite($file,"Order allow,deny\nDeny from all");
                 fclose($file);
+            }
+            
+            // Write the key to the keys list
+            $file = fopen(TOKEN_DIR.'/oauth','a');
+            fwrite($file, "{$getoauth}\n");
+            fclose($file);
+            $read_path = true;
+            $workplace_strpos = true;
+            if(!$_GET['oauth']){
+                echo "<script>location.href='?share=".$_GET['share']."&oauth=".$getname."';</script>";
+            }
+        }
+    } elseif (isset($share) && isset($sharepath)) {
+        $args = array(
+            'posts_per_page' => -1,
+            'post_type' => 'shares',
+            'meta_query' => array(
+                array(
+                    'key' => '_share_key',
+                    'value' => $share,
+                    'compare' => 'LIKE'
+                )
+            )
+        );
+
+        $my_query = get_posts( $args );
+
+        if ($my_query) {
+            foreach ( $my_query as $post ) { 
+                $path_share = get_post_meta( $post->ID, '_share_path', true);
+            }                   
+        }
+
+        if ($path_share) {
+            $getname = getName(32);
+            $getoauth = uniqid(time().'||'.$getname.'||'.$path_share.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
+        
+            // Include the configuration file
+            require_once dirname(__FILE__) . '/config.php';
+
+            // Create a protected directory to store keys
+            if(!is_dir(TOKEN_DIR)) {
+                mkdir(TOKEN_DIR);
+                $file = fopen(TOKEN_DIR.'/.htaccess','w');
+                fwrite($file,"Order allow,deny\nDeny from all");
+                fclose($file);
+            }
+            
+            // Write the key to the keys list
+            $file = fopen(TOKEN_DIR.'/oauth','a');
+            fwrite($file, "{$getoauth}\n");
+            fclose($file);
+            if(!$_GET['oauth']){
+                echo "<script>location.href='?share=".$_GET['share']."&sharepath=".$_GET['sharepath']."&oauth=".$getname."';</script>";
+            }
+            $id_path_ = rtrim($path_share, "/");
+            $sharepath_ = rtrim($_GET['sharepath'], "/");
+            if (strpos($sharepath_, $id_path_) !== false) {
                 $read_path = true;
                 $workplace_strpos = true;
-                if(!$_GET['oauth']){
-                    echo "<script>location.href='?share=".$_GET['share']."&oauth=".$getname."';</script>";
-                }
             }
+            if ($sharepath_ == $id_path_) {
+                $workplace_last = true;
+            }
+            $path_implode = $_GET['sharepath'];
+        }
     } else {
         $path_implode = null;
     }
@@ -575,27 +502,27 @@ function filemanager_shortcode() {
 
     ?><div id='errorlog'></div><?php
     ?><div id='filemanager-wrapper' class='filemanager-wrapper'><?php
-
-    if ($path == null && $home == null && $workplace == null && $share == null) {
-
-    echo "<div id='filemanager-home' class='filemanager-home'>";
-    if ($user->ID != '-1') {
-        ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/?home=/home/' . esc_html($user->user_login) ?>'>Home</a></br><?php
-    }
-
-    foreach ($workplacepath as $postid=>$id_path){
-        foreach($workplaceright[$postid] as $userid=>$right) {
-            if ($user->ID == $userid) {
-                ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/?workplace=' . esc_html( $id_path ) ?>'><?php echo get_the_title( $postid ) ?></a></br><?php
+    
+    if ($path == null && $home == null && $workplace == null && $share == null && $sharepath == null) {
+    
+        echo "<div id='filemanager-home' class='filemanager-home'>";
+        if ($user->ID != '-1') {
+            ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/?home=/home/' . esc_html($user->user_login) ?>'>Home</a></br><?php
+        }
+    
+        foreach ($workplacepath as $postid=>$id_path){
+            foreach($workplaceright[$postid] as $userid=>$right) {
+                if ($user->ID == $userid) {
+                    ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/?workplace=' . esc_html( $id_path ) ?>'><?php echo get_the_title( $postid ) ?></a></br><?php
+                }
             }
         }
-    }
-
-    if (in_array($user->ID, $id_read_path)) {
-        ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/?path=' . esc_html( ABSPATH ) ?>'>Path</a><?php
-    }
-
-    echo "</div>";
+    
+        if (in_array($user->ID, $id_read_path)) {
+            ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/?path=' . esc_html( ABSPATH ) ?>'>Path</a><?php
+        }
+    
+        echo "</div>";
 
     } else {
 
@@ -670,14 +597,25 @@ function filemanager_shortcode() {
                                     <div id='subnav-content-zip' class='subnav-content'>
                                         <span>
                                             <input type='text' id='lnamezip' name='lname'></input>
-                                            <div id='loadzip'></div>
                                             <button class='zipbtn'>create</button>
+                                        <span>
+                                    </div>
+                                </div>
+                                <div class='subnav subnavzip'>
+                                    <button class='subnavbtn btnshare'>Share dir</button>
+                                    <div id='subnav-content-share' class='subnav-content'>
+                                        <span>
+                                            <input type='text' id='lnameshare' readonly></span>
+                                            <button class='newsharelink'>Create share link</button>
                                         <span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     <script type="text/javascript">document.getElementById("filemanagerbtnup").style.display = "block";</script>
+                    <script type="text/javascript">jQuery(document).ready(function($) {
+                        filemanager_share_files($);
+                    });</script>
                 <?php } ?>
                     <div id='filemanagerbtndown' class='filemanagerbtn'>
                         <div class='navbar'>
@@ -685,9 +623,10 @@ function filemanager_shortcode() {
                                     if (isset($home)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?home=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
                                     if (isset($workplace)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?workplace=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
                                     if (isset($path)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?path=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
+                                    if (isset($sharepath)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request)  . "/?share=" . $share . "&sharepath=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
                                 } 
                                 if ($path_parts[1] == '' || $workplace_last == true || $workplace_strpos != true) { ?>
-                                <a class='btnback_home' href='<?php echo home_url($wp->request) ?>/'>Home</a>
+                                <a class='btnback_home' href='<?php echo home_url($wp->request) ?>'>Home</a>
                             <?php } ?>
                             <div class='btninfo'>Info</div>
                         </div>
@@ -697,23 +636,27 @@ function filemanager_shortcode() {
                         if (isset($home)) { ?><a href='<?php  echo home_url($wp->request) . "/?home=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
                         if (isset($workplace)) { ?><a href='<?php  echo home_url($wp->request) . "/?workplace=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
                         if (isset($path)) { ?><a href='<?php  echo home_url($wp->request) . "/?path=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
+                        if (isset($sharepath)) { ?><a href='<?php  echo home_url($wp->request) . "/?share=" . $share . "&sharepath=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
                         echo '/';
                     }?></div><?php
                     ?><div class='file-table'><table id='file-table'><?php
                         foreach($files as $file){
                             $pathfilezise = $path_implode.'/'.$file;
                             $filesize = formatSizeUnits(filesize($pathfilezise));
+
                             $realpath = realpath($path_implode.'/'.$file);
                             if ( is_dir($realpath) == true ) {
-                                $filesizedir = formatSizeUnits(GetDirectorySize($realpath));
                                 if (isset($home)) {
-                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath'>$file</a></td><td>$filesizedir</td></tr>";
+                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath'>$file</a></td><td>$filesize</td></tr>";
                                 }
                                 if (isset($workplace)) { 
-                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplace=$realpath'>$file</a></td><td>$filesizedir</td></tr>";
+                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplace=$realpath'>$file</a></td><td>$filesize</td></tr>";
                                 }
                                 if (isset($path)) {
-                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesizedir</td></tr>";
+                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                                }
+                                if (isset($sharepath)) {
+                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?share=$share&sharepath=$realpath'>$file</a></td><td>$filesize</td></tr>";
                                 }
                             } else {
                                 $getname = getName(32);
@@ -726,6 +669,9 @@ function filemanager_shortcode() {
                                 }
                                 if (isset($path)) {
                                     echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                                }
+                                if (isset($sharepath)) {
+                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?share=$share&sharepath=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
                                 }
                                 
                                     // Include the configuration file
@@ -744,29 +690,28 @@ function filemanager_shortcode() {
                                     fwrite($file, "{$getoauth}\n");
                                     fclose($file);
                                 }
-
                         }
                         if ($files == null) {
                             echo "<tr><td><input class='checkbox' type='checkbox' /></td><td class='filemanager-table'><a id='file-id' class='filemanager-click'>No file found</a></td></tr>";
                         }
                     echo "</table></div>";
 
-                    if (isset($home)) { $arg = 'home'; }
-
-                    if (isset($workplace)) { $arg = 'workplace'; }
-
-                    if (isset($path)) { $arg = 'path'; }
-
-                    if($total_pages > 1) {
-                        echo '<div class="filemanagerpagination">';
-                        echo '<a class="page" href="?'.$arg.'='.$path_implode.'&pages='.(($page-1>1)?($page-1):1).'"><<</a>';
-                        for($p=1; $p<=$total_pages; $p++) {
-                            echo ' <a class="page" href="?'.$arg.'='.$path_implode.'&pages='.$p.'">'.$p.'</a> ';                      
+                        if (isset($home)) { $arg = 'home'; }
+    
+                        if (isset($workplace)) { $arg = 'workplace'; }
+    
+                        if (isset($path)) { $arg = 'path'; }
+    
+                        if($total_pages > 1) {
+                            echo '<div class="filemanagerpagination">';
+                            echo '<a class="page" href="?'.$arg.'='.$path_implode.'&pages='.(($page-1>1)?($page-1):1).'"><<</a>';
+                            for($p=1; $p<=$total_pages; $p++) {
+                                echo ' <a class="page" href="?'.$arg.'='.$path_implode.'&pages='.$p.'">'.$p.'</a> ';                      
+                            }
+                            echo '<a class="page" href="?'.$arg.'='.$path_implode.'&pages='.(($page+1>$total_pages)?$total_pages:($page+1)).'">>></a>';
                         }
-                        echo '<a class="page" href="?'.$arg.'='.$path_implode.'&pages='.(($page+1>$total_pages)?$total_pages:($page+1)).'">>></a>';
-                    }
-
-                echo "</div>";
+    
+                    echo "</div>";
 
                 } elseif ( isset($path) || isset($workplace) || isset($home) || isset($share)) {
                     // Include the configuration file
@@ -811,7 +756,7 @@ function filemanager_shortcode() {
                     // Verify the oauth password
                     if($match != true){
                         if($share){
-                            echo "<script>location.href='?share=".$_GET['share']."';</script>";
+                        //    echo "<script>location.href='?share=".$_GET['share']."';</script>";
                         } else {
                             echo "false";
                             // Return 404 error, if not a correct path

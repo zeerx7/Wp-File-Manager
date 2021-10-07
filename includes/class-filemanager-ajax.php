@@ -576,10 +576,14 @@ function share_filemanager_files($posts) {
 
   $post_id = wp_insert_post($new_post);
 
-  add_post_meta( $post_id, '_share_path', $path );
-
   add_post_meta( $post_id, '_share_key', $sharekey);
+  $html[0] = $sharekey;
 
-	return wp_send_json ( $sharekey );
+  add_post_meta( $post_id, '_share_path', $path );
+  if(is_dir($path)) {
+    $html[1] = $path;
+  }
+
+	return wp_send_json ( $html );
 
 }
