@@ -990,7 +990,7 @@ function filemanager_shortcode() {
                     </script> <?php
                     } else { ?>
                         <div class='navbar navbarfile'>
-                            <a href="<?php echo $download_link ?>" class="no-smoothState btninfo">Download</a>
+                            <a href="<?php echo $download_link ?>" class="no-smoothState">Download</a>
                         </div></div><?php   
                         echo '<div class="">' . basename($object_id) . '</div>';
                         echo '<div class="">' . formatSizeUnits(filesize($object_id)) . '</div>';
