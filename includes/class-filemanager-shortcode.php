@@ -47,6 +47,14 @@ class MySettingsPage
             'edit.php?post_type=shares',
             false // fonction de rappel pour créer la page
         );
+        add_submenu_page( 
+            "my-setting-admin",   // slug du menu parent
+            __( "Mon thème - Mon sous-menu - Configuration", "montheme" ),  // texte de la balise <title>
+            __( "Disk", "montheme" ),   // titre de l'option de sous-menu
+            "manage_options",  // droits requis pour voir l'option de menu
+            'edit.php?post_type=disk',
+            false // fonction de rappel pour créer la page
+        );
     }
 
     /**
@@ -477,9 +485,6 @@ function filemanager_shortcode() {
 
     echo "<div id='sequentialupload' class='sequentialupload' data-object-id='$path_implode'></div>"; 
     ?><script type="text/javascript">document.getElementById("sequentialupload").style.display = "none";</script>
-    <script type="text/javascript">jQuery(document).ready(function($) {
-        filemanager_share_files($);
-    });</script>
     <?php
 
     ?><div id='errorlog'></div><?php
@@ -503,8 +508,37 @@ function filemanager_shortcode() {
         if (in_array($user->ID, $id_read_path)) {
             ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/?path=' . esc_html( ABSPATH ) ?>'>Path</a><?php
         }
-    
-        echo "</div>";
+
+        $args = array(
+            'posts_per_page' => -1,
+            'post_type' => 'disk',
+        );
+
+        $my_query = get_posts( $args );
+
+        if ($my_query) {
+            echo "<div class='diskinfowrapper'>";
+            foreach ( $my_query as $post ) { 
+                $path_share = get_post_meta( $post->ID, '_disk_path', true);
+                echo "<div class='diskinfo'>";
+                // set partition
+                $fs = $path_share;
+                // display available and used space
+                echo get_the_title($post->ID). " \r\n<br />";
+                echo "Total available space: " . 
+                round(disk_total_space($fs) / (1024*1024)) . " MB\r\n<br />"; 
+                echo "Total free space: " . round(disk_free_space($fs) / (1024*1024)) . " MB\r\n<br />";
+                // calculate used space
+                $disk_used_space =
+                round((disk_total_space($fs) - disk_free_space($fs)) / (1024*1024)); 
+                echo "Total used space: " . $disk_used_space . " MB\r\n<br />";
+                // calculate % used space
+                echo "% used space: " . round((disk_total_space($fs) -
+                disk_free_space($fs)) / disk_total_space($fs) * 100) . " %";
+                echo "</div>";
+            }      
+            echo "</div>";             
+        }
 
     } else {
 
@@ -525,6 +559,8 @@ function filemanager_shortcode() {
             $total_files = sizeof($files);
             $total_pages = ceil($total_files/$perpage);
             $files = array_slice($files, $offset, $perpage);
+
+            sort($files);
 
             $path_parts = explode("/", $path_implode);
             if ( is_dir($path_implode) == true ) {
@@ -571,9 +607,7 @@ function filemanager_shortcode() {
                                     </div>
                                 </div>
                                 <div class='btnrename'>Rename</div>
-                                <?php if($user->ID != '-1'){ ?>
-                                    <div class='btndelete'>Delete</div>
-                                <?php } ?>
+                                <div class='btndelete'>Delete</div>
                                 <div class='subnav subnavzip'>
                                     <button class='subnavbtn btnzip'>Create zip</button>
                                     <div id='subnav-content-zip' class='subnav-content'>
@@ -610,19 +644,53 @@ function filemanager_shortcode() {
                             <div class='btninfo'>Info</div>
                         </div>
                     </div>
+                    <?php $path_parts_count = count($path_parts); ?>
+                    <?php $p = 1; ?>
                     <div class='filepath'><?php foreach($path_parts as $path_part) {
                         $path_part_ .= '/'.$path_part;
                         if (isset($home)) { ?><a href='<?php  echo home_url($wp->request) . "/?home=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
                         if (isset($workplace)) { ?><a href='<?php  echo home_url($wp->request) . "/?workplace=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
                         if (isset($path)) { ?><a href='<?php  echo home_url($wp->request) . "/?path=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
                         if (isset($sharepath)) { ?><a href='<?php  echo home_url($wp->request) . "/?share=" . $share . "&sharepath=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
-                        echo '/';
-                    }?></div><?php
+                        if($p != $path_parts_count){
+                            echo '/';
+                        } 
+                        $p++;
+                    }
+                    ?><div class='filepathcount'><?php
+                    $filecount = 0;
+                    $directorycount = 0;
+                    foreach($files as $file){
+                        $realpath = realpath($path_implode.'/'.$file);
+                        if(is_dir($realpath)) {
+                            $directorycount++;
+                        } else {
+                            $filecount++;
+                        }
+                    }
+                    echo count($files);
+                    if(count($files) <= 1) {
+                        echo ' Element : ';
+                    } else {
+                        echo ' Elements : ';
+                    }
+                    echo $directorycount;
+                    if($directorycount <= 1) {
+                        echo ' Directorie - ';
+                    } else {
+                        echo ' Directories - ';
+                    }
+                    echo $filecount;
+                    if($filecount <= 1) {
+                        echo ' File ';
+                    } else {
+                        echo ' Files ';
+                    }
+                    ?></div></div><?php
                     ?><div class='file-table'><table id='file-table'><?php
                         foreach($files as $file){
                             $pathfilezise = $path_implode.'/'.$file;
                             $filesize = formatSizeUnits(filesize($pathfilezise));
-
                             $realpath = realpath($path_implode.'/'.$file);
                             if ( is_dir($realpath) == true ) {
                                 if (isset($home)) {
@@ -748,8 +816,17 @@ function filemanager_shortcode() {
                       
                     ?><script type="text/javascript">document.getElementById("filemanagerbtnup").style.display = "none";</script><?php
         
+                    echo "<div class='navbarfilewrapper'><div class='navbar navbarfile'>";
+                        if ($path_parts[1] != '' && $workplace_strpos == true && $workplace_last != true){
+                            if (isset($home)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?home=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
+                            if (isset($workplace)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?workplace=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
+                            if (isset($path)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?path=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
+                            if (isset($sharepath)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request)  . "/?share=" . $share . "&sharepath=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
+                        } 
+                    echo "</div>";
+
                     if(!$share){
-                        echo "<div class='navbar'>
+                        echo "<div class='navbar navbarfile'>
                             <div class='subnav'>
                                 <button class='subnavbtn btnshare'>Share file</button>
                                 <div id='subnav-content-share' class='subnav-content'>
@@ -762,23 +839,119 @@ function filemanager_shortcode() {
                         </div>";
                     }
 
-                    ?><script type="text/javascript">jQuery(document).ready(function($) {
-                        filemanager_share_files($);
-                    });</script><?php
+                    $u = 0;
+                    $b = 0;
+
+                    if (isset($home)) { $arg = 'home'; }
+    
+                    if (isset($workplace)) { $arg = 'workplace'; }
+
+                    if (isset($path)) { $arg = 'path'; }
+
+                    if (isset($share)) { $arg = 'share'; }
+                    
+                    if($home || $workplace || $path || ($share && $sharepath)) {
+
+                        if ($dh = opendir($direname)) {
+                            while (($file = readdir($dh)) !== false) {
+                                if(!is_dir($direname.'/'.$file)) {
+                                    $allFiles[] = $file;
+                                }
+                            }
+                            closedir($dh);
+                        }
+                        $files = array_diff($allFiles, array('.', '..'));
+
+                        sort($files);
+                        
+                        foreach($files as $file) {
+
+                            if($file == basename($object_id)) {
+                                $u = $b;
+                            }
+                            $b++;
+                        }
+
+                        $before = $files[$u-1];
+                        $next = $files[$u+1];
+                        $current_url = explode("?", $_SERVER['REQUEST_URI']);
+                        
+                        $getnamebefore = getName(32);
+                        $getoauth = uniqid(time().'||'.$getnamebefore.'||'.$direname.'/'.$before.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
+                    
+                        // Include the configuration file
+                        require_once dirname(__FILE__) . '/config.php';
+
+                        // Create a protected directory to store keys
+                        if(!is_dir(TOKEN_DIR)) {
+                            mkdir(TOKEN_DIR);
+                            $file = fopen(TOKEN_DIR.'/.htaccess','w');
+                            fwrite($file,"Order allow,deny\nDeny from all");
+                            fclose($file);
+                        }
+                        
+                        // Write the key to the keys list
+                        $file = fopen(TOKEN_DIR.'/oauth','a');
+                        fwrite($file, "{$getoauth}\n");
+                        fclose($file);
+
+                        $getnamenext = getName(32);
+                        $getoauth = uniqid(time().'||'.$getnamenext.'||'.$direname.'/'.$next.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
+                    
+                        // Include the configuration file
+                        require_once dirname(__FILE__) . '/config.php';
+
+                        // Create a protected directory to store keys
+                        if(!is_dir(TOKEN_DIR)) {
+                            mkdir(TOKEN_DIR);
+                            $file = fopen(TOKEN_DIR.'/.htaccess','w');
+                            fwrite($file,"Order allow,deny\nDeny from all");
+                            fclose($file);
+                        }
+                        
+                        // Write the key to the keys list
+                        $file = fopen(TOKEN_DIR.'/oauth','a');
+                        fwrite($file, "{$getoauth}\n");
+                        fclose($file);
+
+                        if($sharepath) {
+                            echo '<div class="file-info"><div class="file-next-before">';
+                            if ($before) {
+                                echo '<a href="'. $current_url[0] .'?'. $arg .'='. $share . '&sharepath=' . $direname.'/'.$before .'&oauth='. $getnamebefore .'" class="">Previous</a>';
+                            }
+                            echo '<div class="file-info file-info-name">' . basename($object_id) . '</div>';
+                            if ($next) {
+                                echo '<a href="'. $current_url[0] .'?'. $arg .'='. $share . '&sharepath=' . $direname.'/'.$next .'&oauth='. $getnamenext .'" class="">Next</a>';
+                            }
+                            echo '</div></div>';
+                        } else {
+                            echo '<div class="file-info"><div class="file-next-before">';
+                            if ($before) {
+                                echo '<a href="'. $current_url[0] .'?'. $arg .'='. $direname.'/'.$before .'&oauth='. $getnamebefore .'" class="">Previous</a>';
+                            }
+                            echo '<div class="file-info file-info-name">' . basename($object_id) . '</div>';
+                            if ($next) {
+                                echo '<a href="'. $current_url[0] .'?'. $arg .'='. $direname.'/'.$next .'&oauth='. $getnamenext .'" class="">Next</a>';
+                            }
+                            echo '</div></div>';
+                        }
+                    
+                    } else {
+                        echo '<div class="file-next-before"><div class="file-info file-info-name">' . basename($object_id) . '</div></div>';
+                    }
                 
                     if ($ext == 'jpeg' || $ext == 'jpg' || $ext == 'bmp' || $ext == 'png' || $ext == 'gif') {
                         echo '<img src="' . $download_link . '"></img>';
                     } elseif ($ext == 'mp4' || $ext == 'mkv' || $ext == 'avi' ) {
-                        echo '<div class="file-info">' . basename($object_id) . '</div>';
                         ?><video id='filemanagervideo' controls="controls" preload="auto" controlsList="nodownload" name="media">
                             <source src="<?php echo $download_link ?>" type="video/mp4">
                         </video><?php
                     } elseif ($ext == 'pdf') {
                         echo '<div id="pdf"></div>';
                         ?><script type="text/javascript">PDFObject.embed('<?php echo $download_link ?>', "#pdf");</script><?php
-                    } elseif ($ext == 'txt' || $ext == 'html' || $ext == 'php' || $ext == 'log') { 
+                    } elseif ($ext == 'txt' || $ext == 'html' || $ext == 'php' || $ext == 'js' || $ext == 'log') { 
                         if ($write_path == true) {
-                            echo '<div class="navbar"><div id="savefile" onclick="savefile();">Save</div></div>';
+                            echo '<div class="navbar navbarfile"><div id="savefile" onclick="savefile();">Save</div></div></div>';
                         }
                         echo '<div id="editor"> </div>';
                     ?><script>
@@ -815,8 +988,13 @@ function filemanager_shortcode() {
                         console.log(textFileAsBlob);
                     }
                     </script> <?php
-                    } else {
-                        echo '<a href="' . $download_link . '" class="no-smoothState">Download</a>';
+                    } else { ?>
+                        <div class='navbar navbarfile'>
+                            <a href="<?php echo $download_link ?>" class="no-smoothState btninfo">Download</a>
+                        </div></div><?php   
+                        echo '<div class="">' . basename($object_id) . '</div>';
+                        echo '<div class="">' . formatSizeUnits(filesize($object_id)) . '</div>';
+
                     }
                     echo "</div>";
                 }

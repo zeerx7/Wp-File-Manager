@@ -42,27 +42,16 @@
 				document.getElementById('sequentialupload').setAttribute('data-object-id', url_Params);
 
 				filemanager_select_files($);
-
-				filemanager_uploads_files($, url_Params);
-
-				filemanager_delete_files($, url_Params);
-
-				filemanager_createfile_files($, url_Params);
-
-				filemanager_createdir_files($, url_Params);
-
-				filemanager_copy_files($, url_Params);
-
-				filemanager_moveto_files($, url_Params);
-
-				filemanager_zip_files($, url_Params);
-
+				filemanager_uploads_files($);
+				filemanager_delete_files($);
+				filemanager_createfile_files($);
+				filemanager_createdir_files($);
+				filemanager_copy_files($);
+				filemanager_moveto_files($);
+				filemanager_zip_files($);
 				filemanager_rename_files($);
-
 				filemanager_info_files($);
-
-				filemanager_share_files($);
-				
+				filemanager_share_files($);				
 				$("#errorlog").empty();	
 
 			}

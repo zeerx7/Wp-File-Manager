@@ -1,8 +1,6 @@
-
-function filemanager_moveto_files($, object_id) {
-
-    document.getElementById('lnamemoveto').value = object_id;
     
+function filemanager_moveto_files($) {
+   
     $('.btnmoveto').on('click', function(event) {
         event.preventDefault();
         $("#errorlog").empty();
@@ -15,12 +13,15 @@ function filemanager_moveto_files($, object_id) {
             var i = 0;
             var inputVal = document.getElementById("lnamemoveto").value;
             var link = location.protocol + '//' + location.host + location.pathname;
+            var object_id = document.getElementById('sequentialupload').getAttribute('data-object-id');
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
             const urlhome = urlParams.get('home');
             const urlworkplace = urlParams.get('workplace');
             const urlpath = urlParams.get('path');
             var url_Params;
+
+            document.getElementById('lnamemoveto').value = object_id;
     
             if(urlhome != null){
                 url_Params = 'home';
@@ -65,15 +66,16 @@ function filemanager_moveto_files($, object_id) {
                             $( '.filemanager-wrapper' ).empty();		
                             $('.filemanager-wrapper').append(data);
                             filemanager_select_files($);
-                            filemanager_uploads_files($, object_id);                       
-                            filemanager_createfile_files($, object_id);            
-                            filemanager_createdir_files($, object_id);       
-                            filemanager_copy_files($, object_id);     
-                            filemanager_moveto_files($, object_id);            
-                            filemanager_rename_files($);           
-                            filemanager_delete_files($, object_id);
-                            filemanager_zip_files($, object_id);  
+                            filemanager_uploads_files($);
+                            filemanager_delete_files($);
+                            filemanager_createfile_files($);
+                            filemanager_createdir_files($);
+                            filemanager_copy_files($);
+                            filemanager_moveto_files($);
+                            filemanager_zip_files($);
+                            filemanager_rename_files($);
                             filemanager_info_files($);
+                            filemanager_share_files($);	
                         },
                         error: function(errorThrown){
                             //error stuff here.text
@@ -96,5 +98,5 @@ function filemanager_moveto_files($, object_id) {
 }
 
 jQuery(document).ready(function($) {
-    filemanager_moveto_files($, $("#sequentialupload").data('object-id'));
+    filemanager_moveto_files($);
 });

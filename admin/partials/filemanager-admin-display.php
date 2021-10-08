@@ -169,6 +169,45 @@ function save_workplace_meta_box($post_id, $post, $update) {
 }
 add_action("save_post", "save_workplace_meta_box", 10, 3);
 
+function custom_meta_box_disk($object)
+{
+wp_nonce_field(basename(__FILE__), "meta-box-nonce");
+?>
+    <div style="text-align: center;">
+        <label>disk Path</label>
+        <br>
+        <?php $disk_path = get_post_meta($object->ID, "_disk_path", true); ?>
+        <input name="disk-path-textarea" type="text" id="disk-path-textarea" value="<?php echo $disk_path; ?>" size="30">
+        <br>
+    </div>
+
+<?php  
+}
+
+function add_disk_meta_box()
+{
+    add_meta_box("date-meta-box", "disk link meta data", "custom_meta_box_disk", "disk", "normal", "low", null);
+}
+add_action("add_meta_boxes", "add_disk_meta_box");
+
+function save_disk_meta_box($post_id, $post, $update) {
+    if (!isset($_POST["meta-box-nonce"]) || !wp_verify_nonce($_POST["meta-box-nonce"], basename(__FILE__)))
+    return $post_id;
+    if(!current_user_can("edit_post", $post_id))
+        return $post_id;
+    if(defined("DOING_AUTOSAVE") && DOING_AUTOSAVE)
+        return $post_id;
+    $slug = "disk";
+    if($slug != $post->post_type)
+        return $post_id;
+
+    if( ! isset( $_POST['disk-path-textarea'] ) )
+    return; 
+    update_post_meta( $post_id, "_disk_path", $_POST['disk-path-textarea'] );   
+    
+}
+add_action("save_post", "save_disk_meta_box", 10, 3);
+
 function my_edit_shares_columns( $columns ) {
 
     $columns = array(

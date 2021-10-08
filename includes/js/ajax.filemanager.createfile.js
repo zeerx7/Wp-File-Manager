@@ -1,6 +1,5 @@
 
-function filemanager_createfile_files($, object_id) {
-    
+function filemanager_createfile_files($) {
     $('.btnnewfile').on('click', function(event) {
         event.preventDefault();
         $("#errorlog").empty();	
@@ -11,6 +10,7 @@ function filemanager_createfile_files($, object_id) {
 
             var inputVal = document.getElementById("lnamefile").value;
             var link = location.protocol + '//' + location.host + location.pathname;
+            var object_id = document.getElementById('sequentialupload').getAttribute('data-object-id');
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
             const urlhome = urlParams.get('home');
@@ -51,21 +51,22 @@ function filemanager_createfile_files($, object_id) {
                             console.log(data);
                             $( '.filemanager-wrapper' ).empty();		
                             $('.filemanager-wrapper').append(data);
+                            filemanager_select_files($);
+                            filemanager_uploads_files($);
+                            filemanager_delete_files($);
+                            filemanager_createfile_files($);
+                            filemanager_createdir_files($);
+                            filemanager_copy_files($);
+                            filemanager_moveto_files($);
+                            filemanager_zip_files($);
+                            filemanager_rename_files($);
+                            filemanager_info_files($);
+                            filemanager_share_files($);	
                         },
                         error: function(errorThrown){
                             //error stuff here.text
                         }
                     });
-                    filemanager_select_files($);
-                    filemanager_uploads_files($, object_id);                       
-                    filemanager_createfile_files($, object_id);            
-                    filemanager_createdir_files($, object_id);       
-                    filemanager_copy_files($, object_id);     
-                    filemanager_moveto_files($, object_id);            
-                    filemanager_rename_files($);           
-                    filemanager_delete_files($, object_id);
-                    filemanager_zip_files($, object_id);  
-                    filemanager_info_files($);
                 },
                 error: function(errorThrown){
                     //error stuff here.text
@@ -79,5 +80,5 @@ function filemanager_createfile_files($, object_id) {
 }
 
 jQuery(document).ready(function($) {
-    filemanager_createfile_files($, $("#sequentialupload").data('object-id'));
+    filemanager_createfile_files($);
 });

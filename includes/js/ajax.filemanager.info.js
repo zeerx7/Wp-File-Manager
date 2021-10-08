@@ -1,9 +1,5 @@
 
 function filemanager_info_files($) {
-
-    $.fn.ready();
-	'use strict';
-
     $('.btninfo').on('click', function(event) {
         event.preventDefault();
         $("#errorlog").empty();	
@@ -36,16 +32,17 @@ function filemanager_info_files($) {
                     event.preventDefault();
                     $(this).parent().remove();
                 });
-                filemanager_select_files($);
-                filemanager_uploads_files($, object_id);                       
-                filemanager_createfile_files($, object_id);            
-                filemanager_createdir_files($, object_id);       
-                filemanager_copy_files($, object_id);     
-                filemanager_moveto_files($, object_id);            
-                filemanager_rename_files($);           
-                filemanager_delete_files($, object_id);
-                filemanager_zip_files($, object_id);  
-                filemanager_info_files($);
+				filemanager_select_files($);
+				filemanager_uploads_files($);
+				filemanager_delete_files($);
+				filemanager_createfile_files($);
+				filemanager_createdir_files($);
+				filemanager_copy_files($);
+				filemanager_moveto_files($);
+				filemanager_zip_files($);
+				filemanager_rename_files($);
+				filemanager_info_files($);
+				filemanager_share_files($);	
             },
             error: function(errorThrown){
                 //error stuff here.text

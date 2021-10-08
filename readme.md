@@ -1,6 +1,6 @@
 # FileManager Plugin for Wordpress</br>
 
-<img src="https://i.ibb.co/KVBY8LD/filemanager.png" />
+<img src="https://i.ibb.co/pRzWwvN/filemanager48756.png" />
 
 ## Installation
 
@@ -9,8 +9,13 @@
 3. Go to the admin setting page, and add workplace and give the read and write autorization to your user
 3. Use short code [filemanager-shortcode] in page.
 
+## Support
+
+Support for PDF, JPEG, JPG, BMP, PNG, GIF, MP4, MKV, TXT, HTML, PHP, JS, LOG.
+
 ## Changelog
 
+- 0.5 - Various fix, all btn are tested and working with php funtion, url with double slash, no smoothState on download link.
 - 0.15 - add Pagination in scandir().
 - 0.14 - Add public share link to file.
 - 0.14 - Add unique key to download link.

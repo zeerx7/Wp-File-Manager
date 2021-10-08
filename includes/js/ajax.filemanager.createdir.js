@@ -1,6 +1,5 @@
 
-function filemanager_createdir_files($, object_id) {
-    
+function filemanager_createdir_files($) {
     $('.btnnewdir').on('click', function(event) {
         event.preventDefault();
         $("#errorlog").empty();	
@@ -11,6 +10,7 @@ function filemanager_createdir_files($, object_id) {
             
             var inputVal = document.getElementById("lname").value;
             var link = location.protocol + '//' + location.host + location.pathname;
+            var object_id = document.getElementById('sequentialupload').getAttribute('data-object-id');
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
             const urlhome = urlParams.get('home');
@@ -53,15 +53,16 @@ function filemanager_createdir_files($, object_id) {
                             $( '.filemanager-wrapper' ).empty();		
                             $('.filemanager-wrapper').append(data);
                             filemanager_select_files($);
-                            filemanager_uploads_files($, object_id);                       
-                            filemanager_createfile_files($, object_id);            
-                            filemanager_createdir_files($, object_id);       
-                            filemanager_copy_files($, object_id);     
-                            filemanager_moveto_files($, object_id);            
-                            filemanager_rename_files($);           
-                            filemanager_delete_files($, object_id);
-                            filemanager_zip_files($, object_id);  
+                            filemanager_uploads_files($);
+                            filemanager_delete_files($);
+                            filemanager_createfile_files($);
+                            filemanager_createdir_files($);
+                            filemanager_copy_files($);
+                            filemanager_moveto_files($);
+                            filemanager_zip_files($);
+                            filemanager_rename_files($);
                             filemanager_info_files($);
+                            filemanager_share_files($);	
                         },
                         error: function(errorThrown){
                             //error stuff here.text
@@ -79,8 +80,8 @@ function filemanager_createdir_files($, object_id) {
 
 }
 
-function filemanager_backdir_files($, object_id) {
-    
+function filemanager_backdir_files($) {
+    var object_id = document.getElementById('sequentialupload').getAttribute('data-object-id');
     $('.btnback').on('click', function(event) {
         event.preventDefault();
         var link = location.protocol + '//' + location.host + location.pathname;
@@ -90,6 +91,6 @@ function filemanager_backdir_files($, object_id) {
 }
 
 jQuery(document).ready(function($) {
-    filemanager_backdir_files($, $("#sequentialupload").data('object-id'));
-	filemanager_createdir_files($, $("#sequentialupload").data('object-id'));
+    filemanager_backdir_files($);
+	filemanager_createdir_files($);
 });

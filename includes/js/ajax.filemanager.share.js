@@ -1,9 +1,5 @@
 
 function filemanager_share_files($) {
-
-    $.fn.ready();
-	'use strict';
-
     $('.btnshare').on('click', function(event) {
         event.preventDefault();
         $("#errorlog").empty();	
@@ -55,3 +51,7 @@ function filemanager_share_files($) {
     });
 
 }
+
+jQuery(document).ready(function($) {
+    filemanager_share_files($);
+});

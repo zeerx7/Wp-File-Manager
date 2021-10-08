@@ -1,9 +1,5 @@
 
-function filemanager_rename_files($, object_id) {
-
-    $.fn.ready();
-	'use strict';
-
+function filemanager_rename_files($) {
     $('.btnrename').on('click', function(event) {
         event.preventDefault();
 
@@ -64,5 +60,5 @@ function filemanager_rename_files($, object_id) {
 }
 
 jQuery(document).ready(function($) {
-	filemanager_rename_files($, $("#sequentialupload").data('object-id'));
+	filemanager_rename_files($);
 });

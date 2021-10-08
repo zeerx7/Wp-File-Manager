@@ -155,10 +155,17 @@ function get_filemanager_files($posts) {
   }
 
     if ($workplace_strpos == true && $read_path == true){
-      $allFiles = scandir($object_id);
+      if ($dh = opendir($path_implode)) {
+        while (($file = readdir($dh)) !== false) {
+            $allFiles[] = $file;
+        }
+        closedir($dh);
+      } 
     }
     $files = array_diff($allFiles, array('.', '..'));
     $path_parts = explode("/", $path_implode);
+
+    sort($files);
 
     if ($write_path == true) {
       $html[] = "<div id='filemanagerbtnup' class='filemanagerbtn'>
@@ -202,9 +209,7 @@ function get_filemanager_files($posts) {
                 </div>
             </div>
             <div class='btnrename'>Rename</div>";
-            if(is_user_logged_in()){
-              $html[] .= "<div class='btndelete'>Delete</div>";
-            }
+            $html[] .= "<div class='btndelete'>Delete</div>";
             $html[] .= "<div class='subnav subnavzip'>
               <button class='subnavbtn btnzip'>Create zip</button>
               <div id='subnav-content-zip' class='subnav-content'>
@@ -214,6 +219,15 @@ function get_filemanager_files($posts) {
                   <span>
               </div>
           </div>
+          <div class='subnav subnavzip'>
+            <button class='subnavbtn btnshare'>Share dir</button>
+            <div id='subnav-content-share' class='subnav-content'>
+                <span>
+                    <input type='text' id='lnameshare' readonly></span>
+                    <button class='newsharelink'>Create share link</button>
+                <span>
+            </div>
+          </div>
         </div>
       </div>";
     }
@@ -221,12 +235,12 @@ function get_filemanager_files($posts) {
     $html[] .= "<div id='filemanagerbtn' class='filemanagerbtn'>
                   <div class='navbar'>";
                           if ($path_parts[1] != '' && $workplace_strpos == true && $workplace_last != true){
-                              if (isset($home)) { $html[] .= "<a class='btnback_' href='" . $link . "/?home=" . dirname($path_implode) . "'>Parent directory</a>"; }
-                              if (isset($workplace)) {  $html[] .= "<a class='btnback_' href='" . $link . "/?workplace=" . dirname($path_implode) . "'>Parent directory</a>"; }
-                              if (isset($path)) {  $html[] .= "<a class='btnback_' href='" . $link . "/?path=" . dirname($path_implode) . "'>Parent directory</a>"; }
+                              if (isset($home)) { $html[] .= "<a class='btnback_' href='" . $link . "?home=" . dirname($path_implode) . "'>Parent directory</a>"; }
+                              if (isset($workplace)) {  $html[] .= "<a class='btnback_' href='" . $link . "?workplace=" . dirname($path_implode) . "'>Parent directory</a>"; }
+                              if (isset($path)) {  $html[] .= "<a class='btnback_' href='" . $link . "?path=" . dirname($path_implode) . "'>Parent directory</a>"; }
                           } 
                           if ($path_parts[1] == '' || $workplace_last == true || $workplace_strpos != true) {
-                          $html[] .= "<a class='btnback_home' href='" . $link . "'>Home</a>";
+                          $html[] .= "<a class='btnback_home' href='" . $link . "/'>Home</a>";
                           }
                           $html[] .= "<div class='btninfo'>Info</div>";
                 $html[] .= "</div>";
@@ -234,39 +248,68 @@ function get_filemanager_files($posts) {
               $html[] .= "<div class='filepath'>";
               foreach($path_parts as $path_part) {
                   $path_part_ .= '/'.$path_part;
-                  if (isset($home)) { $html[] .= "<a href='" . $link . "/?home=" .  realpath($path_part_) . "'>" . $path_part . "</a>"; }
-                  if (isset($workplace)) { $html[] .= "<a href='" . $link . "/?workplace=" .  realpath($path_part_) . "'>" . $path_part . "</a>"; }
-                  if (isset($path)) { $html[] .= "<a href='" . $link . "/?path=" .  realpath($path_part_) . "'>" . $path_part . "</a>"; }
+                  if (isset($home)) { $html[] .= "<a href='" . $link . "?home=" .  realpath($path_part_) . "'>" . $path_part . "</a>"; }
+                  if (isset($workplace)) { $html[] .= "<a href='" . $link . "?workplace=" .  realpath($path_part_) . "'>" . $path_part . "</a>"; }
+                  if (isset($path)) { $html[] .= "<a href='" . $link . "?path=" .  realpath($path_part_) . "'>" . $path_part . "</a>"; }
                   $html[] .= '/';
               }
-              $html[] .="</div>";
-              $html[] .="<div class='file-table'><table id='file-table'>";
+
+              $filecount = 0;
+              $directorycount = 0;
+              foreach($files as $file){
+                  $realpath = realpath($path_implode.'/'.$file);
+                  if(is_dir($realpath)) {
+                      $directorycount++;
+                  } else {
+                      $filecount++;
+                  }
+              }
+              $html[] .= "<div class='filepathcount'>";
+              $html[] .= count($files);
+              if(count($files) <= 1) {
+                $html[] .= ' Element : ';
+              } else {
+                $html[] .= ' Elements : ';
+              }
+              $html[] .= $directorycount;
+              if($directorycount <= 1) {
+                $html[] .= ' Directorie - ';
+              } else {
+                $html[] .= ' Directories - ';
+              }
+              $html[] .= $filecount;
+              if($filecount <= 1) {
+                $html[] .= ' File ';
+              } else {
+                $html[] .= ' Files ';
+              }
+              $html[] .= "</div></div>";
+              $html[] .= "<div class='file-table'><table id='file-table'>";
                   foreach($files as $file){
                       $pathfilezise = $path_implode.'/'.$file;
                       $filesize = formatSizeUnits(filesize($pathfilezise));
                       $realpath = realpath($path_implode.'/'.$file);
                       if ( is_dir($realpath) == true ) {
                         if (isset($home)) {
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?home=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?home=$realpath'>$file</a></td><td>$filesize</td></tr>";
                         }
                         if (isset($workplace)) { 
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?workplace=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?workplace=$realpath'>$file</a></td><td>$filesize</td></tr>";
                         }
                         if (isset($path)) {
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
                         }
                       } else {
                         $getname = getName(32);
                         $getoauth = uniqid(time().'||'.$getname.'||'.$realpath.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
                         if (isset($home)) {
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?home=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?home=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
                         }
                         if (isset($workplace)) { 
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?workplace=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?workplace=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
                         }
                         if (isset($path)) {
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?path=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
-                        }
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?path=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";                        }
 
                         $TOKEN_DIR = get_home_path() . 'wp-content/plugins/file-manager/includes/tokens';
 
@@ -314,12 +357,27 @@ function save_filemanager_files($posts) {
 add_action( 'wp_ajax_delete_filemanager_files', 'delete_filemanager_files' );
 add_action( 'wp_ajax_nopriv_delete_filemanager_files', 'delete_filemanager_files' );
 
+function removeDirectory($path) {
+
+	$files = glob($path . '/*');
+	foreach ($files as $file) {
+		is_dir($file) ? removeDirectory($file) : unlink($file);
+	}
+	rmdir($path);
+
+	return;
+}
+
 function delete_filemanager_files($posts) {
 
   $object_id = $_POST['path'];
 
   foreach ($object_id as $file) {
-    echo exec('rm -r "'. $file .'"');
+    if (is_dir($file)) {
+      removeDirectory($file);
+    } else {
+      unlink($file);
+    }
     $html[] = $file;
   }
 
@@ -351,7 +409,7 @@ function createdir_filemanager_files($posts) {
 
   $object_id = $_POST['inputVal'];
 
-  echo exec('mkdir "'. $object_id .'"');
+  mkdir($object_id);
 
 	return wp_send_json ( $object_id );
 
@@ -370,14 +428,53 @@ function rename_filemanager_files($posts) {
   $dirname = dirname($path);
   $new_filename = $dirname . '/' . $filename;
 
+  if (!is_dir($link)) {
+    $getname = getName(32);
+    $getoauth = uniqid(time().'||'.$getname.'||'.$new_filename.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
+    $TOKEN_DIR = get_home_path() . 'wp-content/plugins/file-manager/includes/tokens';
+
+    // Create a protected directory to store keys
+    if(!is_dir($TOKEN_DIR)) {
+        mkdir(TOKEN_DIR);
+        $file = fopen($TOKEN_DIR.'/.htaccess','w');
+        fwrite($file,"Order allow,deny\nDeny from all");
+        fclose($file);
+    }
+    
+    // Write the key to the keys list
+    $file = fopen($TOKEN_DIR.'/oauth','a');
+    fwrite($file, "{$getoauth}\n");
+    fclose($file);
+  }
+
   if(rename($path, $new_filename) == true) {
-    $html[] = "<a id='file-id' class='filemanager-click' href='" . $link . "?path=$new_filename'>$filename</a>";
+    if (!is_dir($new_filename)) {
+      $html[] = "<a id='file-id' class='filemanager-click' href='$link?path=$new_filename&oauth=$getname'>$filename</a>";
+    } else {
+      $html[] = "<a id='file-id' class='filemanager-click' href='$link?path=$new_filename'>$filename</a>";
+    }
   } else {
     $html[] = "error";
   }
 
 	return wp_send_json ( implode($html) );
 
+}
+
+function folder_exist($folder)
+{
+    // Get canonicalized absolute pathname
+    $path = realpath($folder);
+
+    // If it exist, check if it's a directory
+    if($path !== false AND is_dir($path))
+    {
+        // Return canonicalized absolute pathname
+        return $path;
+    }
+
+    // Path/folder does not exist
+    return false;
 }
 
 /* AJAX action callback */
@@ -389,40 +486,39 @@ function copy_filemanager_files($posts) {
   global $wp;
 
   $i = 0;
+  $x = 0;
   $paths = $_POST['path'];
   $object_id = $_POST['inputVal'];
 
   foreach ($paths as $path) {
-    $path_part = explode("/", $path);
-    $filename = end($path_part);
+    $path_part = pathinfo($path);
+    $path_implodes = explode('/', $object_id);
+    $basename = $path_part['basename'];
+    $filename = $path_part['filename'];
+    $fileext = $path_part['extension'];
 
+    foreach ($path_implodes as $path_implode) {
+      $path_implode_count .= '/'.$path_implode;
+      if(!folder_exist($path_implode_count)) {
+        mkdir($path_implode_count);
+      }
+      $x++;
+    }
+    
     if ($path != '') {
-      if (!file_exists($object_id.$filename)) {
-        if (is_dir($object_id)) {
-          if (copy($path, $object_id.$filename) == false){
-            $html[$i][0] .= $path;
-            $html[$i][1] .= 'false';
-            $i++;
-          }
-        } else {
-          if (copy($path, $object_id) == false){
-            $html[$i][0] .= $path;
-            $html[$i][1] .= 'false';
-            $i++;
-          }
+      if (!file_exists($object_id.$basename)) {
+        if (copy($path, $object_id.$basename) == false){
+          $html[$i][0] .= $path;
+          $html[$i][1] .= 'false';
+          $i++;
         }
       } else {
-        if (is_dir($object_id)) {
+        $filenamecopy = $filename.'-copy.'.$fileext;
+        if (copy($path, $object_id.$filenamecopy) == false){
             $html[$i][0] .= $path;
             $html[$i][1] .= 'File already existe';
             $i++;
-        } else {
-          if (copy($path, $object_id) == false){
-            $html[$i][0] .= $path;
-            $html[$i][1] .= 'false';
-            $i++;
-          }
-        }
+        }     
       }
     }
   }
@@ -444,9 +540,21 @@ function moveto_filemanager_files($posts) {
   $object_id = $_POST['inputVal'];
 
   foreach ($paths as $path) {
-    $path_part = explode("/", $path);
-    $filename = end($path_part);
-    if (rename($path, $object_id.$filename) == false){
+    $path_part = pathinfo($path);
+    $path_implodes = explode('/', $object_id);
+    $basename = $path_part['basename'];
+    $filename = $path_part['filename'];
+    $fileext = $path_part['extension'];
+
+    foreach ($path_implodes as $path_implode) {
+      $path_implode_count .= '/'.$path_implode;
+      if(!folder_exist($path_implode_count)) {
+        mkdir($path_implode_count);
+      }
+      $x++;
+    }
+
+    if (rename($path, $object_id.$basename) == false){
       $html[$i][0] .= $path;
       $html[$i][1] .= 'false';
       $i++;

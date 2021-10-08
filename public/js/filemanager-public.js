@@ -20,7 +20,8 @@ function filemanager_select_files($) {
 	const displayhome = document.getElementsByClassName("filemanager-home-click");
 	if(displayhome.length > 1){
 		for(let i = 0; i < displayhome.length; i++) {
-			displayhome[i].style.display = "block";
+			displayhome_ = document.getElementsByClassName("filemanager-home");
+			displayhome_[i].style.display = "block";
 		}
 	}
 	var filemanagerhomehrefcount = $('.filemanager-home-click').length;
@@ -39,29 +40,6 @@ function filemanager_select_files($) {
 		}
 
     } );
-
-	var table, rows, switching, i, x, y, shouldSwitch;
-	table = document.getElementById("file-table");
-	switching = true;
-	if(table){
-		while (switching) {
-			switching = false;
-			rows = table.rows;
-			for (i = 1; i < (rows.length - 1); i++) {
-			  shouldSwitch = false;
-			  x = rows[i].getElementsByTagName("TD")[1];
-			  y = rows[i + 1].getElementsByTagName("TD")[1];
-			  if (x.innerText.toLowerCase() > y.innerText.toLowerCase()) {
-				shouldSwitch = true;
-				break;
-			  }
-			}
-			if (shouldSwitch) {
-			  rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-			  switching = true;
-			}
-		  }
-	}
 
 }
 
