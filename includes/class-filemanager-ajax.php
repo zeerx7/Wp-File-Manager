@@ -649,8 +649,9 @@ function zip_filemanager_files($posts) {
         foreach ($iterator as $info) {
           if($info->getFilename() != "." && $info->getFilename() != "..") {
             $workingdir = str_replace($direname['dirname'], '',  $info->getPathname());
-            $zip->addFile($info->getPathname(), $workingdir);
-            $html[] .= $workingdir;
+            $workingdirltrim = ltrim($workingdir, '/');
+            $zip->addFile($info->getPathname(), $workingdirltrim);
+            $html[] .= $workingdirltrim;
           }
         }
       } else {
