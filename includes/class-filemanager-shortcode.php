@@ -1,6 +1,5 @@
 <?php
 
-
 class MySettingsPage
 {
     /**
@@ -461,27 +460,6 @@ function filemanager_shortcode() {
         }
 
         if ($path_share) {
-            $getname = getName(32);
-            $getoauth = uniqid(time().'||'.$getname.'||'.$path_share.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
-        
-            // Include the configuration file
-            require_once dirname(__FILE__) . '/config.php';
-
-            // Create a protected directory to store keys
-            if(!is_dir(TOKEN_DIR)) {
-                mkdir(TOKEN_DIR);
-                $file = fopen(TOKEN_DIR.'/.htaccess','w');
-                fwrite($file,"Order allow,deny\nDeny from all");
-                fclose($file);
-            }
-            
-            // Write the key to the keys list
-            $file = fopen(TOKEN_DIR.'/oauth','a');
-            fwrite($file, "{$getoauth}\n");
-            fclose($file);
-            if(!$_GET['oauth']){
-                echo "<script>location.href='?share=".$_GET['share']."&sharepath=".$_GET['sharepath']."&oauth=".$getname."';</script>";
-            }
             $id_path_ = rtrim($path_share, "/");
             $sharepath_ = rtrim($_GET['sharepath'], "/");
             if (strpos($sharepath_, $id_path_) !== false) {
@@ -498,7 +476,11 @@ function filemanager_shortcode() {
     }
 
     echo "<div id='sequentialupload' class='sequentialupload' data-object-id='$path_implode'></div>"; 
-    ?><script type="text/javascript">document.getElementById("sequentialupload").style.display = "none";</script><?php
+    ?><script type="text/javascript">document.getElementById("sequentialupload").style.display = "none";</script>
+    <script type="text/javascript">jQuery(document).ready(function($) {
+        filemanager_share_files($);
+    });</script>
+    <?php
 
     ?><div id='errorlog'></div><?php
     ?><div id='filemanager-wrapper' class='filemanager-wrapper'><?php
@@ -613,9 +595,6 @@ function filemanager_shortcode() {
                             </div>
                         </div>
                     <script type="text/javascript">document.getElementById("filemanagerbtnup").style.display = "block";</script>
-                    <script type="text/javascript">jQuery(document).ready(function($) {
-                        filemanager_share_files($);
-                    });</script>
                 <?php } ?>
                     <div id='filemanagerbtndown' class='filemanagerbtn'>
                         <div class='navbar'>
@@ -626,7 +605,7 @@ function filemanager_shortcode() {
                                     if (isset($sharepath)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request)  . "/?share=" . $share . "&sharepath=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
                                 } 
                                 if ($path_parts[1] == '' || $workplace_last == true || $workplace_strpos != true) { ?>
-                                <a class='btnback_home' href='<?php echo home_url($wp->request) ?>'>Home</a>
+                                <a class='btnback_home' href='<?php echo home_url($wp->request) ?>/'>Home</a>
                             <?php } ?>
                             <div class='btninfo'>Info</div>
                         </div>
@@ -755,14 +734,10 @@ function filemanager_shortcode() {
         
                     // Verify the oauth password
                     if($match != true){
-                        if($share){
-                        //    echo "<script>location.href='?share=".$_GET['share']."';</script>";
-                        } else {
-                            echo "false";
-                            // Return 404 error, if not a correct path
-                            header("HTTP/1.0 404 Not Found");
-                            exit;
-                        }
+                        echo "false";
+                        // Return 404 error, if not a correct path
+                        header("HTTP/1.0 404 Not Found");
+                        exit;
                     }else{    
                         // If the files exist
                         if($key){
@@ -841,7 +816,7 @@ function filemanager_shortcode() {
                     }
                     </script> <?php
                     } else {
-                        echo '<a href="' . $download_link . '">Download</a>';
+                        echo '<a href="' . $download_link . '" class="no-smoothState">Download</a>';
                     }
                     echo "</div>";
                 }
