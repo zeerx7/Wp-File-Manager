@@ -38,7 +38,7 @@ function create_posttype_filemanager() {
             'can_export'            => false,
             'has_archive'           => false,		
             'exclude_from_search'   => false,
-            'publicly_queryable'    => false,
+            'publicly_queryable'    => true,
             'supports'      => array( 'title', 'page-attributes', 'editor'),
       )
     );
@@ -65,4 +65,16 @@ function create_posttype_filemanager() {
   );
   }
   add_action( 'init', 'create_posttype_filemanager' );
-  ?>
+
+function share_force_template( $template ) {	
+	if( is_singular( 'shares' ) ) {
+    $template = plugin_dir_path( dirname( __FILE__ ) ) .'/templates/shares-page-template.php';
+	}
+  if( is_singular( 'workplace' ) ) {
+    $template = plugin_dir_path( dirname( __FILE__ ) ) .'/templates/workplace-page-template.php';
+  }
+  return $template;
+}
+add_filter( 'template_include', 'share_force_template' );
+
+?>

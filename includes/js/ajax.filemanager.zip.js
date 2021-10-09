@@ -16,6 +16,7 @@ function filemanager_zip_files($) {
             var link = location.protocol + '//' + location.host + location.pathname;
             var object_id = document.getElementById('sequentialupload').getAttribute('data-object-id');
             const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
             const urlhome = urlParams.get('home');
             const urlworkplace = urlParams.get('workplace');
             const urlpath = urlParams.get('path');

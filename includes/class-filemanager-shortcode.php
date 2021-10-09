@@ -296,7 +296,7 @@ function filemanager_shortcode() {
 
     $path = $_GET['path'];
     $home = $_GET['home'];
-    $workplace = $_GET['workplace'];
+    $workplace = $_GET['workplaces'];
     $share = $_GET['share'];
     $sharepath = $_GET['sharepath'];
     $my_option_name = get_option('my_option_name');
@@ -488,7 +488,7 @@ function filemanager_shortcode() {
         foreach ($workplacepath as $postid=>$id_path){
             foreach($workplaceright[$postid] as $userid=>$right) {
                 if ($user->ID == $userid) {
-                    ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/?workplace=' . esc_html( $id_path ) ?>'><?php echo get_the_title( $postid ) ?></a></br><?php
+                    ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/?workplaces=' . esc_html( $id_path ) ?>'><?php echo get_the_title( $postid ) ?></a></br><?php
                 }
             }
         }
@@ -530,9 +530,7 @@ function filemanager_shortcode() {
 
     } else {
 
-    if ( post_password_required($post->ID) ) {
-        echo get_the_password_form();
-    } elseif ($workplace_strpos == true && $read_path == true){
+        if (!post_password_required($post->ID) && $workplace_strpos == true && $read_path == true){
             if ($dh = opendir($path_implode)) {
                 while (($file = readdir($dh)) !== false) {
                     $allFiles[] = $file;
@@ -624,7 +622,7 @@ function filemanager_shortcode() {
                         <div class='navbar'>
                             <?php if ($path_parts[1] != '' && $workplace_strpos == true && $workplace_last != true){
                                     if (isset($home)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?home=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
-                                    if (isset($workplace)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?workplace=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
+                                    if (isset($workplace)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?workplaces=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
                                     if (isset($path)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?path=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
                                     if (isset($sharepath)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request)  . "/?share=" . $share . "&sharepath=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
                                 } 
@@ -639,7 +637,7 @@ function filemanager_shortcode() {
                     <div class='filepath'><?php foreach($path_parts as $path_part) {
                         $path_part_ .= '/'.$path_part;
                         if (isset($home)) { ?><a href='<?php  echo home_url($wp->request) . "/?home=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
-                        if (isset($workplace)) { ?><a href='<?php  echo home_url($wp->request) . "/?workplace=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
+                        if (isset($workplace)) { ?><a href='<?php  echo home_url($wp->request) . "/?workplaces=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
                         if (isset($path)) { ?><a href='<?php  echo home_url($wp->request) . "/?path=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
                         if (isset($sharepath)) { ?><a href='<?php  echo home_url($wp->request) . "/?share=" . $share . "&sharepath=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
                         if($p != $path_parts_count){
@@ -687,7 +685,7 @@ function filemanager_shortcode() {
                                     echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath'>$file</a></td><td>$filesize</td></tr>";
                                 }
                                 if (isset($workplace)) { 
-                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplace=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplaces=$realpath'>$file</a></td><td>$filesize</td></tr>";
                                 }
                                 if (isset($path)) {
                                     echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
@@ -702,7 +700,7 @@ function filemanager_shortcode() {
                                     echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
                                 }
                                 if (isset($workplace)) { 
-                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplace=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                                    echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplaces=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
                                 }
                                 if (isset($path)) {
                                     echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
@@ -713,7 +711,7 @@ function filemanager_shortcode() {
                                 
                                     // Include the configuration file
                                     require_once dirname(__FILE__) . '/config.php';
-    
+
                                     // Create a protected directory to store keys
                                     if(!is_dir(TOKEN_DIR)) {
                                         mkdir(TOKEN_DIR);
@@ -734,11 +732,11 @@ function filemanager_shortcode() {
                     echo "</table></div>";
 
                         if (isset($home)) { $arg = 'home'; }
-    
-                        if (isset($workplace)) { $arg = 'workplace'; }
-    
+
+                        if (isset($workplace)) { $arg = 'workplaces'; }
+
                         if (isset($path)) { $arg = 'path'; }
-    
+
                         if($total_pages > 1) {
                             echo '<div class="filemanagerpagination">';
                             echo '<a class="page" href="?'.$arg.'='.$path_implode.'&pages='.(($page-1>1)?($page-1):1).'"><<</a>';
@@ -747,12 +745,13 @@ function filemanager_shortcode() {
                             }
                             echo '<a class="page" href="?'.$arg.'='.$path_implode.'&pages='.(($page+1>$total_pages)?$total_pages:($page+1)).'">>></a>';
                         }
-    
+
                     echo "</div>";
 
-                } elseif ( isset($path) || isset($workplace) || isset($home) || isset($share)) {
+                } else {
                     // Include the configuration file
                     require_once dirname(__FILE__) . '/config.php';
+                    include_once(dirname(__FILE__) . '/id3/getid3.php');
         
                     $object_id = $path_implode;
                     $getname = getName(6);
@@ -762,6 +761,8 @@ function filemanager_shortcode() {
                     $path_ = pathinfo($basename);
                     $ext = strtolower($path_['extension']);
                     $key = trim($_GET['oauth']);
+                    $getID3 = new getID3;
+                    $fileID3 = $getID3->analyze($object_id);
         
                     // Retrieve the keys from the tokens file
                     $keys = file(TOKEN_DIR.'/oauth');
@@ -803,13 +804,13 @@ function filemanager_shortcode() {
                             $download_link = DOWNLOAD_PATH."?key=".$key; 
                         }
                     }  
-                      
+                    
                     ?><script type="text/javascript">document.getElementById("filemanagerbtnup").style.display = "none";</script><?php
         
                     echo "<div class='navbarfilewrapper'><div class='navbar navbarfile'>";
                         if ($path_parts[1] != '' && $workplace_strpos == true && $workplace_last != true){
                             if (isset($home)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?home=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
-                            if (isset($workplace)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?workplace=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
+                            if (isset($workplace)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?workplaces=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
                             if (isset($path)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?path=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
                             if (isset($sharepath)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request)  . "/?share=" . $share . "&sharepath=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
                         } 
@@ -833,8 +834,8 @@ function filemanager_shortcode() {
                     $b = 0;
 
                     if (isset($home)) { $arg = 'home'; }
-    
-                    if (isset($workplace)) { $arg = 'workplace'; }
+
+                    if (isset($workplace)) { $arg = 'workplaces'; }
 
                     if (isset($path)) { $arg = 'path'; }
 
@@ -935,13 +936,40 @@ function filemanager_shortcode() {
                     } elseif ($ext == 'mp4' || $ext == 'mkv' || $ext == 'avi' ) {
                         ?><video id='filemanagervideo' controls="controls" preload="auto" controlsList="nodownload" name="media">
                             <source src="<?php echo $download_link ?>" type="video/mp4">
-                        </video><?php
+                        </video>
+                        <div class="" style="font-size: 1.25em;font-weight: 600;"><?php echo basename($object_id); ?></div>
+                        <div class=""><?php echo $direname; ?></div>
+                        <div class=""><?php echo formatSizeUnits(filesize($object_id)); ?></div>
+                        <br>
+                        <?php echo("Video"); ?> 
+                        <br>
+                        <?php echo("Duration: ".$fileID3['playtime_string']); ?>
+                        <br>
+                        <?php echo("Codec: ".$fileID3['video']['dataformat']); ?>                       
+                        <br>
+                        <?php echo("Dimensions: ".$fileID3['video']['resolution_x']."x".$fileID3['video']['resolution_y']); ?>
+                        <br>
+                        <?php echo("Frame rate: ".$fileID3['video']['frame_rate']); ?>
+                        <br><br>
+                        <?php echo("Audio"); ?>
+                        <br>
+                        <?php echo("Codec: ".$fileID3['audio']['dataformat']); ?>   
+                        <br>
+                        <?php echo("Bits per sample: ".$fileID3['audio']['bits_per_sample']); ?>    
+                        <br>
+                        <?php echo("Channelmode: ".$fileID3['audio']['channelmode']); ?>
+                        <br>
+                        <?php echo("Sample rate: ".$fileID3['audio']['sample_rate']); ?>
+                        <br>
+                        <?php 
                     } elseif ($ext == 'pdf') {
                         echo '<div id="pdf"></div>';
                         ?><script type="text/javascript">PDFObject.embed('<?php echo $download_link ?>', "#pdf");</script><?php
                     } elseif ($ext == 'txt' || $ext == 'html' || $ext == 'php' || $ext == 'js' || $ext == 'log') { 
                         if ($write_path == true) {
                             echo '<div class="navbar navbarfile"><div id="savefile" onclick="savefile();">Save</div></div></div>';
+                        } else {
+                            echo '</div>'; 
                         }
                         echo '<div id="editor"> </div>';
                     ?><script>
@@ -989,12 +1017,14 @@ function filemanager_shortcode() {
                     echo "</div>";
                 }
         
-             } else { 
-        
-            echo "<script> location.href='" . home_url($wp->request) . "/'; </script>";
-            exit;
+            } else {
+                if ( post_password_required(  $post->ID ) ) {
+                    echo get_the_password_form();
+                } else {
+                    echo "You don't have right: permission denied";
+                }
+            }   
 
-            }
         }
 
     ?></div><?php

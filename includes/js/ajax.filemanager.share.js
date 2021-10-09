@@ -19,16 +19,16 @@ function filemanager_share_files($) {
             var url_Params;
 
             if(urlhome != null){
-                url_Params = 'home';
+                url_Params = urlhome;
             }
             if(urlworkplace != null){
-                url_Params = 'workplace';
+                url_Params = urlworkplace;
             }
             if(urlpath != null){
-                url_Params = 'path';
+                url_Params = urlpath;
             }
             if(urlsharepath != null){
-                url_Params = 'sharepath';
+                url_Params = urlsharepath;
             }
     
             jQuery.ajax({
