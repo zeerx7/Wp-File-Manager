@@ -95,12 +95,23 @@ class MySettingsPage
                 $this->options = get_option( 'my_option_name' ); ?>
                 <div class="wrap">
                     <h1>My Settings</h1>
-                    <form method="post" action="options.php">
-                    <?php
-                        // This prints out all hidden setting fields
-                        settings_fields( 'my_option_group' );
-                        do_settings_sections( 'my-setting-admin' );
-                        ?><div id="my-setting-workplace">
+                    <form method="post" action="options.php">  
+                        <?php settings_fields( 'my_option_group' ); ?>
+                        <div id="my-setting-workplace">
+                            <br>
+                            <select name='my_option_name[selected_page]'>
+                                <option value='0'><?php _e('Select a Page', 'textdomain'); ?></option>
+                                <?php $pages = get_pages(); ?>
+                                <?php foreach( $pages as $page ) { ?>
+                                    <option value='<?php echo $page->ID; ?>' <?php selected( $my_option_name['selected_page'], $page->ID ); ?> ><?php echo $page->post_title; ?></option>
+                                <?php }; ?>
+                            </select> 
+                            <br><br>
+                            <?php printf(
+                                '<input type="text" id="title" name="my_option_name[title]" value="%s" />',
+                                isset( $this->options['title'] ) ? esc_attr( $this->options['title']) : ''
+                            ); ?>
+                            <br>
                             <?php
                             echo '</br>Acces to path</br>';
                             foreach ($blogusers as $bloguser) {
@@ -154,21 +165,6 @@ class MySettingsPage
             'my_option_name', // Option name
             array( $this, 'sanitize' ) // Sanitize
         );
-
-        add_settings_section(
-            'setting_section_id', // ID
-            'My Custom Settings', // Title
-            array( $this, 'print_section_info' ), // Callback
-            'my-setting-admin' // Page
-        );
-
-        add_settings_field(
-            'title', 
-            'Home path', 
-            array( $this, 'title_callback' ), 
-            'my-setting-admin', 
-            'setting_section_id'
-        );      
     }
 
     /**
@@ -221,26 +217,11 @@ class MySettingsPage
         if( isset( $input['title'] ) )
             $new_input['title'] = sanitize_text_field( $input['title'] );
 
+        if( isset( $input['selected_page'] ) )
+            $new_input['selected_page'] = $input['selected_page'];
+            
+
         return $new_input;
-    }
-
-    /** 
-     * Print the Section text
-     */
-    public function print_section_info()
-    {
-       // print '<div id="add-workspace-btn">Add Workplace</div>';
-    }
-
-    /** 
-     * Get the settings option array and print one of its values
-     */
-    public function title_callback()
-    {
-        printf(
-            '<input type="text" id="title" name="my_option_name[title]" value="%s" />',
-            isset( $this->options['title'] ) ? esc_attr( $this->options['title']) : ''
-        );
     }
 }
 
@@ -464,6 +445,8 @@ function filemanager_shortcode() {
         if ($my_query) {
             foreach ( $my_query as $post ) { 
                 $path_share = get_post_meta( $post->ID, '_share_path', true);
+                $share_right = get_post_meta( $post->ID, '_share_right', true);
+                $password = $post->post_password;
             }                   
         }
 
@@ -471,11 +454,16 @@ function filemanager_shortcode() {
             $id_path_ = rtrim($path_share, "/");
             $sharepath_ = rtrim($_GET['sharepath'], "/");
             if (strpos($sharepath_, $id_path_) !== false) {
-                $read_path = true;
                 $workplace_strpos = true;
             }
             if ($sharepath_ == $id_path_) {
                 $workplace_last = true;
+            }
+            if($share_right['read'] == 1){
+                $read_path = true;
+            }
+            if($share_right['write'] == 1){
+                $write_path = true;
             }
             $path_implode = $_GET['sharepath'];
         }
@@ -542,7 +530,9 @@ function filemanager_shortcode() {
 
     } else {
 
-        if ($workplace_strpos == true && $read_path == true){
+    if ( post_password_required($post->ID) ) {
+        echo get_the_password_form();
+    } elseif ($workplace_strpos == true && $read_path == true){
             if ($dh = opendir($path_implode)) {
                 while (($file = readdir($dh)) !== false) {
                     $allFiles[] = $file;

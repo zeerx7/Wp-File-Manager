@@ -13,6 +13,8 @@ function filemanager_delete_files($) {
         const urlhome = urlParams.get('home');
         const urlworkplace = urlParams.get('workplace');
         const urlpath = urlParams.get('path');
+        const urlshare = urlParams.get('share');
+        const urlsharepath = urlParams.get('sharepath');
         var url_Params;
 
         if(urlhome != null){
@@ -23,6 +25,9 @@ function filemanager_delete_files($) {
         }
         if(urlpath != null){
             url_Params = 'path';
+        }
+        if(urlsharepath != null){
+            url_Params = 'sharepath';
         }
 
         $('.checkbox').each(function () {
@@ -52,6 +57,7 @@ function filemanager_delete_files($) {
                         'object_id': object_id,
                         'link': link,
                         'urlParams': url_Params,
+                        'sharekey': urlshare,
                         'action': 'get_filemanager_files'
                     },
                     dataType: 'json',

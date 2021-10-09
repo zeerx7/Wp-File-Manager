@@ -48,6 +48,8 @@ function uploadFormData($, formData, files_obj, rand, link, length) {
     const urlhome = urlParams.get('home');
     const urlworkplace = urlParams.get('workplace');
     const urlpath = urlParams.get('path');
+    const urlshare = urlParams.get('share');
+    const urlsharepath = urlParams.get('sharepath');
     var url_Params;
 
     if(urlhome != null){
@@ -59,7 +61,10 @@ function uploadFormData($, formData, files_obj, rand, link, length) {
     if(urlpath != null){
         url_Params = 'path';
     }
-    
+    if(urlsharepath != null){
+        url_Params = 'sharepath';
+    }
+        
     $.ajax({
         xhr: function() {
             var xhr = new window.XMLHttpRequest();
@@ -100,6 +105,7 @@ function uploadFormData($, formData, files_obj, rand, link, length) {
                     'object_id': object_id,
                     'link': link,
                     'urlParams': url_Params,
+                    'sharekey': urlshare,
                     'action': 'get_filemanager_files'
                 },
                 dataType: 'json',

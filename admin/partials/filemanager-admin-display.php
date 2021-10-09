@@ -27,6 +27,34 @@ wp_nonce_field(basename(__FILE__), "meta-box-nonce");
         <?php $share_key = get_post_meta($object->ID, "_share_key", true); ?>
         <input name="share-key-textarea" type="text" id="share-key-textarea" value="<?php echo $share_key; ?>" size="30">
         <br>
+        <label>Permision</label>
+        <br>
+        <?php 
+        $share_right = get_post_meta($object->ID, "_share_right", true); ?><?php
+        $read_ = false;
+        $write_ = false;
+        echo 'Public - ';
+        $my_option_read = $share_right ['read'];
+        if ($my_option_read == 1) {
+            $read_ = true;
+        }
+        if ($read_ == true) {
+            echo 'Read<input type="checkbox" id="read" name="read" value="true" checked>';
+        } else {
+            echo 'Read<input type="checkbox" id="read" name="read" value="false">';
+        }
+
+        $my_option_write = $share_right['write'];
+        if ($my_option_write == 1) {
+            $write_ = true;
+        }
+        if ($write_ == true) {
+            echo 'Write<input type="checkbox" id="write" name="write" value="true" checked>';
+        } else {
+            echo 'Write<input type="checkbox" id="write" name="write" value="false">';
+        }
+        echo "<br>";?>
+        <br>
     </div>
 
 <?php  
@@ -55,9 +83,22 @@ function save_share_meta_box($post_id, $post, $update) {
 
     if( ! isset( $_POST['share-key-textarea'] ) )
     return; 
-    update_post_meta( $post_id, "_share_path", $_POST['share-key-textarea'] );
+    update_post_meta( $post_id, "_share_key", $_POST['share-key-textarea'] );
 
-    
+    if( isset( $_POST['read'] ) ) {
+        $array['read'] = true;
+    } else {
+        $array['read'] = false;
+    }
+
+   
+    if( isset( $_POST['write'] ) ) {
+        $array['write'] = true;
+    } else {
+        $array['write'] = false;
+    }
+       
+    update_post_meta( $post_id, "_share_right", $array );
     
 }
 add_action("save_post", "save_share_meta_box", 10, 3);
@@ -215,7 +256,8 @@ function my_edit_shares_columns( $columns ) {
         'title' => __( 'Title' ),
         'author' => __( 'Author' ),
         'share_path' => __( 'Path' ),
-        'share_key' => __( 'Key' )
+        'share_key' => __( 'Key' ),
+        'share_link' => __( 'Link' )
     );
 
     return $columns;
@@ -224,7 +266,9 @@ add_filter( 'manage_edit-shares_columns', 'my_edit_shares_columns' ) ;
 
 function my_manage_shares_columns( $column, $post_id ) {
     global $post;
-
+    $my_option_name = get_option('my_option_name');
+    $slug = get_post_field( 'post_name', $my_option_name['selected_page'] );
+    
     switch( $column ) {
 
         case 'author' :
@@ -239,10 +283,29 @@ function my_manage_shares_columns( $column, $post_id ) {
             echo get_post_meta( $post->ID, '_share_key', true);
         break;
 
+        case 'share_link' :
+            echo "<div class='sharelinkbtn' value='".get_home_url()."/".$slug."/?share=".get_post_meta( $post->ID, '_share_key', true)."&sharepath=".get_post_meta( $post->ID, '_share_path', true)."'>".__( 'Copy to clipboard' )."</div>";
+        break;
+
         /* Just break out of the switch statement for everything else. */
         default :
         break;
     }
+
+    ?><script>
+    var elements = document.getElementsByClassName('sharelinkbtn');
+
+    var myFunction = function(event) {
+        var url = this.getAttribute('value');
+        console.log(this.getAttribute('value'));
+        navigator.clipboard.writeText(url);
+    };
+
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].addEventListener('click', myFunction, false);
+    }
+  </script><?php    
+
 }
 add_action( 'manage_shares_posts_custom_column', 'my_manage_shares_columns', 10, 2 );
 

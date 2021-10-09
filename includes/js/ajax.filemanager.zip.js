@@ -16,14 +16,15 @@ function filemanager_zip_files($) {
             var link = location.protocol + '//' + location.host + location.pathname;
             var object_id = document.getElementById('sequentialupload').getAttribute('data-object-id');
             const queryString = window.location.search;
-            const urlParams = new URLSearchParams(queryString);
             const urlhome = urlParams.get('home');
             const urlworkplace = urlParams.get('workplace');
             const urlpath = urlParams.get('path');
+            const urlshare = urlParams.get('share');
+            const urlsharepath = urlParams.get('sharepath');
             var url_Params;
 
             document.getElementById('lnamecopy').value = object_id;
-    
+        
             if(urlhome != null){
                 url_Params = 'home';
             }
@@ -33,7 +34,10 @@ function filemanager_zip_files($) {
             if(urlpath != null){
                 url_Params = 'path';
             }
-    
+            if(urlsharepath != null){
+                url_Params = 'sharepath';
+            }
+
             $('.checkbox').each(function () {
                 if($(this).is(':checked')){
                     path[i] = $(this).attr('name');
@@ -62,6 +66,7 @@ function filemanager_zip_files($) {
                             'object_id': object_id,
                             'link': link,
                             'urlParams': url_Params,
+                            'sharekey': urlshare,
                             'action': 'get_filemanager_files'
                         },
                         dataType: 'json',
