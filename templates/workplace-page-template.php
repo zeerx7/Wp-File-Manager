@@ -18,12 +18,7 @@
                         $user->ID = '-1';
                     }
 
-                    $path = $_GET['path'];
-                    $home = $_GET['home'];
                     $workplace = $_GET['workplaces'];
-                    $share = $_GET['share'];
-                    $sharepath = $_GET['sharepath'];
-                    $my_option_name = get_option('my_option_name');
                     global $wp;
                     $workplace_strpos = false;
                     $workplace_last = false;
@@ -32,65 +27,30 @@
                     $i = 0;
                     $x = 0;
 
-                        $posts = get_posts( array(
-                        'post_type'      => 'workplace',
-                        'posts_per_page' => -1,
-                        'orderby'        => 'modified',
-                        'no_found_rows'  => true
-                    ));
-
-                    foreach($posts as $post) {
-                        $title = get_the_title(get_the_ID()); 
-                        $workplacepath[get_the_ID()] = get_post_meta( get_the_ID(), "_workplace_path", true);
-                        $workplaceright[get_the_ID()] = get_post_meta( get_the_ID(), "_workplace_right", true);
-                    }
-
-                    foreach ($my_option_name['id_name'] as $id_name){
-                        foreach( $my_option_name['read-'.$id_name] as $read_id ){
-                            $id_read[$id_name] .= $read_id;
-                        }
-                    }
-
-                    foreach ($my_option_name['id_name'] as $id_name){
-                        foreach( $my_option_name['write-'.$id_name] as $write_id ){
-                            $id_write[$id_name] .= $write_id;
-                        }
-                    }
-
-                    foreach( $my_option_name['read-path'] as $read_path_id ){
-                            $id_read_path[] .= $read_path_id;
-                    }
-                            
-                    foreach( $my_option_name['write-path'] as $write_path_id ){
-                            $id_write_path[] .= $write_path_id;
-                    }
-
                     if (!isset($workplace)) {
                         $workplace_path = get_post_meta( get_queried_object_id(), '_workplace_path', true);
                         ?><script>location.href='?workplaces=<?php echo $workplace_path?>'</script><?php
                     }
                     
                     if (isset($workplace)) {
-                        foreach ($workplacepath as $id_path) {
-                            $id_path_ = rtrim($id_path, "/");
-                            $workplace_ = rtrim($workplace, "/");
-                            if (strpos($workplace_, $id_path_) !== false) {
-                                $workplace_strpos = true;
-                                if ($workplace_ == $id_path_) {
-                                    $workplace_last = true;
-                                }
-                                foreach($workplaceright as $userright) {
-                                    if($userright[$user->ID]['read'] == 1) {
-                                        $read_path = true;
-                                    }
-                                    if($userright[$user->ID]['write'] == 1) {
-                                        $write_path = true;
-                                    }
-                                }
+                        $workplacepath = get_post_meta( get_queried_object_id(), "_workplace_path", true);
+                        $workplaceright = get_post_meta( get_queried_object_id(), "_workplace_right", true);
+                        $id_path_ = rtrim($workplacepath, "/");
+                        $workplace_ = rtrim($workplace, "/");
+                        if (strpos($workplace_, $id_path_) !== false) {
+                            $workplace_strpos = true;
+                            if ($workplace_ == $id_path_) {
+                                $workplace_last = true;
+                            }
+                            if($workplaceright[$user->ID]['read'] == 1) {
+                                $read_path = true;
+                            }
+                            if($workplaceright[$user->ID]['write'] == 1) {
+                                $write_path = true;
                             }
                         }
                         $path_implode = $workplace;
-                    }
+                    } 
                     
                     echo "<div id='sequentialupload' class='sequentialupload' data-object-id='$path_implode'></div>"; 
                     ?><script type="text/javascript">document.getElementById("sequentialupload").style.display = "none";</script><?php
@@ -193,6 +153,15 @@
                                             if ($path_parts[1] == '' || $workplace_last == true || $workplace_strpos != true) { ?>
                                             <a class='btnback_home' href='<?php echo home_url($wp->request) ?>/'>Home</a>
                                         <?php } ?>
+                                        <div class='subnav subnavsearch'>
+                                            <button class='subnavbtn btnsearch'>Search</button>
+                                            <div id='subnav-content-search' class='subnav-content'>
+                                                <span>
+                                                    <input type='text' id='lnamesearch'></span>
+                                                    <button class='newsearch'>Search</button>
+                                                <span>
+                                            </div>
+                                        </div>
                                         <div class='btninfo'>Info</div>
                                     </div>
                                 </div>
@@ -239,7 +208,8 @@
                                     echo ' Files ';
                                 }
                                 ?></div></div><?php
-                                ?><div class='file-table'><table id='file-table'><?php
+                                ?><div class='file-table'><table id='file-table'>
+                                    <tr></td><td class='checkboxall'><input class='checkboxall' type='checkbox' name=''/></td><td class='checkboxall'>Filename</td><td class='checkboxall'>Size</td></tr><?php
                                     foreach($files as $file){
                                         $pathfilezise = $path_implode.'/'.$file;
                                         $filesize = formatSizeUnits(filesize($pathfilezise));
@@ -294,23 +264,32 @@
                                         echo "<tr><td><input class='checkbox' type='checkbox' /></td><td class='filemanager-table'><a id='file-id' class='filemanager-click'>No file found</a></td></tr>";
                                     }
                                 echo "</table></div>";
+
+                                if (isset($home)) { $arg = 'home'; }
+
+                                if (isset($workplace)) { $arg = 'workplaces'; }
             
-                                    if (isset($home)) { $arg = 'home'; }
+                                if (isset($path)) { $arg = 'path'; }
             
-                                    if (isset($workplace)) { $arg = 'workplaces'; }
+                                if (isset($share)) { $arg = 'share'; }
             
-                                    if (isset($path)) { $arg = 'path'; }
-            
-                                    if($total_pages > 1) {
-                                        echo '<div class="filemanagerpagination">';
+                                if($total_pages > 1) {
+                                    echo '<div class="filemanagerpagination">';
+                                    if (isset($share)) {
+                                        echo '<a class="page" href="?'.$arg.'='.$share.'&sharepath='.$sharepath.'&pages='.(($page-1>1)?($page-1):1).'"><<</a>';
+                                        for($p=1; $p<=$total_pages; $p++) {
+                                            echo ' <a class="page" href="?'.$arg.'='.$share.'&sharepath='.$sharepath.'&pages='.$p.'">'.$p.'</a> ';                      
+                                        }
+                                        echo '<a class="page" href="?'.$arg.'='.$share.'&sharepath='.$sharepath.'&pages='.(($page+1>$total_pages)?$total_pages:($page+1)).'">>></a>';
+                                    } else {
                                         echo '<a class="page" href="?'.$arg.'='.$path_implode.'&pages='.(($page-1>1)?($page-1):1).'"><<</a>';
                                         for($p=1; $p<=$total_pages; $p++) {
                                             echo ' <a class="page" href="?'.$arg.'='.$path_implode.'&pages='.$p.'">'.$p.'</a> ';                      
                                         }
                                         echo '<a class="page" href="?'.$arg.'='.$path_implode.'&pages='.(($page+1>$total_pages)?$total_pages:($page+1)).'">>></a>';
                                     }
-            
-                                echo "</div>";
+                                    echo "</div>";
+                                }
             
                             } else {
                                 // Include the configuration file
@@ -582,9 +561,7 @@
                             }
                     
                         } else {
-                            if ( post_password_required(  $post->ID ) ) {
-                                echo get_the_password_form();
-                            } else {
+                            if (!post_password_required(  $post->ID ) ) {
                                 echo "You don't have right: permission denied";
                             }
                         } ?>

@@ -27,6 +27,7 @@
 				const urlhome = urlParams.get('home');
 				const urlworkplace = urlParams.get('workplace');
 				const urlpath = urlParams.get('path');
+				const urlsharepath = urlParams.get('sharepath');
 				var url_Params;
 		
 				if(urlhome != null){
@@ -37,6 +38,9 @@
 				}
 				if(urlpath != null){
 					url_Params = urlpath;
+				}
+				if(urlsharepath != null){
+					url_Params = urlsharepath;
 				}
 
 				document.getElementById('sequentialupload').setAttribute('data-object-id', url_Params);
@@ -51,7 +55,8 @@
 				filemanager_zip_files($);
 				filemanager_rename_files($);
 				filemanager_info_files($);
-				filemanager_share_files($);				
+				filemanager_share_files($);			
+				filemanager_search_files($);	
 				$("#errorlog").empty();	
 
 			}

@@ -307,19 +307,8 @@ function filemanager_shortcode() {
     $write_path = false;
     $i = 0;
     $x = 0;
-
-        $posts = get_posts( array(
-        'post_type'      => 'workplace',
-        'posts_per_page' => -1,
-        'orderby'        => 'modified',
-        'no_found_rows'  => true
-    ));
-
-    foreach($posts as $post) {
-        $title = get_the_title($post->ID); 
-        $workplacepath[$post->ID] = get_post_meta( $post->ID, "_workplace_path", true);
-        $workplaceright[$post->ID] = get_post_meta( $post->ID, "_workplace_right", true);
-    }
+    $u = 0;
+    $v = 0;
 
     foreach ($my_option_name['id_name'] as $id_name){
         foreach( $my_option_name['read-'.$id_name] as $read_id ){
@@ -352,27 +341,38 @@ function filemanager_shortcode() {
         }
         $read_path = true;
         $write_path = true;
-    } elseif (isset($workplace)) {
-        foreach ($workplacepath as $id_path) {
-            $id_path_ = rtrim($id_path, "/");
+    } 
+    
+    if (isset($workplace)) {
+        $posts = get_posts( array(
+            'post_type'      => 'workplace',
+            'posts_per_page' => -1,
+            'orderby'        => 'modified',
+            'no_found_rows'  => true
+        ));
+    
+        foreach($posts as $post) {
+            $workplacepath = get_post_meta( $post->ID, "_workplace_path", true);
+            $workplaceright = get_post_meta( $post->ID, "_workplace_right", true);
+            $id_path_ = rtrim($workplacepath, "/");
             $workplace_ = rtrim($workplace, "/");
             if (strpos($workplace_, $id_path_) !== false) {
                 $workplace_strpos = true;
                 if ($workplace_ == $id_path_) {
                     $workplace_last = true;
                 }
-                foreach($workplaceright as $userright) {
-                    if($userright[$user->ID]['read'] == 1) {
-                        $read_path = true;
-                    }
-                    if($userright[$user->ID]['write'] == 1) {
-                        $write_path = true;
-                    }
+                if($workplaceright[$user->ID]['read'] == 1) {
+                    $read_path = true;
+                }
+                if($workplaceright[$user->ID]['write'] == 1) {
+                    $write_path = true;
                 }
             }
         }
         $path_implode = $workplace;
-    } elseif (isset($path)) {
+    } 
+    
+    if (isset($path)) {
         if (in_array($user->ID, $id_read_path)) {
             $read_path = true;
             $workplace_strpos = true;
@@ -381,7 +381,9 @@ function filemanager_shortcode() {
             $write_path = true;
         }
         $path_implode = $path;
-    } elseif (isset($share) && !isset($sharepath)) {
+    } 
+    
+    if (isset($share) && !isset($sharepath)) {
         $args = array(
             'posts_per_page' => -1,
             'post_type' => 'shares',
@@ -427,7 +429,9 @@ function filemanager_shortcode() {
                 echo "<script>location.href='?share=".$_GET['share']."&oauth=".$getname."';</script>";
             }
         }
-    } elseif (isset($share) && isset($sharepath)) {
+    } 
+    
+    if (isset($share) && isset($sharepath)) {
         $args = array(
             'posts_per_page' => -1,
             'post_type' => 'shares',
@@ -452,7 +456,7 @@ function filemanager_shortcode() {
 
         if ($path_share) {
             $id_path_ = rtrim($path_share, "/");
-            $sharepath_ = rtrim($_GET['sharepath'], "/");
+            $sharepath_ = rtrim($sharepath, "/");
             if (strpos($sharepath_, $id_path_) !== false) {
                 $workplace_strpos = true;
             }
@@ -465,10 +469,9 @@ function filemanager_shortcode() {
             if($share_right['write'] == 1){
                 $write_path = true;
             }
-            $path_implode = $_GET['sharepath'];
+            $path_implode = $sharepath;
         }
-    } else {
-        $path_implode = null;
+
     }
 
     echo "<div id='sequentialupload' class='sequentialupload' data-object-id='$path_implode'></div>"; 
@@ -485,9 +488,20 @@ function filemanager_shortcode() {
             ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/?home=/home/' . esc_html($user->user_login) ?>'>Home</a></br><?php
         }
     
+        $posts = get_posts( array(
+            'post_type'      => 'workplace',
+            'posts_per_page' => -1,
+            'orderby'        => 'modified',
+            'no_found_rows'  => true
+        ));
+    
+        foreach($posts as $post) {
+            $workplacepath[$post->ID] = get_post_meta( $post->ID, "_workplace_path", true);
+            $workplaceright[$post->ID] = get_post_meta( $post->ID, "_workplace_right", true);
+        }
         foreach ($workplacepath as $postid=>$id_path){
             foreach($workplaceright[$postid] as $userid=>$right) {
-                if ($user->ID == $userid) {
+                if ($user->ID == $userid || $userid == '-1') {
                     ?><a id='file-id' class='filemanager-home-click' href='<?php echo home_url($wp->request) . '/?workplaces=' . esc_html( $id_path ) ?>'><?php echo get_the_title( $postid ) ?></a></br><?php
                 }
             }
@@ -629,6 +643,15 @@ function filemanager_shortcode() {
                                 if ($path_parts[1] == '' || $workplace_last == true || $workplace_strpos != true) { ?>
                                 <a class='btnback_home' href='<?php echo home_url($wp->request) ?>/'>Home</a>
                             <?php } ?>
+                            <div class='subnav subnavsearch'>
+                                <button class='subnavbtn btnsearch'>Search</button>
+                                <div id='subnav-content-search' class='subnav-content'>
+                                    <span>
+                                        <input type='text' id='lnamesearch'></span>
+                                        <button class='newsearch'>Search</button>
+                                    <span>
+                                </div>
+                            </div>
                             <div class='btninfo'>Info</div>
                         </div>
                     </div>
@@ -675,7 +698,8 @@ function filemanager_shortcode() {
                         echo ' Files ';
                     }
                     ?></div></div><?php
-                    ?><div class='file-table'><table id='file-table'><?php
+                    ?><div class='file-table'><table id='file-table'>
+                    <tr></td><td class='checkboxall'><input class='checkboxall' type='checkbox' name=''/></td><td class='checkboxall'>Filename</td><td class='checkboxall'>Size</td></tr><?php
                         foreach($files as $file){
                             $pathfilezise = $path_implode.'/'.$file;
                             $filesize = formatSizeUnits(filesize($pathfilezise));
@@ -731,22 +755,32 @@ function filemanager_shortcode() {
                         }
                     echo "</table></div>";
 
-                        if (isset($home)) { $arg = 'home'; }
+                    if (isset($home)) { $arg = 'home'; }
 
-                        if (isset($workplace)) { $arg = 'workplaces'; }
+                    if (isset($workplace)) { $arg = 'workplaces'; }
 
-                        if (isset($path)) { $arg = 'path'; }
+                    if (isset($path)) { $arg = 'path'; }
 
-                        if($total_pages > 1) {
-                            echo '<div class="filemanagerpagination">';
+                    if (isset($share)) { $arg = 'share'; }
+
+                    if($total_pages > 1) {
+                        echo '<div class="filemanagerpagination">';
+                        if (isset($share)) {
+                            echo '<a class="page" href="?'.$arg.'='.$share.'&sharepath='.$sharepath.'&pages='.(($page-1>1)?($page-1):1).'"><<</a>';
+                            for($p=1; $p<=$total_pages; $p++) {
+                                echo ' <a class="page" href="?'.$arg.'='.$share.'&sharepath='.$sharepath.'&pages='.$p.'">'.$p.'</a> ';                      
+                            }
+                            echo '<a class="page" href="?'.$arg.'='.$share.'&sharepath='.$sharepath.'&pages='.(($page+1>$total_pages)?$total_pages:($page+1)).'">>></a>';
+                        } else {
                             echo '<a class="page" href="?'.$arg.'='.$path_implode.'&pages='.(($page-1>1)?($page-1):1).'"><<</a>';
                             for($p=1; $p<=$total_pages; $p++) {
                                 echo ' <a class="page" href="?'.$arg.'='.$path_implode.'&pages='.$p.'">'.$p.'</a> ';                      
                             }
                             echo '<a class="page" href="?'.$arg.'='.$path_implode.'&pages='.(($page+1>$total_pages)?$total_pages:($page+1)).'">>></a>';
                         }
+                        echo "</div>";
+                    }
 
-                    echo "</div>";
 
                 } else {
                     // Include the configuration file
@@ -820,7 +854,7 @@ function filemanager_shortcode() {
                         echo "<div class='navbar navbarfile'>
                             <div class='subnav'>
                                 <button class='subnavbtn btnshare'>Share file</button>
-                                <div id='subnav-content-share' class='subnav-content'>
+                                <div id='subnav-content-share' class='subnav-content subnav-content-share'>
                                     <span>
                                         <input type='text' id='lnameshare' readonly></span>
                                         <button class='newsharelink'>Create share link</button>

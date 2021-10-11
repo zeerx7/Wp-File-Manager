@@ -8,6 +8,10 @@
     margin: 0;
 }
 
+.checkboxall {
+   padding: 5px .75em;
+}
+
 .filemanager-wrapper tr td:first-child {
    width: 50px;
    display: none;
@@ -42,17 +46,27 @@
 }
 
 
-.btninfo, .subnavzip {  
+.btninfo, .subnavzip, .subnavsearch {  
    float: right !important;
 }
 
-#lnamecopy, #lnamemoveto, #lnamezip {
+#lname, #lnamefile, #lnamecopy, #lnamemoveto, #lnameshare, #lnamezip, #lnamesearch {
    width: 250px;
+   max-width: 100%;
+   margin: 0;
+}
+
+#subnav-content-search, #subnav-content-share, #subnav-content-zip {
+   right: 0;
+}
+
+.subnav-content-share {
+   right: auto !important;
 }
 
 .info-window {
    position: absolute;
-   top: 25%;
+   top: 250px;
    left: 25%;
    width: 50%;
    height: auto;
@@ -76,6 +90,7 @@
    margin: 0 5px 0px 0;
    text-decoration: none !important;
    font-weight: 100 !important;
+   z-index: 999;
 }
 
 .subnav {

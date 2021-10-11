@@ -53,6 +53,10 @@ function wp_filemanager_ajax_scripts() {
     wp_register_script( 'wp-filemanager-ajax-share-files', $url . "js/ajax.filemanager.share.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-share-files', 'share_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
 	  wp_enqueue_script( 'wp-filemanager-ajax-share-files' );
+
+    wp_register_script( 'wp-filemanager-ajax-search-files', $url . "js/ajax.filemanager.search.js", array( 'jquery' ), '1.0.0', true );
+    wp_localize_script( 'wp-filemanager-ajax-search-files', 'search_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
+	  wp_enqueue_script( 'wp-filemanager-ajax-search-files' );
 	
 }
 
@@ -62,35 +66,35 @@ add_action( 'wp_ajax_nopriv_get_filemanager_files', 'get_filemanager_files' );
 
 function get_filemanager_files($posts) {
 
-    global $wp;
-    $object_id = $_POST['object_id'];
-    $link = $_POST['link'];
-    $urlParams = $_POST['urlParams'];
-    $share = $_POST['sharekey'];
+  global $wp;
+  $object_id = $_POST['object_id'];
+  $link = $_POST['link'];
+  $urlParams = $_POST['urlParams'];
+  $share = $_POST['sharekey'];
 
-    if ($urlParams == 'path') {
-      $path = $_POST['object_id'];
-    }
-    if ($urlParams == 'home') {
-      $home = $_POST['object_id'];
-    }
-    if ($urlParams == 'workplace') {
-      $workplace = $_POST['object_id'];
-    }
-    if ($urlParams == 'sharepath') {
-      $sharepath = $_POST['object_id'];
-    }
+  if ($urlParams == 'path') {
+    $path = $_POST['object_id'];
+  }
+  if ($urlParams == 'home') {
+    $home = $_POST['object_id'];
+  }
+  if ($urlParams == 'workplace') {
+    $workplace = $_POST['object_id'];
+  }
+  if ($urlParams == 'sharepath') {
+    $sharepath = $_POST['object_id'];
+  }
 
-    $my_option_name = get_option('my_option_name');
-    $user = wp_get_current_user();   
-    global $wp;
-    $i = 0;
-    $x = 0;
+  $my_option_name = get_option('my_option_name');
+  $user = wp_get_current_user();   
+  global $wp;
+  $i = 0;
+  $x = 0;
 
-    foreach ($my_option_name['id_name'] as $id_name){
-      foreach( $my_option_name['read-'.$id_name] as $read_id ){
-          $id_read[$id_name] .= $read_id;
-      }
+  foreach ($my_option_name['id_name'] as $id_name){
+    foreach( $my_option_name['read-'.$id_name] as $read_id ){
+        $id_read[$id_name] .= $read_id;
+    }
   }
 
   foreach ($my_option_name['id_name'] as $id_name){
@@ -107,7 +111,7 @@ function get_filemanager_files($posts) {
           $id_write_path[] .= $write_path_id;
   }
 
-    if (isset($home)) {
+  if (isset($home)) {
       $blogusers = get_users();
       $path_implode = $home;
       $path_default = $my_option_name['title'].$user->user_login;
@@ -121,42 +125,48 @@ function get_filemanager_files($posts) {
       $write_path = true;
   }
 
-  if (isset($workplace)) { 
-      foreach ($my_option_name['id_path'] as $id_path) {
-          $id_path_ = rtrim($id_path, "/");
-          $workplace_ = rtrim($workplace, "/");
-          if (strpos($workplace_, $id_path_) !== false) {
-              if (in_array($user->ID, str_split($id_read[$my_option_name['id_name'][$i]]))) {
-                  $read_path = true;
-              }
-              if (in_array($user->ID, str_split($id_write[$my_option_name['id_name'][$i]]))) {
-                  $write_path = true;
-              }
-          }
-          $i++;
-      }
-      foreach($my_option_name['id_path'] as $id_path) {
-          $id_path_ = rtrim($id_path, "/");
-          $workplace_ = rtrim($workplace, "/");
-          if ($workplace_ == $id_path_) {
-              $workplace_last = true;
-          }
-          if (strpos($workplace, $id_path_) !== false) {
-              $workplace_strpos = true;
-          }
-      }
-      $path_implode = $workplace;
-  }
+  if (isset($workplace)) {
+    $posts = get_posts( array(
+      'post_type'      => 'workplace',
+      'posts_per_page' => -1,
+      'orderby'        => 'modified',
+      'no_found_rows'  => true
+    ));
+    foreach($posts as $post) {
+        $title = get_the_title($post->ID); 
+        $workplacepath[$post->ID] = get_post_meta( $post->ID, "_workplace_path", true);
+        $workplaceright[$post->ID] = get_post_meta( $post->ID, "_workplace_right", true);
+    }    
+    foreach ($workplacepath as $id_path) {
+        $id_path_ = rtrim($id_path, "/");
+        $workplace_ = rtrim($workplace, "/");
+        if (strpos($workplace_, $id_path_) !== false) {
+            $workplace_strpos = true;
+            if ($workplace_ == $id_path_) {
+                $workplace_last = true;
+            }
+            foreach($workplaceright as $userright) {
+                if($userright[$user->ID]['read'] == 1) {
+                    $read_path = true;
+                }
+                if($userright[$user->ID]['write'] == 1) {
+                    $write_path = true;
+                }
+            }
+        }
+    }
+    $path_implode = $workplace;
+  } 
 
   if (isset($path)) {
-      if (in_array($user->ID, $id_read_path)) {
-          $read_path = true;
-          $workplace_strpos = true;
-      }
-      if (in_array($user->ID, $id_write_path)) {
-          $write_path = true;
-      }
-      $path_implode = $path;
+    if (in_array($user->ID, $id_read_path)) {
+        $read_path = true;
+        $workplace_strpos = true;
+    }
+    if (in_array($user->ID, $id_write_path)) {
+        $write_path = true;
+    }
+    $path_implode = $path;
   }
 
   if (isset($share) && isset($sharepath)) {
@@ -290,8 +300,17 @@ function get_filemanager_files($posts) {
                           $html[] .= "<a class='btnback_home' href='" . $link . "/'>Home</a>";
                           }
                           $html[] .= "<div class='btninfo'>Info</div>";
-                $html[] .= "</div>";
-              $html[] .= "</div>";
+                          $html[] .= "<div class='subnav subnavsearch'>
+                                        <button class='subnavbtn btnsearch'>Search</button>
+                                        <div id='subnav-content-search' class='subnav-content'>
+                                            <span>
+                                                <input type='text' id='lnamesearch'></span>
+                                                <button class='newsearch'>Search</button>
+                                            <span>
+                                        </div>
+                                      </div>";
+                        $html[] .= "</div>";
+                      $html[] .= "</div>";
               $html[] .= "<div class='filepath'>";
               foreach($path_parts as $path_part) {
                   $path_part_ .= '/'.$path_part;
@@ -333,6 +352,7 @@ function get_filemanager_files($posts) {
               }
               $html[] .= "</div></div>";
               $html[] .= "<div class='file-table'><table id='file-table'>";
+              $html[] .= "<tr></td><td class='checkboxall'><input class='checkboxall' type='checkbox' name=''/></td><td class='checkboxall'>Filename</td><td class='checkboxall'>Size</td></tr>";
                   foreach($files as $file){
                       $pathfilezise = $path_implode.'/'.$file;
                       $filesize = formatSizeUnits(filesize($pathfilezise));
@@ -637,6 +657,7 @@ function countFiles($path) {
 function GetDirectorySize($path){
   $bytestotal = 0;
   $path = realpath($path);
+
   if($path!==false && $path!='' && file_exists($path)){
       foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)) as $object){
           $bytestotal += $object->getSize();
@@ -671,7 +692,11 @@ function info_filemanager_files($posts) {
         }
         if (is_dir($path)) {
           $html .= "<div class='info-window-count'>" . countFiles($path) . "</div>";
-          $html .= "<div class='info-window-count-size'>" . formatSizeUnits(GetDirectorySize($path)) . "</div>";
+          try {
+            $html .= "<div class='info-window-count-size'>" . formatSizeUnits(GetDirectorySize($path)) . "</div>";
+          } catch (Exception $e) {
+            $html .= $e.'<br>';
+          }
         } else {
           $html .= "<div class='info-window-size'>" . formatSizeUnits(filesize($path)) . "</div>";
         }
@@ -679,7 +704,11 @@ function info_filemanager_files($posts) {
     }
   }
 
-	return wp_send_json ( $html );
+  if($html != null) {
+    return wp_send_json ( $html );
+  } else {
+    return wp_send_json ( '' );
+  }
 
 }
 
@@ -751,5 +780,42 @@ function share_filemanager_files($posts) {
   add_post_meta( $post_id, '_share_right', $array );
 
 	return wp_send_json ( $html );
+
+}
+
+/* AJAX action callback */
+add_action( 'wp_ajax_search_filemanager_files', 'search_filemanager_files' );
+add_action( 'wp_ajax_nopriv_search_filemanager_files', 'search_filemanager_files' );
+function search_filemanager_files($posts) {
+
+  $path = $_POST['path'];
+  $inputVal = $_POST['inputVal'];
+
+  $html[] = "<div class='info-window'>";
+  $html[] .= "<div class='info-window-close'>X</div>";
+  try{
+    $dir = new DirectoryIterator($path);
+    foreach ($dir as $fileinfo) {
+      if ($fileinfo->isDir()) {
+        $dirname = $fileinfo->getFilename();
+        if (stripos($dirname, esc_attr($inputVal)) || $dirname == $inputVal) {
+          $html[] .= $fileinfo->getPathname().'<br>';
+        }
+      }
+    }
+    $directory = new \RecursiveDirectoryIterator($path);
+    $iterator = new \RecursiveIteratorIterator($directory);
+    foreach ($iterator as $info) {
+      $filename = $info->getFilename();
+      if (stripos($filename, esc_attr($inputVal)) || $filename == $inputVal) {
+        $html[] .= $info->getPathname().'<br>';
+      }
+    }
+  } catch (Exception $e) {
+    $html[] .= $e.'<br>';
+  }
+  $html[] .= "</div>";
+
+	return wp_send_json ( implode($html) );
 
 }

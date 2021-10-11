@@ -51,6 +51,7 @@ function uploadFormData($, formData, files_obj, rand, link, length) {
     const urlshare = urlParams.get('share');
     const urlsharepath = urlParams.get('sharepath');
     var url_Params;
+    var i = 0;
 
     if(urlhome != null){
         url_Params = 'home';
@@ -65,73 +66,76 @@ function uploadFormData($, formData, files_obj, rand, link, length) {
         url_Params = 'sharepath';
     }
         
-    $.ajax({
-        xhr: function() {
-            var xhr = new window.XMLHttpRequest();
-            xhr.upload.addEventListener("progress", function(evt) {
-                var percent = document.getElementById('percent'+rand);
-                var _percent = document.getElementById('_percent'+rand);
-                if (evt.lengthComputable) {
-                    var percentComplete = evt.loaded / evt.total;
-                    percentComplete = parseInt(percentComplete * 100);
-                    var percentVal = percentComplete + '%';
-                    percent.innerHTML = percentVal;
-                    if(_percent != null){
-                        _percent.innerHTML = percentVal;
+    if(i === 0) {
+        $.ajax({
+            xhr: function() {
+                var xhr = new window.XMLHttpRequest();
+                xhr.upload.addEventListener("progress", function(evt) {
+                    var percent = document.getElementById('percent'+rand);
+                    var _percent = document.getElementById('_percent'+rand);
+                    if (evt.lengthComputable) {
+                        var percentComplete = evt.loaded / evt.total;
+                        percentComplete = parseInt(percentComplete * 100);
+                        var percentVal = percentComplete + '%';
+                        percent.innerHTML = percentVal;
+                        if(_percent != null){
+                            _percent.innerHTML = percentVal;
+                        }
+                        if (percentComplete === 100) {
+                            var parent = $('#done'+rand).parent().attr('id');
+                            document.getElementById(parent).remove();
+                            percent.innerHTML = '';
+                        }
                     }
-                    if (percentComplete === 100) {
-                        var parent = $('#done'+rand).parent().attr('id');
-                        document.getElementById(parent).remove();
-                        percent.innerHTML = '';
+                }, false);
+                return xhr;
+            },
+            url: "/wp-content/plugins/file-manager/includes/upload.php?upload_dir="+object_id+"/&relativepath="+files_obj.webkitRelativePath,
+            type: "POST",
+            data: formData,
+            contentType:false,
+            cache: false,
+            processData: false,
+            sequential:true,
+            sequentialCount:1,
+            success: function(obj) {
+                console.log(obj);
+                jQuery.ajax({
+                    type: 'post',
+                    url: get_filemanager_ajax_url,
+                    data: {
+                        'object_id': object_id,
+                        'link': link,
+                        'urlParams': url_Params,
+                        'sharekey': urlshare,
+                        'action': 'get_filemanager_files'
+                    },
+                    dataType: 'json',
+                    success: function(data){
+                        console.log(object_id);
+                        $( '.filemanager-wrapper' ).empty();		
+                        $('.filemanager-wrapper').append(data);
+                        filemanager_select_files($);
+                        filemanager_copy_files($);
+                        filemanager_createdir_files($);
+                        filemanager_createfile_files($);
+                        filemanager_delete_files($);
+                        filemanager_info_files($);
+                        filemanager_moveto_files($);
+                        filemanager_rename_files($);
+                        filemanager_search_files($);
+                        filemanager_share_files($);
+                        filemanager_uploads_files($);
+                        filemanager_zip_files($);
+                        i++;
+                    },
+                    error: function(errorThrown){
+                        //error stuff here.text
                     }
-                }
-            }, false);
-            return xhr;
-        },
-        url: "/wp-content/plugins/file-manager/includes/upload.php?upload_dir="+object_id+"/&relativepath="+files_obj.webkitRelativePath,
-        type: "POST",
-        data: formData,
-        contentType:false,
-        cache: false,
-        processData: false,
-        sequential:true,
-        sequentialCount:1,
-        success: function(obj) {
-            console.log(obj);
-            jQuery.ajax({
-                type: 'post',
-                url: get_filemanager_ajax_url,
-                data: {
-                    'object_id': object_id,
-                    'link': link,
-                    'urlParams': url_Params,
-                    'sharekey': urlshare,
-                    'action': 'get_filemanager_files'
-                },
-                dataType: 'json',
-                success: function(data){
-                    console.log(object_id);
-                    $( '.filemanager-wrapper' ).empty();		
-                    $('.filemanager-wrapper').append(data);
-                    filemanager_select_files($);
-                    filemanager_uploads_files($);
-                    filemanager_delete_files($);
-                    filemanager_createfile_files($);
-                    filemanager_createdir_files($);
-                    filemanager_copy_files($);
-                    filemanager_moveto_files($);
-                    filemanager_zip_files($);
-                    filemanager_rename_files($);
-                    filemanager_info_files($);
-                    filemanager_share_files($);
-                },
-                error: function(errorThrown){
-                    //error stuff here.text
-                }
-            });
-        }
-        
-    });
+                });
+            }
+        });
+    }
 }
 
 function filemanager_uploads_files($) {   
@@ -167,6 +171,14 @@ function filemanager_uploads_files($) {
             createFormData($, e.target.files);
         }, { once: true });
     }
+}
+
+function myFile() {
+	document.getElementById('pickerfiles').click();
+}
+
+function mydir() {
+	document.getElementById('pickerdir').click();
 }
 
 jQuery(document).ready(function($) {

@@ -5,7 +5,7 @@ function filemanager_rename_files($) {
 
         const path = [];
         var i = 0;
-        var x = 0
+        var x = 0;
 
         $('.checkbox').each(function () {
             if($(this).is(':checked')){
@@ -28,31 +28,35 @@ function filemanager_rename_files($) {
             event.preventDefault();
             $("#errorlog").empty();	
         
+            var y = 0;
             var object_id = $(this).attr('data-object-id');
             var path_id = $(this).attr('data-path');
             var filename_value = $("#filename_"+object_id).val();
             var cell = document.getElementById('file-table').rows[object_id].cells; 
             var link = location.protocol + '//' + location.host + location.pathname;
 
-            jQuery.ajax({
-                type: 'post',
-                url: rename_filemanager_ajax_url,
-                data: {
-                    'filename': filename_value,
-                    'path': path_id,
-                    'link': link,
-                    'action': 'rename_filemanager_files'
-                },
-                dataType: 'json',
-                success: function(data){
-                    console.log(data);
-                    console.log(object_id);
-                    console.log(cell[1].innerHTML = data);
-                },
-                error: function(errorThrown){
-                    //error stuff here.text
-                }
-            });
+            if(y === 0) {
+                jQuery.ajax({
+                    type: 'post',
+                    url: rename_filemanager_ajax_url,
+                    data: {
+                        'filename': filename_value,
+                        'path': path_id,
+                        'link': link,
+                        'action': 'rename_filemanager_files'
+                    },
+                    dataType: 'json',
+                    success: function(data){
+                        console.log(data);
+                        console.log(object_id);
+                        console.log(cell[1].innerHTML = data);
+                        filemanager_rename_files($);
+                    },
+                    error: function(errorThrown){
+                        //error stuff here.text
+                    }
+                });
+            }
         });
 
     });

@@ -1,6 +1,6 @@
 # FileManager Plugin for Wordpress</br>
 
-<img src="https://i.ibb.co/pRzWwvN/filemanager48756.png" />
+<img src="https://i.ibb.co/QDKTh2Q/filemanager1487.png" />
 
 ## Installation
 
@@ -15,6 +15,7 @@ Support for PDF, JPEG, JPG, BMP, PNG, GIF, MP4, MKV, TXT, HTML, PHP, JS, LOG.
 
 ## Changelog
 
+- 0.55 - Fix ajax function called to many time, add a search button, add select all.
 - 0.5 - Various fix, all btn are tested and working with php funtion, url with double slash, no smoothState on download link.
 - 0.15 - add Pagination in scandir().
 - 0.14 - Add public share link to file.
