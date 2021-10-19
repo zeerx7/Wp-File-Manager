@@ -4,8 +4,27 @@
  */
 
 .filemanager-wrapper table {
-    width: 100%;
+    width: 75%;
     margin: 0;
+}
+
+.treeview {
+   width: 25%;
+   border: 0.5px solid black;
+   border-left: none;
+   overflow: scroll;
+}
+
+.treeview ul{
+   width: 100%;
+}
+
+.close {
+   display: none;
+}
+
+.file-table {
+   display: flex;
 }
 
 .checkboxall {

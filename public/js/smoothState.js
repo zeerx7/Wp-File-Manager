@@ -57,6 +57,7 @@
 				filemanager_info_files($);
 				filemanager_share_files($);			
 				filemanager_search_files($);	
+				filemanager_tree_get_files($);
 				$("#errorlog").empty();	
 
 			}

@@ -57,6 +57,10 @@ function wp_filemanager_ajax_scripts() {
     wp_register_script( 'wp-filemanager-ajax-search-files', $url . "js/ajax.filemanager.search.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-search-files', 'search_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
 	  wp_enqueue_script( 'wp-filemanager-ajax-search-files' );
+
+    wp_register_script( 'wp-filemanager-ajax-tree-get-files', $url . "js/ajax.filemanager.tree.get.js", array( 'jquery' ), '1.0.0', true );
+    wp_localize_script( 'wp-filemanager-ajax-tree-get-files', 'tree_get_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
+	  wp_enqueue_script( 'wp-filemanager-ajax-tree-get-files' );
 	
 }
 
@@ -73,16 +77,16 @@ function get_filemanager_files($posts) {
   $share = $_POST['sharekey'];
 
   if ($urlParams == 'path') {
-    $path = $_POST['object_id'];
+    $path = 'path';
   }
   if ($urlParams == 'home') {
-    $home = $_POST['object_id'];
+    $home = 'home';
   }
   if ($urlParams == 'workplace') {
-    $workplace = $_POST['object_id'];
+    $workplace = 'workplace';
   }
   if ($urlParams == 'sharepath') {
-    $sharepath = $_POST['object_id'];
+    $sharepath = 'sharepath';
   }
 
   $my_option_name = get_option('my_option_name');
@@ -90,18 +94,6 @@ function get_filemanager_files($posts) {
   global $wp;
   $i = 0;
   $x = 0;
-
-  foreach ($my_option_name['id_name'] as $id_name){
-    foreach( $my_option_name['read-'.$id_name] as $read_id ){
-        $id_read[$id_name] .= $read_id;
-    }
-  }
-
-  foreach ($my_option_name['id_name'] as $id_name){
-      foreach( $my_option_name['write-'.$id_name] as $write_id ){
-          $id_write[$id_name] .= $write_id;
-      }
-  }
 
   foreach( $my_option_name['read-path'] as $read_path_id ){
           $id_read_path[] .= $read_path_id;
@@ -111,9 +103,9 @@ function get_filemanager_files($posts) {
           $id_write_path[] .= $write_path_id;
   }
 
-  if (isset($home)) {
+  if ($urlParams == 'home') {
       $blogusers = get_users();
-      $path_implode = $home;
+      $path_implode = $object_id;
       $path_default = $my_option_name['title'].$user->user_login;
       if ($path_implode == $path_default) {
           $workplace_last = true;
@@ -125,7 +117,7 @@ function get_filemanager_files($posts) {
       $write_path = true;
   }
 
-  if (isset($workplace)) {
+  if ($urlParams == 'workplace') {
     $posts = get_posts( array(
       'post_type'      => 'workplace',
       'posts_per_page' => -1,
@@ -133,32 +125,27 @@ function get_filemanager_files($posts) {
       'no_found_rows'  => true
     ));
     foreach($posts as $post) {
-        $title = get_the_title($post->ID); 
-        $workplacepath[$post->ID] = get_post_meta( $post->ID, "_workplace_path", true);
-        $workplaceright[$post->ID] = get_post_meta( $post->ID, "_workplace_right", true);
-    }    
-    foreach ($workplacepath as $id_path) {
-        $id_path_ = rtrim($id_path, "/");
-        $workplace_ = rtrim($workplace, "/");
+        $workplacepath = get_post_meta( $post->ID, "_workplace_path", true);
+        $workplaceright = get_post_meta( $post->ID, "_workplace_right", true);
+        $id_path_ = rtrim($workplacepath, "/");
+        $workplace_ = rtrim($object_id, "/");
         if (strpos($workplace_, $id_path_) !== false) {
-            $workplace_strpos = true;
-            if ($workplace_ == $id_path_) {
-                $workplace_last = true;
-            }
-            foreach($workplaceright as $userright) {
-                if($userright[$user->ID]['read'] == 1) {
-                    $read_path = true;
-                }
-                if($userright[$user->ID]['write'] == 1) {
-                    $write_path = true;
-                }
-            }
+          $workplace_strpos = true;
+          if ($workplace_ == $id_path_) {
+              $workplace_last = true;
+          }
+          if($workplaceright[$user->ID]['read'] == 1) {
+              $read_path = true;
+          }
+          if($workplaceright[$user->ID]['write'] == 1) {
+              $write_path = true;
+          }
         }
     }
-    $path_implode = $workplace;
+    $path_implode = $object_id;
   } 
 
-  if (isset($path)) {
+  if ($urlParams == 'path') {
     if (in_array($user->ID, $id_read_path)) {
         $read_path = true;
         $workplace_strpos = true;
@@ -166,10 +153,10 @@ function get_filemanager_files($posts) {
     if (in_array($user->ID, $id_write_path)) {
         $write_path = true;
     }
-    $path_implode = $path;
+    $path_implode = $object_id;
   }
 
-  if (isset($share) && isset($sharepath)) {
+  if ($urlParams == 'sharepath') {
     $args = array(
         'posts_per_page' => -1,
         'post_type' => 'shares',
@@ -193,7 +180,7 @@ function get_filemanager_files($posts) {
 
     if ($path_share) {
         $id_path_ = rtrim($path_share, "/");
-        $sharepath_ = rtrim($sharepath, "/");
+        $sharepath_ = rtrim($object_id, "/");
         if (strpos($sharepath_, $id_path_) !== false) {
             $workplace_strpos = true;
         }
@@ -206,7 +193,7 @@ function get_filemanager_files($posts) {
         if($share_right['write'] == 1){
             $write_path = true;
         }
-        $path_implode = $sharepath;
+        $path_implode = $object_id;
     }
   }
 
@@ -404,7 +391,29 @@ function get_filemanager_files($posts) {
                   if ($files == null) {
                     $html[] .= "<tr><td><input class='checkbox' type='checkbox' /></td><td class='filemanager-table'><a id='file-id' class='filemanager-click'>No file found</a></td></tr>";
                   }
-            $html[] .= "</table></div>";
+                $html[] .= "</table>";
+              
+                $html[] .= "<div id='treeview' class='treeview'>";
+                  $ffs = scandir($path_implode);
+              
+                  unset($ffs[array_search('.', $ffs, true)]);
+                  unset($ffs[array_search('..', $ffs, true)]);
+              
+                  // prevent empty ordered elements
+                  if (count($ffs) < 1)
+                      return;
+                  
+                      $html[] .= '<ul>';
+                      foreach($ffs as $ff){
+                          if(is_dir($path_implode.'/'.$ff)) {
+                            $html[] .= '<li class="isfolder" path="'.$path_implode.'/'.$ff.'">'.$ff.'</li>';
+                            $html[] .= '<ul></ul>';
+                          } else {
+                            $html[] .= '<li>'.$ff.'</li>';
+                          }
+                      }
+                      $html[] .= '</ul>';
+                  $html[] .= '</div></div>';
 
 	return wp_send_json ( implode($html) );
 
@@ -815,6 +824,37 @@ function search_filemanager_files($posts) {
     $html[] .= $e.'<br>';
   }
   $html[] .= "</div>";
+
+	return wp_send_json ( implode($html) );
+
+}
+
+/* AJAX action callback */
+add_action( 'wp_ajax_tree_get_filemanager_files', 'tree_get_filemanager_files' );
+add_action( 'wp_ajax_nopriv_tree_get_filemanager_files', 'tree_get_filemanager_files' );
+
+function tree_get_filemanager_files($posts) {
+
+  global $wp;
+  $path = $_POST['path'];
+
+  $ffs = scandir($path);
+                    
+  unset($ffs[array_search('.', $ffs, true)]);
+  unset($ffs[array_search('..', $ffs, true)]);
+
+  // prevent empty ordered elements
+  if (count($ffs) < 1)
+      return;
+
+  foreach($ffs as $ff){
+      if(is_dir($path.'/'.$ff)) {
+        $html[] .= '<li class="isfolder" path="'.$path.'/'.$ff.'">'.$ff.'</li>';
+        $html[] .= '<ul></ul>';
+      } else {
+        $html[] .= '<li>'.$ff.'</li>';
+      }
+  }
 
 	return wp_send_json ( implode($html) );
 

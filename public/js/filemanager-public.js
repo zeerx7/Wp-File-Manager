@@ -27,6 +27,21 @@ function filemanager_select_files($) {
 		window.location = filemanagerhomehref;
 	}
 
+	const filemanagervideo = document.getElementById("filemanagervideo");
+	if(filemanagervideo){
+		filemanagervideo.onended = function() {
+			var filemanagernext = $('.filenamenext').attr('href');
+			window.location = filemanagernext;
+		};
+	}
+
+	$('.folder').on( 'click', function () {
+		console.log($(this).next("ul"));
+		$(this).next("ul").toggleClass("treeviewitemshow");
+	});
+
+	jQuery("#treeview").height(jQuery("#file-table").height());
+
     $('#file-table tbody').on( 'click', 'tr', function () {
         $(this).toggleClass('selected');
 		if ($(this).find("td :input").is(":checked")) {

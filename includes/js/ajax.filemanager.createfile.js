@@ -73,6 +73,7 @@ function filemanager_createfile_ajax_files($) {
                         filemanager_share_files($);
                         filemanager_uploads_files($);
                         filemanager_zip_files($);
+                        filemanager_tree_get_files($);
                         i++;
                     },
                     error: function(errorThrown){

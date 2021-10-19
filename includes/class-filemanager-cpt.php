@@ -38,7 +38,7 @@ function create_posttype_filemanager() {
             'can_export'            => false,
             'has_archive'           => false,		
             'exclude_from_search'   => false,
-            'publicly_queryable'    => true,
+            'publicly_queryable'    => false,
             'supports'      => array( 'title', 'page-attributes', 'editor'),
       )
     );
