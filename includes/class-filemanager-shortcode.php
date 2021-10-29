@@ -353,6 +353,12 @@ function filemanager_shortcode() {
                 if ($workplace_ == $id_path_) {
                     $workplace_last = true;
                 }
+                if($workplaceright[-1]['read'] == 1) {
+                    $read_path = true;
+                }
+                if($workplaceright[-1]['write'] == 1) {
+                    $write_path = true;
+                }
                 if($workplaceright[$user->ID]['read'] == 1) {
                     $read_path = true;
                 }
@@ -454,7 +460,6 @@ function filemanager_shortcode() {
             foreach ( $my_query as $post ) { 
                 $path_share = get_post_meta( $post->ID, '_share_path', true);
                 $share_right = get_post_meta( $post->ID, '_share_right', true);
-                $password = $post->post_password;
             }                   
         }
 
@@ -467,16 +472,25 @@ function filemanager_shortcode() {
             if ($sharepath_ == $id_path_) {
                 $workplace_last = true;
             }
-            if($share_right['read'] == 1){
+            if($share_right[-1]['read'] == 1) {
                 $read_path = true;
             }
-            if($share_right['write'] == 1){
+            if($share_right[-1]['write'] == 1) {
+                $write_path = true;
+            }
+            if($share_right[$user->ID]['read'] == 1) {
+                $read_path = true;
+            }
+            if($share_right[$user->ID]['write'] == 1) {
                 $write_path = true;
             }
             $treepath_ = rtrim($treepath, "/");
             if (strpos($treepath_, $id_path_) !== false) {
                 $treepath_strpos = true;
-                if($share_right['read'] == 1) {
+                if($share_right[-1]['read'] == 1) {
+                    $read_tree = true;
+                }
+                if($share_right[$user->ID]['read'] == 1) {
                     $read_tree = true;
                 }
             } 

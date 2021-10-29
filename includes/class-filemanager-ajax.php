@@ -787,7 +787,7 @@ function share_filemanager_files($posts) {
     $html[1] = $path;
   }
 
-  $array['read'] = true;
+  $array['-1']['read'] = true;
   add_post_meta( $post_id, '_share_right', $array );
 
   return wp_send_json ( $html );

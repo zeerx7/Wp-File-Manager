@@ -15,6 +15,7 @@
 function custom_meta_box_share($object)
 {
 wp_nonce_field(basename(__FILE__), "meta-box-nonce");
+$blogusers = get_users();
 ?>
     <div style="text-align: center;">
         <label>Share Path</label>
@@ -30,30 +31,55 @@ wp_nonce_field(basename(__FILE__), "meta-box-nonce");
         <label>Permision</label>
         <br>
         <?php 
-        $share_right = get_post_meta($object->ID, "_share_right", true); ?><?php
+        $share_right = get_post_meta($object->ID, "_share_right", true); ?>
+        <?php foreach ($blogusers as $bloguser) {
+            $read_ = false;
+            $write_ = false;
+            echo $bloguser->user_login . ' - ';
+            $my_option_read = $share_right[$bloguser->ID]['read'];
+            if ($my_option_read == 1) {
+                $read_ = true;
+            }
+            if ($read_ == true) {
+                echo 'Read<input type="checkbox" id="read" name="read[]" value="' . $bloguser->ID .'" checked>';
+            } else {
+                echo 'Read<input type="checkbox" id="read" name="read[]" value="' . $bloguser->ID .'">';
+            }
+
+            $my_option_write = $share_right[$bloguser->ID]['write'];
+            if ($my_option_write == 1) {
+                $write_ = true;
+            }
+            if ($write_ == true) {
+                echo 'Write<input type="checkbox" id="write" name="write[]" value="' . $bloguser->ID .'" checked>';
+            } else {
+                echo 'Write<input type="checkbox" id="write" name="write[]" value="' . $bloguser->ID .'">';
+            }
+            echo "<br>";
+        }
         $read_ = false;
         $write_ = false;
         echo 'Public - ';
-        $my_option_read = $share_right ['read'];
+        $my_option_read = $share_right[-1]['read'];
         if ($my_option_read == 1) {
             $read_ = true;
         }
         if ($read_ == true) {
-            echo 'Read<input type="checkbox" id="read" name="read" value="true" checked>';
+            echo 'Read<input type="checkbox" id="read" name="read[]" value="-1" checked>';
         } else {
-            echo 'Read<input type="checkbox" id="read" name="read" value="false">';
+            echo 'Read<input type="checkbox" id="read" name="read[]" value="-1">';
         }
 
-        $my_option_write = $share_right['write'];
+        $my_option_write = $share_right[-1]['write'];
         if ($my_option_write == 1) {
             $write_ = true;
         }
         if ($write_ == true) {
-            echo 'Write<input type="checkbox" id="write" name="write" value="true" checked>';
+            echo 'Write<input type="checkbox" id="write" name="write[]" value="-1" checked>';
         } else {
-            echo 'Write<input type="checkbox" id="write" name="write" value="false">';
+            echo 'Write<input type="checkbox" id="write" name="write[]" value="-1">';
         }
-        echo "<br>";?>
+        echo "<br>"; ?>
         <br>
     </div>
 
@@ -85,19 +111,16 @@ function save_share_meta_box($post_id, $post, $update) {
     return; 
     update_post_meta( $post_id, "_share_key", $_POST['share-key-textarea'] );
 
-    if( isset( $_POST['read'] ) ) {
-        $array['read'] = true;
-    } else {
-        $array['read'] = false;
+    if( isset( $_POST['read'] ) )
+    foreach($_POST['read'] as $read_id) {
+        $array[$read_id]['read'] = true;
+    }
+   
+    if( isset( $_POST['write'] ) )
+    foreach($_POST['write'] as $read_id) {
+        $array[$read_id]['write'] = true;
     }
 
-   
-    if( isset( $_POST['write'] ) ) {
-        $array['write'] = true;
-    } else {
-        $array['write'] = false;
-    }
-       
     update_post_meta( $post_id, "_share_right", $array );
     
 }
@@ -193,14 +216,12 @@ function save_workplace_meta_box($post_id, $post, $update) {
     update_post_meta( $post_id, "_workplace_path", $_POST['workplace-path-textarea'] );
 
     
-    if( ! isset( $_POST['read'] ) )
-    return; 
+    if( isset( $_POST['read'] ) )
     foreach($_POST['read'] as $read_id) {
         $array[$read_id]['read'] = true;
     }
    
-    if( ! isset( $_POST['write'] ) )
-    return; 
+    if( isset( $_POST['write'] ) )
     foreach($_POST['write'] as $read_id) {
         $array[$read_id]['write'] = true;
     }
