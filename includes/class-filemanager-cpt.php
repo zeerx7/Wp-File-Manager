@@ -1,4 +1,5 @@
 <?php
+
 function create_posttype_filemanager() {
     register_post_type( 'shares',
       array(
@@ -63,8 +64,8 @@ function create_posttype_filemanager() {
           'supports'      => array( 'title', 'page-attributes', 'editor'),
     )
   );
-  }
-  add_action( 'init', 'create_posttype_filemanager' );
+}
+add_action( 'init', 'create_posttype_filemanager' );
 
 function share_force_template( $template ) {	
 	if( is_singular( 'shares' ) ) {

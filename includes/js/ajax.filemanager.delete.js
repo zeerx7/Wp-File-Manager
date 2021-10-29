@@ -16,6 +16,7 @@ function filemanager_delete_files($) {
         const urlpath = urlParams.get('path');
         const urlshare = urlParams.get('share');
         const urlsharepath = urlParams.get('sharepath');
+        const treepath = urlParams.get('treepath');
         var url_Params;
 
         if(urlhome != null){
@@ -59,6 +60,7 @@ function filemanager_delete_files($) {
                             'link': link,
                             'urlParams': url_Params,
                             'sharekey': urlshare,
+                            'treepath': treepath,
                             'action': 'get_filemanager_files'
                         },
                         dataType: 'json',

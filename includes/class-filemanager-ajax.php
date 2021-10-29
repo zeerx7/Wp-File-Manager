@@ -7,67 +7,66 @@ add_action( 'wp_enqueue_scripts', 'wp_filemanager_ajax_scripts' );
  * Scripts
  */
 function wp_filemanager_ajax_scripts() {
-	/* Plugin DIR URL */
-	$url = trailingslashit( plugin_dir_url( __FILE__ ) );
- 
+  /* Plugin DIR URL */
+  $url = trailingslashit( plugin_dir_url( __FILE__ ) );
+
     wp_register_script( 'wp-filemanager-ajax-get-files', $url . "js/ajax.filemanager.upload.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-get-files', 'get_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
-	  wp_enqueue_script( 'wp-filemanager-ajax-get-files' );
+    wp_enqueue_script( 'wp-filemanager-ajax-get-files' );
 
     wp_register_script( 'wp-filemanager-ajax-save-files', $url . "js/ajax.filemanager.save.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-save-files', 'save_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
-	  wp_enqueue_script( 'wp-filemanager-ajax-save-files' );
+    wp_enqueue_script( 'wp-filemanager-ajax-save-files' );
 
     wp_register_script( 'wp-filemanager-ajax-delete-files', $url . "js/ajax.filemanager.delete.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-delete-files', 'delete_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
-	  wp_enqueue_script( 'wp-filemanager-ajax-delete-files' );
+    wp_enqueue_script( 'wp-filemanager-ajax-delete-files' );
 
     wp_register_script( 'wp-filemanager-ajax-createfile-files', $url . "js/ajax.filemanager.createfile.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-createfile-files', 'createfile_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
-	  wp_enqueue_script( 'wp-filemanager-ajax-createfile-files' );
+    wp_enqueue_script( 'wp-filemanager-ajax-createfile-files' );
 
     wp_register_script( 'wp-filemanager-ajax-createdir-files', $url . "js/ajax.filemanager.createdir.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-createdir-files', 'createdir_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
-	  wp_enqueue_script( 'wp-filemanager-ajax-createdir-files' );
+    wp_enqueue_script( 'wp-filemanager-ajax-createdir-files' );
     
     wp_register_script( 'wp-filemanager-ajax-rename-files', $url . "js/ajax.filemanager.rename.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-rename-files', 'rename_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
-	  wp_enqueue_script( 'wp-filemanager-ajax-rename-files' );
+    wp_enqueue_script( 'wp-filemanager-ajax-rename-files' );
 
     wp_register_script( 'wp-filemanager-ajax-copy-files', $url . "js/ajax.filemanager.copy.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-copy-files', 'copy_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
-	  wp_enqueue_script( 'wp-filemanager-ajax-copy-files' );
+    wp_enqueue_script( 'wp-filemanager-ajax-copy-files' );
 
     wp_register_script( 'wp-filemanager-ajax-moveto-files', $url . "js/ajax.filemanager.moveto.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-moveto-files', 'moveto_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
-	  wp_enqueue_script( 'wp-filemanager-ajax-moveto-files' );
+    wp_enqueue_script( 'wp-filemanager-ajax-moveto-files' );
         
     wp_register_script( 'wp-filemanager-ajax-info-files', $url . "js/ajax.filemanager.info.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-info-files', 'info_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
-	  wp_enqueue_script( 'wp-filemanager-ajax-info-files' );
+    wp_enqueue_script( 'wp-filemanager-ajax-info-files' );
 
     wp_register_script( 'wp-filemanager-ajax-zip-files', $url . "js/ajax.filemanager.zip.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-zip-files', 'zip_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
-	  wp_enqueue_script( 'wp-filemanager-ajax-zip-files' );
+    wp_enqueue_script( 'wp-filemanager-ajax-zip-files' );
 
     wp_register_script( 'wp-filemanager-ajax-share-files', $url . "js/ajax.filemanager.share.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-share-files', 'share_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
-	  wp_enqueue_script( 'wp-filemanager-ajax-share-files' );
+    wp_enqueue_script( 'wp-filemanager-ajax-share-files' );
 
     wp_register_script( 'wp-filemanager-ajax-search-files', $url . "js/ajax.filemanager.search.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-search-files', 'search_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
-	  wp_enqueue_script( 'wp-filemanager-ajax-search-files' );
+    wp_enqueue_script( 'wp-filemanager-ajax-search-files' );
 
     wp_register_script( 'wp-filemanager-ajax-tree-get-files', $url . "js/ajax.filemanager.tree.get.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-tree-get-files', 'tree_get_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
-	  wp_enqueue_script( 'wp-filemanager-ajax-tree-get-files' );
-	
+    wp_enqueue_script( 'wp-filemanager-ajax-tree-get-files' );
+  
 }
 
 /* AJAX action callback */
 add_action( 'wp_ajax_get_filemanager_files', 'get_filemanager_files' );
 add_action( 'wp_ajax_nopriv_get_filemanager_files', 'get_filemanager_files' );
-
 function get_filemanager_files($posts) {
 
   global $wp;
@@ -75,6 +74,7 @@ function get_filemanager_files($posts) {
   $link = $_POST['link'];
   $urlParams = $_POST['urlParams'];
   $share = $_POST['sharekey'];
+  $treepath = $_POST['treepath'];
 
   if ($urlParams == 'path') {
     $path = 'path';
@@ -275,7 +275,8 @@ function get_filemanager_files($posts) {
       </div>";
     }
 
-    $html[] .= "<div id='filemanagerbtn' class='filemanagerbtn'>
+    $html[] .= "<div id='filemanagerwrapper'>
+                  <div id='filemanagerbtndown' class='filemanagerbtn'>
                   <div class='navbar'>";
                           if ($path_parts[1] != '' && $workplace_strpos == true && $workplace_last != true){
                               if (isset($home)) { $html[] .= "<a class='btnback_' href='" . $link . "?home=" . dirname($path_implode) . "'>Parent directory</a>"; }
@@ -346,31 +347,31 @@ function get_filemanager_files($posts) {
                       $realpath = realpath($path_implode.'/'.$file);
                       if ( is_dir($realpath) == true ) {
                         if (isset($home)) {
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?home=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?home=$realpath&treepath=$treepath'>$file</a></td><td>$filesize</td></tr>";
                         }
                         if (isset($workplace)) { 
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?workplace=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?workplace=$realpath&treepath=$treepath'>$file</a></td><td>$filesize</td></tr>";
                         }
                         if (isset($path)) {
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?path=$realpath&treepath=$treepath'>$file</a></td><td>$filesize</td></tr>";
                         }
                         if (isset($sharepath)) {
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?share=$share&sharepath=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?share=$share&sharepath=$realpath&treepath=$treepath'>$file</a></td><td>$filesize</td></tr>";
                         }
                       } else {
                         $getname = getName(32);
                         $getoauth = uniqid(time().'||'.$getname.'||'.$realpath.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
                         if (isset($home)) {
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?home=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?home=$realpath&treepath=$treepath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
                         }
                         if (isset($workplace)) { 
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?workplace=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?workplace=$realpath&treepath=$treepath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
                         }
                         if (isset($path)) {
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?path=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";                        
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?path=$realpath&treepath=$treepath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";                        
                         }
                         if (isset($sharepath)) {
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?share=$share&sharepath=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?share=$share&sharepath=$realpath&treepath=$treepath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
                         }
                       $TOKEN_DIR = get_home_path() . 'wp-content/plugins/file-manager/includes/tokens';
 
@@ -391,38 +392,45 @@ function get_filemanager_files($posts) {
                   if ($files == null) {
                     $html[] .= "<tr><td><input class='checkbox' type='checkbox' /></td><td class='filemanager-table'><a id='file-id' class='filemanager-click'>No file found</a></td></tr>";
                   }
-                $html[] .= "</table>";
-              
-                $html[] .= "<div id='treeview' class='treeview'>";
-                  $ffs = scandir($path_implode);
-              
-                  unset($ffs[array_search('.', $ffs, true)]);
-                  unset($ffs[array_search('..', $ffs, true)]);
-              
-                  // prevent empty ordered elements
-                  if (count($ffs) < 1)
-                      return;
-                  
-                      $html[] .= '<ul>';
-                      foreach($ffs as $ff){
-                          if(is_dir($path_implode.'/'.$ff)) {
-                            $html[] .= '<li class="isfolder" path="'.$path_implode.'/'.$ff.'">'.$ff.'</li>';
-                            $html[] .= '<ul></ul>';
-                          } else {
-                            $html[] .= '<li>'.$ff.'</li>';
-                          }
-                      }
-                      $html[] .= '</ul>';
-                  $html[] .= '</div></div>';
+                $html[] .= "</table></div></div>";
 
-	return wp_send_json ( implode($html) );
+                  if (isset($home)) { $arg = 'home'; }
+
+                  if (isset($workplace)) { $arg = 'workplace'; }
+
+                  if (isset($path)) { $arg = 'path'; }
+
+                  if (isset($share)) { $arg = 'share'; }
+
+                  if($total_pages > 1) {
+                      $html[] .= '<div class="filemanagerpagination">';
+                      if (isset($share)) {
+                        $html[] .= '<a class="page" href="?'.$arg.'='.$share.'&sharepath='.$sharepath.'&treepath='.$treepath.'&pages='.(($page-1>1)?($page-1):1).'"><<</a>';
+                          for($p=1; $p<=$total_pages; $p++) {
+                            $html[] .= '<a class="page" href="?'.$arg.'='.$share.'&sharepath='.$sharepath .'&treepath='.$treepath.'&pages='.$p.'">'.$p.'</a> ';                      
+                          }
+                          $html[] .= '<a class="page" href="?'.$arg.'='.$share.'&sharepath='.$sharepath.'&treepath='.$treepath.'&pages='.(($page+1>$total_pages)?$total_pages:($page+1)).'">>></a>';
+                      } else {
+                          $html[] .= '<a class="page" href="?'.$arg.'='.$path_implode.'&treepath='.$treepath.'&pages='.(($page-1>1)?($page-1):1).'"><<</a>';
+                          for($p=1; $p<=$total_pages; $p++) {
+                            $html[] .= ' <a class="page" href="?'.$arg.'='.$path_implode.'&treepath='.$treepath.'&pages='.$p.'">'.$p.'</a> ';                      
+                          }
+                          $html[] .= '<a class="page" href="?'.$arg.'='.$path_implode.'&treepath='.$treepath.'&pages='.(($page+1>$total_pages)?$total_pages:($page+1)).'">>></a>';
+                      }
+                      $html[] .= "</div>";
+                  }
+                
+                  $html[] .= "</div>";
+              
+                  $html[] .= '</div>';
+
+  return wp_send_json ( implode($html) );
 
 }
 
 /* AJAX action callback */
 add_action( 'wp_ajax_save_filemanager_files', 'save_filemanager_files' );
 add_action( 'wp_ajax_nopriv_save_filemanager_files', 'save_filemanager_files' );
-
 function save_filemanager_files($posts) {
 
   $object_id = stripslashes($_POST['object_id']);
@@ -432,23 +440,22 @@ function save_filemanager_files($posts) {
   fwrite($myfile, $object_id);
   fclose($myfile);
 
-	return wp_send_json ( $object_id );
+  return wp_send_json ( $object_id );
 
 }
 
 /* AJAX action callback */
 add_action( 'wp_ajax_delete_filemanager_files', 'delete_filemanager_files' );
 add_action( 'wp_ajax_nopriv_delete_filemanager_files', 'delete_filemanager_files' );
-
 function removeDirectory($path) {
 
-	$files = glob($path . '/*');
-	foreach ($files as $file) {
-		is_dir($file) ? removeDirectory($file) : unlink($file);
-	}
-	rmdir($path);
+  $files = glob($path . '/*');
+  foreach ($files as $file) {
+    is_dir($file) ? removeDirectory($file) : unlink($file);
+  }
+  rmdir($path);
 
-	return;
+  return;
 }
 
 function delete_filemanager_files($posts) {
@@ -464,14 +471,13 @@ function delete_filemanager_files($posts) {
     $html[] = $file;
   }
 
-	return wp_send_json ( implode($html) );
+  return wp_send_json ( implode($html) );
 
 }
 
 /* AJAX action callback */
 add_action( 'wp_ajax_createfile_filemanager_files', 'createfile_filemanager_files' );
 add_action( 'wp_ajax_nopriv_createfile_filemanager_files', 'createfile_filemanager_files' );
-
 function createfile_filemanager_files($posts) {
 
   $object_id = $_POST['inputVal'];
@@ -480,28 +486,26 @@ function createfile_filemanager_files($posts) {
   fwrite($myfile, "");
   fclose($myfile);
 
-	return wp_send_json ( $object_id );
+  return wp_send_json ( $object_id );
 
 }
 
 /* AJAX action callback */
 add_action( 'wp_ajax_createdir_filemanager_files', 'createdir_filemanager_files' );
 add_action( 'wp_ajax_nopriv_createdir_filemanager_files', 'createdir_filemanager_files' );
-
 function createdir_filemanager_files($posts) {
 
   $object_id = $_POST['inputVal'];
 
   mkdir($object_id);
 
-	return wp_send_json ( $object_id );
+  return wp_send_json ( $object_id );
 
 }
 
 /* AJAX action callback */
 add_action( 'wp_ajax_rename_filemanager_files', 'rename_filemanager_files' );
 add_action( 'wp_ajax_nopriv_rename_filemanager_files', 'rename_filemanager_files' );
-
 function rename_filemanager_files($posts) {
 
   global $wp;
@@ -540,7 +544,7 @@ function rename_filemanager_files($posts) {
     $html[] = "error";
   }
 
-	return wp_send_json ( implode($html) );
+  return wp_send_json ( implode($html) );
 
 }
 
@@ -563,7 +567,6 @@ function folder_exist($folder)
 /* AJAX action callback */
 add_action( 'wp_ajax_copy_filemanager_files', 'copy_filemanager_files' );
 add_action( 'wp_ajax_nopriv_copy_filemanager_files', 'copy_filemanager_files' );
-
 function copy_filemanager_files($posts) {
 
   global $wp;
@@ -606,14 +609,13 @@ function copy_filemanager_files($posts) {
     }
   }
 
-	return wp_send_json ( $html );
+  return wp_send_json ( $html );
 
 }
 
 /* AJAX action callback */
 add_action( 'wp_ajax_moveto_filemanager_files', 'moveto_filemanager_files' );
 add_action( 'wp_ajax_nopriv_moveto_filemanager_files', 'moveto_filemanager_files' );
-
 function moveto_filemanager_files($posts) {
 
   global $wp;
@@ -644,7 +646,7 @@ function moveto_filemanager_files($posts) {
     }
   }
 
-	return wp_send_json ( $html );
+  return wp_send_json ( $html );
 
 }
 
@@ -754,7 +756,7 @@ function zip_filemanager_files($posts) {
   }
   $zip->close();
 
-	return wp_send_json ( $html );
+  return wp_send_json ( $html );
 
 }
 
@@ -788,7 +790,7 @@ function share_filemanager_files($posts) {
   $array['read'] = true;
   add_post_meta( $post_id, '_share_right', $array );
 
-	return wp_send_json ( $html );
+  return wp_send_json ( $html );
 
 }
 
@@ -825,18 +827,34 @@ function search_filemanager_files($posts) {
   }
   $html[] .= "</div>";
 
-	return wp_send_json ( implode($html) );
+  return wp_send_json ( implode($html) );
 
 }
 
 /* AJAX action callback */
 add_action( 'wp_ajax_tree_get_filemanager_files', 'tree_get_filemanager_files' );
 add_action( 'wp_ajax_nopriv_tree_get_filemanager_files', 'tree_get_filemanager_files' );
-
 function tree_get_filemanager_files($posts) {
 
   global $wp;
   $path = $_POST['path'];
+  $link = $_POST['link'];
+  $urlParams = $_POST['url_Params'];
+  $sharekey = $_POST['sharekey'];
+  $treepath = $_POST['treepath'];
+
+  if ($urlParams == 'path') {
+    $path_ = 'path';
+  }
+  if ($urlParams == 'home') {
+    $home = 'home';
+  }
+  if ($urlParams == 'workplace') {
+    $workplace = 'workplace';
+  }
+  if ($urlParams == 'sharepath') {
+    $sharepath = 'sharepath';
+  }
 
   $ffs = scandir($path);
                     
@@ -847,15 +865,46 @@ function tree_get_filemanager_files($posts) {
   if (count($ffs) < 1)
       return;
 
-  foreach($ffs as $ff){
-      if(is_dir($path.'/'.$ff)) {
-        $html[] .= '<li class="isfolder" path="'.$path.'/'.$ff.'">'.$ff.'</li>';
-        $html[] .= '<ul></ul>';
-      } else {
-        $html[] .= '<li>'.$ff.'</li>';
-      }
-  }
+      foreach($ffs as $ff){
+        if(is_dir($path.'/'.$ff)) {
+            $html[] = '<li class="isfolder" path="'.$path.'/'.$ff.'">'.$ff.'</li>';
+            $html[] = '<ul></ul>';
+        } else {       
+          $getname = getName(32);                            
+          $realpath = realpath($path.'/'.$ff);
+          $getoauth = uniqid(time().'||'.$getname.'||'.$realpath.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
+            if (isset($home)) {
+                $html[] = "<li><a href='" . $link . "?home=" . $realpath . "&treepath=" . $treepath . "&oauth=" . $getname . "'>$ff</a></li>";
+            }
+            if (isset($workplace)) { 
+                $html[] = "<li><a href='" . $link . "?workplace=" . $realpath . "&treepath=" . $treepath . "&oauth=" . $getname . "'>$ff</a></li>";
+            }
+            if (isset($path_)) {
+                $html[] = "<li><a href='" . $link . "?path=" . $realpath . "&treepath=" . $treepath . "&oauth=" . $getname . "'>$ff</a></li>";
+            }
+            if (isset($sharepath)) {
+                $html[] = "<li><a href='" . $link . "?share=" . $sharekey . "&sharepath=" . $realpath . "&treepath=" . $treepath . "&oauth=" . $getname . "'>$ff</a></li>";
+            }
+          // Include the configuration file
+          $TOKEN_DIR = get_home_path() . 'wp-content/plugins/file-manager/includes/tokens';
 
-	return wp_send_json ( implode($html) );
+          // Create a protected directory to store keys
+          if(!is_dir($TOKEN_DIR)) {
+              mkdir($TOKEN_DIR);
+              $file = fopen($TOKEN_DIR.'/.htaccess','w');
+              fwrite($file,"Order allow,deny\nDeny from all");
+              fclose($file);
+          }
+          
+          // Write the key to the keys list
+          $file = fopen($TOKEN_DIR.'/oauth','a');
+          fwrite($file, "{$getoauth}\n");
+          fclose($file);
+        }
+    }
+
+  return wp_send_json ( implode($html) );
 
 }
+
+?>

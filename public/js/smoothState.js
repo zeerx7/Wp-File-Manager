@@ -64,7 +64,7 @@
 		};
 
 		if (!$("body").hasClass("elementor-editor-active")) {
-			console.log(	$( "#filemanager-wrapper" ).smoothState( settings ).data("smoothState") );
+			console.log(	$( "#filemanagerwrapper" ).smoothState( settings ).data("smoothState") );
 		}
 
 	});

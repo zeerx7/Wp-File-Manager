@@ -24,19 +24,37 @@
 }
 
 .file-table {
-   display: flex;
+   float: left;
+   width: 100%;
+}
+
+.filewrapper {
+   display: block;
+}
+
+#file-table {
+   margin: 0;
+   width: 100%;
+}
+
+#filemanagerwrapper {
+   width: 75%;
+}
+
+#filemanagerbtndown {
+   width: 133.5%;
 }
 
 .checkboxall {
    padding: 5px .75em;
 }
 
-.filemanager-wrapper tr td:first-child {
+#file-table tr td:first-child {
    width: 50px;
    display: none;
 }
 
-.filemanager-wrapper tr td:nth-child(2) {
+#file-table tr td:nth-child(2) {
    width: 75%;
 }
 
@@ -182,6 +200,7 @@ tr.selected {
    padding: 5px 10px;
    border: 0.5px solid black;
    border-bottom: none;
+   width: 133.35%;
 }
 
 .filemanager-home-click {

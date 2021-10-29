@@ -263,7 +263,29 @@
                                     if ($files == null) {
                                         echo "<tr><td><input class='checkbox' type='checkbox' /></td><td class='filemanager-table'><a id='file-id' class='filemanager-click'>No file found</a></td></tr>";
                                     }
-                                echo "</table></div>";
+                                echo "</table>";
+
+                                ?><div id='treeview' class='treeview'><?php
+                                    $ffs = scandir($path_implode);
+                                
+                                    unset($ffs[array_search('.', $ffs, true)]);
+                                    unset($ffs[array_search('..', $ffs, true)]);
+                                
+                                    // prevent empty ordered elements
+                                    if (count($ffs) < 1)
+                                        return;
+                                
+                                    echo '<ul>';
+                                    foreach($ffs as $ff){
+                                        if(is_dir($path_implode.'/'.$ff)) {
+                                            echo '<li class="isfolder" path="'.$path_implode.'/'.$ff.'">'.$ff.'</li>';
+                                            echo '<ul></ul>';
+                                        } else {
+                                            echo '<li>'.$ff.'</li>';
+                                        }
+                                    }
+                                    echo '</ul>';
+                                ?></div></div><?php
 
                                 if (isset($home)) { $arg = 'home'; }
 

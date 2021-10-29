@@ -20,6 +20,7 @@
                     
                     $share = $_GET['share'];
                     $sharepath = $_GET['sharepath'];
+                    $treepath = $_GET['treepath'];
                     global $wp;
                     $workplace_strpos = false;
                     $workplace_last = false;
@@ -28,13 +29,13 @@
                     $i = 0;
                     $x = 0;
 
-                    if (!isset($share) && !isset($sharepath)) {
+                    if (!isset($share) && !isset($sharepath) && !isset($treepath)) {
                         $share_path = get_post_meta( get_queried_object_id(), '_share_path', true);
                         $share_key = get_post_meta( get_queried_object_id(), '_share_key', true);
                         if(is_dir($share_path)) {
-                            ?><script>location.href='?share=<?php echo $share_key ?>&sharepath=<?php echo $share_path ?>'</script><?php
+                            ?><script>location.href='?share=<?php echo $share_key ?>&sharepath=<?php echo $share_path ?>&treepath=<?php echo $share_path ?>'</script><?php
                         } else {
-                            ?><script>location.href='?share=<?php echo $share_key ?>'</script><?php
+                            ?><script>location.href='?share=<?php echo $share_key ?>&treepath=<?php echo $share_path ?>'</script><?php
                         }
                     }
 
@@ -124,6 +125,15 @@
                             }
                             $path_implode = $_GET['sharepath'];
                         }
+                        if ($treepath) {
+                            $treepath_ = rtrim($treepath, "/");
+                            if (strpos($treepath_, $id_path_) !== false) {
+                                $treepath_strpos = true;
+                                if($share_right['read'] == 1) {
+                                    $read_tree = true;
+                                }
+                            } 
+                        }
                     } else {
                         $path_implode = null;
                     }     
@@ -152,78 +162,80 @@
             
                         $path_parts = explode("/", $path_implode);
                         if ( is_dir($path_implode) == true ) {
-                            if ($write_path == true) { ?>
-                                <div id='filemanagerbtnup' class='filemanagerbtn'>
-                                    <div class='navbar'>
-                                        <div id="uploadfiles" onclick="myFile()"><input type="file" id="pickerfiles" name="fileList" multiple style="display: none;">Upload files</div>
-                                        <div id="uploaddir" onclick="mydir()"><input type="file" id="pickerdir" name="fileList" webkitdirectory multiple style="display: none;">Upload Dir</div>
-                                        <div class='subnav'>
-                                            <button class='subnavbtn btnnewfile'>Create file</button>
-                                            <div id='subnav-content-file' class='subnav-content'>
-                                                <span>
-                                                    <input type='text' id='lnamefile' name='lname'></input>
-                                                    <button class='newfile'>Create</button>
-                                                <span>
+                            if ($write_path == true) {
+                                ?>
+                                    <div id='filemanagerbtnup' class='filemanagerbtn'>
+                                        <div class='navbar'>
+                                            <div id="uploadfiles" onclick="myFile()"><input type="file" id="pickerfiles" name="fileList" multiple style="display: none;">Upload files</div>
+                                            <div id="uploaddir" onclick="mydir()"><input type="file" id="pickerdir" name="fileList" webkitdirectory multiple style="display: none;">Upload Dir</div>
+                                            <div class='subnav'>
+                                                <button class='subnavbtn btnnewfile'>Create file</button>
+                                                <div id='subnav-content-file' class='subnav-content'>
+                                                    <span>
+                                                        <input type='text' id='lnamefile' name='lname'></input>
+                                                        <button class='newfile'>Create</button>
+                                                    <span>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class='subnav'>
-                                            <button class='subnavbtn btnnewdir'>Create dir</button>
-                                            <div id='subnav-content-dir' class='subnav-content'>
-                                                <span>
-                                                    <input type='text' id='lname' name='lname'></input>
-                                                    <button class='newdir'>Create</button>
-                                                <span>
+                                            <div class='subnav'>
+                                                <button class='subnavbtn btnnewdir'>Create dir</button>
+                                                <div id='subnav-content-dir' class='subnav-content'>
+                                                    <span>
+                                                        <input type='text' id='lname' name='lname'></input>
+                                                        <button class='newdir'>Create</button>
+                                                    <span>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class='subnav'>
-                                            <button class='subnavbtn btncopy'>Copy</button>
-                                            <div id='subnav-content-copy' class='subnav-content'>
-                                                <span>
-                                                    <input type='text' id='lnamecopy' name='lname'></input>
-                                                    <button class='copy'>Copy</button>
-                                                <span>
+                                            <div class='subnav'>
+                                                <button class='subnavbtn btncopy'>Copy</button>
+                                                <div id='subnav-content-copy' class='subnav-content'>
+                                                    <span>
+                                                        <input type='text' id='lnamecopy' name='lname'></input>
+                                                        <button class='copy'>Copy</button>
+                                                    <span>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class='subnav'>
-                                            <button class='subnavbtn btnmoveto'>Move</button>
-                                            <div id='subnav-content-moveto' class='subnav-content'>
-                                                <span>
-                                                    <input type='text' id='lnamemoveto' name='lname'></input>
-                                                    <button class='moveto'>move</button>
-                                                <span>
+                                            <div class='subnav'>
+                                                <button class='subnavbtn btnmoveto'>Move</button>
+                                                <div id='subnav-content-moveto' class='subnav-content'>
+                                                    <span>
+                                                        <input type='text' id='lnamemoveto' name='lname'></input>
+                                                        <button class='moveto'>move</button>
+                                                    <span>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class='btnrename'>Rename</div>
-                                        <div class='btndelete'>Delete</div>
-                                        <div class='subnav subnavzip'>
-                                            <button class='subnavbtn btnzip'>Create zip</button>
-                                            <div id='subnav-content-zip' class='subnav-content'>
-                                                <span>
-                                                    <input type='text' id='lnamezip' name='lname'></input>
-                                                    <button class='zipbtn'>create</button>
-                                                <span>
+                                            <div class='btnrename'>Rename</div>
+                                            <div class='btndelete'>Delete</div>
+                                            <div class='subnav subnavzip'>
+                                                <button class='subnavbtn btnzip'>Create zip</button>
+                                                <div id='subnav-content-zip' class='subnav-content'>
+                                                    <span>
+                                                        <input type='text' id='lnamezip' name='lname'></input>
+                                                        <button class='zipbtn'>create</button>
+                                                    <span>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class='subnav subnavzip'>
-                                            <button class='subnavbtn btnshare'>Share dir</button>
-                                            <div id='subnav-content-share' class='subnav-content'>
-                                                <span>
-                                                    <input type='text' id='lnameshare' readonly></span>
-                                                    <button class='newsharelink'>Create share link</button>
-                                                <span>
+                                            <div class='subnav subnavzip'>
+                                                <button class='subnavbtn btnshare'>Share dir</button>
+                                                <div id='subnav-content-share' class='subnav-content'>
+                                                    <span>
+                                                        <input type='text' id='lnameshare' readonly></span>
+                                                        <button class='newsharelink'>Create share link</button>
+                                                    <span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            <script type="text/javascript">document.getElementById("filemanagerbtnup").style.display = "block";</script>
+                                <script type="text/javascript">document.getElementById("filemanagerbtnup").style.display = "block";</script>
                             <?php } ?>
+                            <div id='filemanagerwrapper'>
                                 <div id='filemanagerbtndown' class='filemanagerbtn'>
                                     <div class='navbar'>
                                         <?php if ($path_parts[1] != '' && $workplace_strpos == true && $workplace_last != true){
-                                                if (isset($home)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?home=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
-                                                if (isset($workplace)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?workplaces=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
-                                                if (isset($path)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?path=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
-                                                if (isset($sharepath)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request)  . "/?share=" . $share . "&sharepath=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
+                                                if (isset($home)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?home=" . dirname($path_implode) . "&treepath=" . $treepath ?>'>Parent directory</a> <?php }
+                                                if (isset($workplace)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?workplace=" . dirname($path_implode) . "&treepath=" . $treepath ?>'>Parent directory</a> <?php }
+                                                if (isset($path)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?path=" . dirname($path_implode) . "&treepath=" . $treepath ?>'>Parent directory</a> <?php }
+                                                if (isset($sharepath)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request)  . "/?share=" . $share . "&sharepath=" . dirname($path_implode) . "&treepath=" . $treepath ?>'>Parent directory</a> <?php }
                                             } 
                                             if ($path_parts[1] == '' || $workplace_last == true || $workplace_strpos != true) { ?>
                                             <a class='btnback_home' href='<?php echo home_url($wp->request) ?>/'>Home</a>
@@ -244,10 +256,10 @@
                                 <?php $p = 1; ?>
                                 <div class='filepath'><?php foreach($path_parts as $path_part) {
                                     $path_part_ .= '/'.$path_part;
-                                    if (isset($home)) { ?><a href='<?php  echo home_url($wp->request) . "/?home=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
-                                    if (isset($workplace)) { ?><a href='<?php  echo home_url($wp->request) . "/?workplaces=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
-                                    if (isset($path)) { ?><a href='<?php  echo home_url($wp->request) . "/?path=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
-                                    if (isset($sharepath)) { ?><a href='<?php  echo home_url($wp->request) . "/?share=" . $share . "&sharepath=" .  realpath($path_part_)?>'><?php echo $path_part; ?></a><?php }
+                                    if (isset($home)) { ?><a href='<?php  echo home_url($wp->request) . "/?home=" .  realpath($path_part_) . "&treepath=" . $treepath ?>'><?php echo $path_part; ?></a><?php }
+                                    if (isset($workplace)) { ?><a href='<?php  echo home_url($wp->request) . "/?workplace=" .  realpath($path_part_) . "&treepath=" . $treepath ?>'><?php echo $path_part; ?></a><?php }
+                                    if (isset($path)) { ?><a href='<?php  echo home_url($wp->request) . "/?path=" .  realpath($path_part_) . "&treepath=" . $treepath ?>'><?php echo $path_part; ?></a><?php }
+                                    if (isset($sharepath)) { ?><a href='<?php  echo home_url($wp->request) . "/?share=" . $share . "&sharepath=" .  realpath($path_part_) . "&treepath=" . $treepath ?>'><?php echo $path_part; ?></a><?php }
                                     if($p != $path_parts_count){
                                         echo '/';
                                     } 
@@ -284,38 +296,38 @@
                                 }
                                 ?></div></div><?php
                                 ?><div class='file-table'><table id='file-table'>
-                                    <tr></td><td class='checkboxall'><input class='checkboxall' type='checkbox' name=''/></td><td class='checkboxall'>Filename</td><td class='checkboxall'>Size</td></tr><?php
+                                <tr></td><td class='checkboxall'><input class='checkboxall' type='checkbox' name=''/></td><td class='checkboxall'>Filename</td><td class='checkboxall'>Size</td></tr><?php
                                     foreach($files as $file){
                                         $pathfilezise = $path_implode.'/'.$file;
                                         $filesize = formatSizeUnits(filesize($pathfilezise));
                                         $realpath = realpath($path_implode.'/'.$file);
                                         if ( is_dir($realpath) == true ) {
                                             if (isset($home)) {
-                                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath&treepath=$treepath'>$file</a></td><td>$filesize</td></tr>";
                                             }
                                             if (isset($workplace)) { 
-                                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplaces=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplace=$realpath&treepath=$treepath'>$file</a></td><td>$filesize</td></tr>";
                                             }
                                             if (isset($path)) {
-                                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath&treepath=$treepath'>$file</a></td><td>$filesize</td></tr>";
                                             }
                                             if (isset($sharepath)) {
-                                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?share=$share&sharepath=$realpath'>$file</a></td><td>$filesize</td></tr>";
+                                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?share=$share&sharepath=$realpath&treepath=$treepath'>$file</a></td><td>$filesize</td></tr>";
                                             }
                                         } else {
                                             $getname = getName(32);
                                             $getoauth = uniqid(time().'||'.$getname.'||'.$realpath.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
                                             if (isset($home)) {
-                                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?home=$realpath&treepath=$treepath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
                                             }
                                             if (isset($workplace)) { 
-                                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplaces=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?workplace=$realpath&treepath=$treepath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
                                             }
                                             if (isset($path)) {
-                                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?path=$realpath&treepath=$treepath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
                                             }
                                             if (isset($sharepath)) {
-                                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?share=$share&sharepath=$realpath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
+                                                echo "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/?share=$share&sharepath=$realpath&treepath=$treepath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
                                             }
                                             
                                                 // Include the configuration file
@@ -336,36 +348,79 @@
                                             }
                                     }
                                     if ($files == null) {
-                                        echo "<tr><td><input class='checkbox' type='checkbox' /></td><td class='filemanager-table'><a id='file-id' class='filemanager-click'>No file found</a></td></tr>";
+                                        echo "<tr><td><input class='checkbox' type='checkbox' /></td><td class='filemanager-table'><a id='file-id' class='filemanager-click'>No file found</a></td><td></td></tr>";
                                     }
-                                echo "</table></div>";
-        
-                                if (isset($home)) { $arg = 'home'; }
+                                echo "</table>";
+                                    if (isset($home)) { $arg = 'home'; }
+            
+                                    if (isset($workplace)) { $arg = 'workplace'; }
+            
+                                    if (isset($path)) { $arg = 'path'; }
+            
+                                    if (isset($share)) { $arg = 'share'; }
+            
+                                    if($total_pages > 1) {
+                                        echo '<div class="filemanagerpagination">';
+                                        if (isset($share)) {
+                                            echo '<a class="page" href="?'.$arg.'='.$share.'&sharepath='.$sharepath.'&treepath='.$treepath.'&pages='.(($page-1>1)?($page-1):1).'"><<</a>';
+                                            for($p=1; $p<=$total_pages; $p++) {
+                                                echo ' <a class="page" href="?'.$arg.'='.$share.'&sharepath='.$sharepath .'&treepath='.$treepath.'&pages='.$p.'">'.$p.'</a> ';                      
+                                            }
+                                            echo '<a class="page" href="?'.$arg.'='.$share.'&sharepath='.$sharepath.'&treepath='.$treepath.'&pages='.(($page+1>$total_pages)?$total_pages:($page+1)).'">>></a>';
+                                        } else {
+                                            echo '<a class="page" href="?'.$arg.'='.$path_implode.'&treepath='.$treepath.'&pages='.(($page-1>1)?($page-1):1).'"><<</a>';
+                                            for($p=1; $p<=$total_pages; $p++) {
+                                                echo ' <a class="page" href="?'.$arg.'='.$path_implode.'&treepath='.$treepath.'&pages='.$p.'">'.$p.'</a> ';                      
+                                            }
+                                            echo '<a class="page" href="?'.$arg.'='.$path_implode.'&treepath='.$treepath.'&pages='.(($page+1>$total_pages)?$total_pages:($page+1)).'">>></a>';
+                                        }
+                                        echo "</div>";
+                                    }
+                                echo "</div></div>";
+                                ?><div id='treeview' class='treeview'><?php
+                                    if ($treepath_strpos == true && $read_tree == true) {
+                                        $ffs = scandir($treepath);
+            
+                                        unset($ffs[array_search('.', $ffs, true)]);
+                                        unset($ffs[array_search('..', $ffs, true)]);
+                                    
+                                        // prevent empty ordered elements
+                                        if (count($ffs) < 1)
+                                            return;
+                                    
+                                        echo '<ul>';
+                                        foreach($ffs as $ff){
+                                            $getname = getName(32);                            
+                                            $realpath = realpath($treepath.'/'.$ff);
+                                            $getoauth = uniqid(time().'||'.$getname.'||'.$realpath.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);   
+                                            if(is_dir($treepath.'/'.$ff)) {
+                                                echo '<li class="isfolder" path="'.$treepath.'/'.$ff.'">'.$ff.'</li>';
+                                                echo '<ul></ul>';
+                                            } else {
+                                                if (isset($sharepath)) {
+                                                    echo "<li><a href='" . home_url($wp->request) . "/?share=$share&sharepath=$realpath&treepath=$treepath&oauth=$getname'>$ff</a></li>";
+                                                }
+                                            }
+                                            // Include the configuration file
+                                            require_once plugin_dir_path( dirname( __FILE__ ) ) . '/includes/config.php';
+            
+                                            // Create a protected directory to store keys
+                                            if(!is_dir(TOKEN_DIR)) {
+                                                mkdir(TOKEN_DIR);
+                                                $file = fopen(TOKEN_DIR.'/.htaccess','w');
+                                                fwrite($file,"Order allow,deny\nDeny from all");
+                                                fclose($file);
+                                            }
+                                            
+                                            // Write the key to the keys list
+                                            $file = fopen(TOKEN_DIR.'/oauth','a');
+                                            fwrite($file, "{$getoauth}\n");
+                                            fclose($file);
+                                        }
+                                        echo '</ul>';
+                                    }
+                                    ?></div><?php
 
-                                if (isset($workplace)) { $arg = 'workplaces'; }
-            
-                                if (isset($path)) { $arg = 'path'; }
-            
-                                if (isset($share)) { $arg = 'share'; }
-            
-                                if($total_pages > 1) {
-                                    echo '<div class="filemanagerpagination">';
-                                    if (isset($share)) {
-                                        echo '<a class="page" href="?'.$arg.'='.$share.'&sharepath='.$sharepath.'&pages='.(($page-1>1)?($page-1):1).'"><<</a>';
-                                        for($p=1; $p<=$total_pages; $p++) {
-                                            echo ' <a class="page" href="?'.$arg.'='.$share.'&sharepath='.$sharepath.'&pages='.$p.'">'.$p.'</a> ';                      
-                                        }
-                                        echo '<a class="page" href="?'.$arg.'='.$share.'&sharepath='.$sharepath.'&pages='.(($page+1>$total_pages)?$total_pages:($page+1)).'">>></a>';
-                                    } else {
-                                        echo '<a class="page" href="?'.$arg.'='.$path_implode.'&pages='.(($page-1>1)?($page-1):1).'"><<</a>';
-                                        for($p=1; $p<=$total_pages; $p++) {
-                                            echo ' <a class="page" href="?'.$arg.'='.$path_implode.'&pages='.$p.'">'.$p.'</a> ';                      
-                                        }
-                                        echo '<a class="page" href="?'.$arg.'='.$path_implode.'&pages='.(($page+1>$total_pages)?$total_pages:($page+1)).'">>></a>';
-                                    }
-                                    echo "</div>";
-                                }
-            
                             } else {
                                 // Include the configuration file
                                 require_once plugin_dir_path( dirname( __FILE__ ) ) . '/includes/config.php';
@@ -427,10 +482,10 @@
                     
                                 echo "<div class='navbarfilewrapper'><div class='navbar navbarfile'>";
                                     if ($path_parts[1] != '' && $workplace_strpos == true && $workplace_last != true){
-                                        if (isset($home)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?home=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
-                                        if (isset($workplace)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?workplaces=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
-                                        if (isset($path)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?path=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
-                                        if (isset($sharepath)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request)  . "/?share=" . $share . "&sharepath=" . dirname($path_implode) ?>'>Parent directory</a> <?php }
+                                        if (isset($home)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?home=" . dirname($path_implode) . "&treepath=" . $treepath ?>'>Parent directory</a> <?php }
+                                        if (isset($workplace)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?workplaces=" . dirname($path_implode) . "&treepath=" . $treepath ?>'>Parent directory</a> <?php }
+                                        if (isset($path)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request) . "/?path=" . dirname($path_implode) . "&treepath=" . $treepath ?>'>Parent directory</a> <?php }
+                                        if (isset($sharepath)) { ?> <a class='btnback_' href='<?php echo home_url($wp->request)  . "/?share=" . $share . "&sharepath=" . dirname($path_implode) . "&treepath=" . $treepath ?>'>Parent directory</a> <?php }
                                     } 
                                 echo "</div>";
             
@@ -632,7 +687,7 @@
                                     echo '<div class="">' . formatSizeUnits(filesize($object_id)) . '</div>';
             
                                 }
-                                echo "</div>";
+                                echo "</div></div>";
                             }
                     
                         } else {

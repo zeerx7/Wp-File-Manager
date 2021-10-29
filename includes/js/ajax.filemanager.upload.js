@@ -50,6 +50,7 @@ function uploadFormData($, formData, files_obj, rand, link, length) {
     const urlpath = urlParams.get('path');
     const urlshare = urlParams.get('share');
     const urlsharepath = urlParams.get('sharepath');
+    const treepath = urlParams.get('treepath');
     var url_Params;
     var i = 0;
 
@@ -108,6 +109,7 @@ function uploadFormData($, formData, files_obj, rand, link, length) {
                         'link': link,
                         'urlParams': url_Params,
                         'sharekey': urlshare,
+                        'treepath': treepath,
                         'action': 'get_filemanager_files'
                     },
                     dataType: 'json',
