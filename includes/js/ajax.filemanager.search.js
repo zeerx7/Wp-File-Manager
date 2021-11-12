@@ -2,6 +2,8 @@
 function filemanager_search_files($) {
     $('.btnsearch').on('click', function(event) {
         event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
         $("#errorlog").empty();
         $("#subnav-content-search").toggleClass("subnav-content-display");
     });

@@ -4,7 +4,7 @@
 
 ## Description
 
-With FileManager Plugin for Wordpress, you can make workplace and share link and allow read and write permision to users and public.
+With FileManager Plugin for Wordpress, you can make workplace and share link and allow read and write permision to users and public.</br>
 You can upload files and directorie, create blank file and directorie, copy and move files and directories, rename and delete files and directories, create zip from files and directories, get info and search through files and directories.
 
 ## Installation
@@ -13,7 +13,7 @@ You can upload files and directorie, create blank file and directorie, copy and 
 2. Activate plugin in wp-admin.
 3. Go to the admin setting page, and add workplace and give the read and write autorization to your user.
 3. Use short code [filemanager-shortcode] in page.
-4. Set the permision of oauth file in `/includes/tokens` to read ans write for www-data.
+4. Set the permision of `oauth` file in `/includes/tokens` to read and write for www-data.
 
 ## Support
 
@@ -21,6 +21,7 @@ Support for PDF, JPEG, JPG, BMP, PNG, GIF, MP4, MKV, TXT, HTML, PHP, JS, LOG.
 
 ## Changelog
 
+- 0.7 - eatch path link have been changed to unique string, now support all type of special character in link.
 - 0.65 - Add user right to share link.
 - 0.6 - Add tree view.
 - 0.55 - Fix ajax function called to many time, add a search button, add select all.

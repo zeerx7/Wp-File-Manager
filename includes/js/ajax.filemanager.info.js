@@ -2,6 +2,8 @@
 function filemanager_info_files($) {
     $('.btninfo').on('click', function(event) {
         event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
         $("#errorlog").empty();	
 
         const path = [];

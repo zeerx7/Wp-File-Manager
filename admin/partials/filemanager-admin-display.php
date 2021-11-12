@@ -283,7 +283,7 @@ function my_edit_shares_columns( $columns ) {
 
     return $columns;
 }
-add_filter( 'manage_edit-shares_columns', 'my_edit_shares_columns' ) ;
+add_filter( 'manage_edit-shares_columns', 'my_edit_shares_columns' );
 
 function my_manage_shares_columns( $column, $post_id ) {
     global $post;
@@ -305,11 +305,7 @@ function my_manage_shares_columns( $column, $post_id ) {
         break;
 
         case 'share_link' :
-            if(is_dir(get_post_meta( $post->ID, '_share_path', true))){
-                echo "<div class='sharelinkbtn' value='".get_home_url()."/".$slug."/?share=".get_post_meta( $post->ID, '_share_key', true)."&sharepath=".get_post_meta( $post->ID, '_share_path', true)."'>".__( 'Copy to clipboard' )."</div>";
-            } else {
-                echo "<div class='sharelinkbtn' value='".get_home_url()."/".$slug."/?share=".get_post_meta( $post->ID, '_share_key', true)."'>".__( 'Copy to clipboard' )."</div>";
-            }
+            echo "<div class='sharelinkbtn' value='".get_home_url()."/".$slug."/?share=".get_post_meta( $post->ID, '_share_key', true)."'>".__( 'Copy to clipboard' )."</div>";
         break;
 
         /* Just break out of the switch statement for everything else. */

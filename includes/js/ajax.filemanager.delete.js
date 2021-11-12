@@ -2,6 +2,8 @@
 function filemanager_delete_files($) {
     $('.btndelete').on('click', function(event) {
         event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
         $("#errorlog").empty();
         
         const path = [];
@@ -17,19 +19,23 @@ function filemanager_delete_files($) {
         const urlshare = urlParams.get('share');
         const urlsharepath = urlParams.get('sharepath');
         const treepath = urlParams.get('treepath');
-        var url_Params;
+        var url_Params, url_key;
 
         if(urlhome != null){
             url_Params = 'home';
+            url_key = urlhome;
         }
         if(urlworkplace != null){
             url_Params = 'workplace';
+            url_key = urlworkplace;
         }
         if(urlpath != null){
             url_Params = 'path';
+            url_key = urlpath;
         }
         if(urlsharepath != null){
             url_Params = 'sharepath';
+            url_key = urlsharepath;
         }
 
         $('.checkbox').each(function () {
@@ -60,6 +66,7 @@ function filemanager_delete_files($) {
                             'link': link,
                             'urlParams': url_Params,
                             'sharekey': urlshare,
+                            'urlkey': url_key,
                             'treepath': treepath,
                             'action': 'get_filemanager_files'
                         },

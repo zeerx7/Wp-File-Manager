@@ -2,6 +2,8 @@
 function filemanager_rename_files($) {
     $('.btnrename').on('click', function(event) {
         event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
 
         const path = [];
         var i = 0;

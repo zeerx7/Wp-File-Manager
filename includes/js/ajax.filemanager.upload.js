@@ -51,21 +51,26 @@ function uploadFormData($, formData, files_obj, rand, link, length) {
     const urlshare = urlParams.get('share');
     const urlsharepath = urlParams.get('sharepath');
     const treepath = urlParams.get('treepath');
-    var url_Params;
+    var url_Params, url_key;
     var i = 0;
 
     if(urlhome != null){
         url_Params = 'home';
+        url_key = urlhome;
     }
     if(urlworkplace != null){
         url_Params = 'workplace';
+        url_key = urlworkplace;
     }
     if(urlpath != null){
         url_Params = 'path';
+        url_key = urlpath;
     }
     if(urlsharepath != null){
         url_Params = 'sharepath';
+        url_key = urlsharepath;
     }
+
         
     if(i === 0) {
         $.ajax({
@@ -109,6 +114,7 @@ function uploadFormData($, formData, files_obj, rand, link, length) {
                         'link': link,
                         'urlParams': url_Params,
                         'sharekey': urlshare,
+                        'urlkey': url_key,
                         'treepath': treepath,
                         'action': 'get_filemanager_files'
                     },
@@ -154,6 +160,8 @@ function filemanager_uploads_files($) {
     if(table) { 
         table.addEventListener("drop", e => {
             e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
             createFormData($, e.dataTransfer.files);
         }, { once: true });
     }
@@ -162,6 +170,8 @@ function filemanager_uploads_files($) {
     if(pickerfiles) { 
         pickerfiles.addEventListener('change', e => {
             e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
             console.log(e.target.files);
             createFormData($, e.target.files);
         }, { once: true });
@@ -171,6 +181,8 @@ function filemanager_uploads_files($) {
     if(pickerdir) { 
         pickerdir.addEventListener('change', e => {
             e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
             createFormData($, e.target.files);
         }, { once: true });
     }
