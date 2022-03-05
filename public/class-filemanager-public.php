@@ -106,14 +106,14 @@ class File_Manager_Public {
 		wp_enqueue_script( 'codemirror', plugin_dir_url( __FILE__ ) . 'js/codemirror.js', array( 'jquery' ), $this->version, false );
 
 		wp_enqueue_script( 'pdfobject', plugin_dir_url( __FILE__ ) . 'js/pdfobject.js', array( 'jquery' ), $this->version, false );
-		
-		wp_enqueue_script( 'jquery.smoothState', plugin_dir_url( __FILE__ ) . 'js/jquery.smoothState.js', array( 'jquery' ), $this->version, false );
-
-		wp_enqueue_script( 'smoothState', plugin_dir_url( __FILE__ ) . 'js/smoothState.js', array( 'jquery' ), $this->version, false );
-
+	
 		wp_enqueue_script( 'jquery.uploadfile', plugin_dir_url( __FILE__ ) . 'js/jquery.uploadfile.js', array( 'jquery' ), $this->version, false );
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/filemanager-public.js', array( 'jquery' ), $this->version, false );
+
+		wp_enqueue_script( 'jquery.smoothState', plugin_dir_url( __FILE__ ) . 'js/jquery.smoothState.js', array( 'jquery' ), $this->version, false );
+
+		wp_enqueue_script( 'smoothState', plugin_dir_url( __FILE__ ) . 'js/smoothState.js', array( 'jquery' ), $this->version, false );
 
 	}
 

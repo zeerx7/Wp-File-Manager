@@ -6,8 +6,8 @@ function filemanager_rename_files($) {
         event.stopImmediatePropagation();
 
         const path = [];
-        var i = 0;
-        var x = 0;
+        var i = 1;
+        var x = 1;
 
         $('.checkbox').each(function () {
             if($(this).is(':checked')){
@@ -19,9 +19,9 @@ function filemanager_rename_files($) {
         $('.filemanager-table').each(function () {
             if(path[x] != null){
                 console.log(path[x]);
-                var filename = path[x].replace(/^.*[\\\/]/, '');
+                var filename = path[x].replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g,'&#039');
                 $(this).empty();
-                $(this).append("<input type='text' id='filename_"+x+"' name='filename' value='"+filename+"'><button class='rename_btn' data-object-id='"+x+"' data-path='"+path[x]+"'>save</button></input>");
+                $(this).append("<input type='text' id='filename_"+x+"' name='filename' value='"+filename.split('/').reverse()[0]+"'><button class='rename_btn' data-object-id='"+x+"' data-path='"+path[x]+"'>save</button></input>");
             }
             x++;
         });
@@ -30,35 +30,38 @@ function filemanager_rename_files($) {
             event.preventDefault();
             $("#errorlog").empty();	
         
-            var y = 0;
+            var this_ = $(this);
             var object_id = $(this).attr('data-object-id');
             var path_id = $(this).attr('data-path');
             var filename_value = $("#filename_"+object_id).val();
             var cell = document.getElementById('file-table').rows[object_id].cells; 
             var link = location.protocol + '//' + location.host + location.pathname;
+            var Cookie = getCookie('uniqid');
 
-            if(y === 0) {
-                jQuery.ajax({
-                    type: 'post',
-                    url: rename_filemanager_ajax_url,
-                    data: {
-                        'filename': filename_value,
-                        'path': path_id,
-                        'link': link,
-                        'action': 'rename_filemanager_files'
-                    },
-                    dataType: 'json',
-                    success: function(data){
-                        console.log(data);
-                        console.log(object_id);
-                        console.log(cell[1].innerHTML = data);
-                        filemanager_rename_files($);
-                    },
-                    error: function(errorThrown){
-                        //error stuff here.text
-                    }
-                });
-            }
+            console.log(cell);
+
+            jQuery.ajax({
+                type: 'post',
+                url: rename_filemanager_ajax_url,
+                data: {
+                    'filename': filename_value,
+                    'path': path_id,
+                    'link': link,
+                    'uniqid': Cookie,   
+                    'action': 'rename_filemanager_files'
+                },
+                dataType: 'json',
+                success: function(data){
+                    console.log(data);
+                    console.log(object_id);
+                    console.log(cell[0].innerHTML = data[0]);
+                    console.log(cell[1].innerHTML = data[1]);
+                    filemanager_rename_files($);
+                },
+                error: function(errorThrown){
+                    //error stuff here.text
+                }
+            });
         });
 
     });

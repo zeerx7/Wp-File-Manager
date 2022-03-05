@@ -10,8 +10,16 @@ function wp_filemanager_ajax_scripts() {
   /* Plugin DIR URL */
   $url = trailingslashit( plugin_dir_url( __FILE__ ) );
 
-    wp_register_script( 'wp-filemanager-ajax-get-files', $url . "js/ajax.filemanager.upload.js", array( 'jquery' ), '1.0.0', true );
-    wp_localize_script( 'wp-filemanager-ajax-get-files', 'get_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
+  wp_register_script( 'wp-filemanager-ajax-get-files', $url . "js/ajax.filemanager.get.js", array( 'jquery' ), '1.0.0', true );
+  wp_localize_script( 'wp-filemanager-ajax-get-files', 'get_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
+  wp_enqueue_script( 'wp-filemanager-ajax-get-files' );
+
+    wp_register_script( 'wp-filemanager-ajax-upload-files', $url . "js/ajax.filemanager.upload.js", array( 'jquery' ), '1.0.0', true );
+    wp_localize_script( 'wp-filemanager-ajax-upload-files', 'upload_filemanager_ajax_url', plugin_dir_path( dirname( __FILE__ ) ) . 'includes/upload.php' );
+    wp_enqueue_script( 'wp-filemanager-ajax-upload-files' );
+
+    wp_register_script( 'wp-filemanager-ajax-download-files', $url . "js/ajax.filemanager.download.js", array( 'jquery' ), '1.0.0', true );
+    wp_localize_script( 'wp-filemanager-ajax-get-files', 'download_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
     wp_enqueue_script( 'wp-filemanager-ajax-get-files' );
 
     wp_register_script( 'wp-filemanager-ajax-save-files', $url . "js/ajax.filemanager.save.js", array( 'jquery' ), '1.0.0', true );
@@ -61,6 +69,10 @@ function wp_filemanager_ajax_scripts() {
     wp_register_script( 'wp-filemanager-ajax-tree-get-files', $url . "js/ajax.filemanager.tree.get.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'wp-filemanager-ajax-tree-get-files', 'tree_get_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
     wp_enqueue_script( 'wp-filemanager-ajax-tree-get-files' );
+    
+    wp_register_script( 'wp-filemanager-ajax-view-files', $url . "js/ajax.filemanager.view.js", array( 'jquery' ), '1.0.0', true );
+    wp_localize_script( 'wp-filemanager-ajax-view-files', 'viewtype_filemanager_ajax_url', admin_url( 'admin-ajax.php' ) );
+    wp_enqueue_script( 'wp-filemanager-ajax-view-files' );
   
 }
 
@@ -74,458 +86,104 @@ function get_filemanager_files($posts) {
   $link = $_POST['link'];
   $urlParams = $_POST['urlParams'];
   $share = $_POST['sharekey'];
-  $treepath = $_POST['treepath'];
   $urlkey = $_POST['urlkey'];
+  $uniqid = $_POST['uniqid'];
+  $viewtype = $_POST['viewtype'];
+  $pages = $_POST['pages'];
 
-  if ($urlParams == 'path') {
-    $path = 'path';
-  }
-  if ($urlParams == 'home') {
-    $home = 'home';
-  }
-  if ($urlParams == 'workplace') {
-    $workplace = 'workplace';
-  }
-  if ($urlParams == 'sharepath') {
-    $sharepath = 'sharepath';
-  }
+  $arg = $urlParams;
+  $get_arg = $urlkey;
+  $path_implode = $object_id;
 
-  $my_option_name = get_option('my_option_name');
-  $user = wp_get_current_user();   
-  global $wp;
-  $i = 0;
-  $x = 0;
-
-  foreach( $my_option_name['read-path'] as $read_path_id ){
-          $id_read_path[] .= $read_path_id;
-  }
-          
-  foreach( $my_option_name['write-path'] as $write_path_id ){
-          $id_write_path[] .= $write_path_id;
+  $meta_name = 'oauth-'.$uniqid;
+  $get_oauth = get_post_meta($uniqid, $meta_name, true);
+  foreach($get_oauth as $oauth){
+    $keyone[] = explode('||',$oauth);    
+    $currentTime = time();  
+    $expTime = strtotime('+1 hour', $oauth[0]);       
+    if($currentTime >= $expTime) {
+      $_data[] .= $oauth;
+    }
   }
 
-  if ($urlParams == 'home') {
-      $blogusers = get_users();
-      $path_implode = $object_id;
-      $path_default = $my_option_name['title'].$user->user_login;
-      if ($path_implode == $path_default) {
-          $workplace_last = true;
-      }
-      if (strpos($path_implode, $path_default) !== false) {
-          $workplace_strpos = true;
-      }
-      $read_path = true;
-      $write_path = true;
+  if ($dh = opendir($path_implode)) {
+    while (($file = readdir($dh)) !== false) {
+        $allFiles[] = $file;
+    }
+    closedir($dh);
+  }
+  $files = array_diff($allFiles, array('.', '..'));
+
+  $perpage = 100;
+  $page = $pages;
+  if(!$page) $page = 1;
+  $offset = ($page-1)*$perpage;
+
+  $total_files = sizeof($files);
+  $total_pages = ceil($total_files/$perpage);
+  $files = array_slice($files, $offset, $perpage);
+
+  sort($files);
+
+  if($viewtype == 'list'){
+    $html[] .= "<table id='file-table'><tr></td><td class='checkboxall'><input class='checkboxall' type='checkbox' name=''/></td><td class='checkboxall'>Filename</td><td class='checkboxall'>Size</td></tr>";
+    foreach($files as $file){
+        $realpath = realpath($path_implode.'/'.$file);
+        $filesize = formatSizeUnits(filesize($realpath));
+  
+        $getname = getName(32);
+        $getoauth = time().'||'.$getname.'||'.$realpath.'||'.$path_default;
+        if($sharepath){
+          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/filemanager/?".$arg."=".$get_arg."&sharepath=".$getname."'>$file</a></td><td>$filesize</td></tr>"; 
+        } else {
+          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/filemanager/?".$arg."=$getname'>$file</a></td><td>$filesize</td></tr>";    
+        }           
+        $_data[] .= $getoauth;
+    }
+    if ($files == null) {
+      $html[] .= "<tr><td><input class='checkbox' type='checkbox' /></td><td class='filemanager-table'><a id='file-id' class='filemanager-click'>No file found</a></td><td></td></tr>";
+    }
+    $html[] .= "</table>";
+  }elseif($viewtype == 'grid'){
+    $html[] .= "<div class='grid-container'>";
+    foreach($files as $file){
+        $realpath = realpath($path_implode.'/'.$file);
+        $filesize = formatSizeUnits(filesize($realpath));
+  
+        $getname = getName(32);
+        $getoauth = time().'||'.$getname.'||'.$realpath.'||'.$path_default;
+        if($sharepath){
+          $html[] .= "<div class='grid-item'><input class='checkbox' type='checkbox' name='$realpath'/></input><div class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/filemanager/?".$arg."=".$get_arg."&sharepath=".$getname."'>$file</a></div><div>$filesize</div></div>"; 
+        } else {
+          $html[] .= "<div class='grid-item'><input class='checkbox' type='checkbox' name='$realpath'/></input><div class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . home_url($wp->request) . "/filemanager/?".$arg."=$getname'>$file</a></div><div>$filesize</div></div>";    
+        }           
+        $_data[] .= $getoauth;
+    }
+    if ($files == null) {
+      $html[] .= "<div class='grid-item'>No file found</div>";
+    }
+    $html[] .= "</div>";
   }
 
-  if ($urlParams == 'workplace') {
-      $posts = get_posts( array(
-          'post_type'      => 'workplace',
-          'posts_per_page' => -1,
-          'orderby'        => 'modified',
-          'no_found_rows'  => true
-      ));
-
-      // Include the configuration file
-      require_once dirname(__FILE__) . '/config.php';
-
-      // Retrieve the keys from the tokens file
-      $keys = file(TOKEN_DIR.'/oauth');
-
-      // Loop through the keys to find a match
-      // When the match is found, remove it
-      foreach($keys as &$one){
-        $keyone = explode('||',$one);
-        $currentTime = time();
-        $expTime = strtotime(EXPIRATION_TIME, $keyone[0]);            
-        if($urlkey==$keyone[1]){
-            $one = $one;
-            $path_implode = $keyone[2];
+  if($total_pages > 1) {
+    $html[] .= '<div class="filemanagerpagination">';
+    if (isset($sharepath)) {
+      $html[] .= '<a class="page" href="?'.$arg.'='.$share.'&sharepath='.$get_arg.'&pages='.(($page-1>1)?($page-1):1).'"><<</a>';
+        for($p=1; $p<=$total_pages; $p++) {
+          $html[] .= ' <a class="page" href="?'.$arg.'='.$share.'&sharepath='.$get_arg.'&pages='.$p.'">'.$p.'</a> ';                      
         }
-      }
-
-      // Put the remaining keys back into the tokens file
-      file_put_contents(TOKEN_DIR.'/oauth',$keys);
-
-      foreach($posts as $post) {
-          $workplacepath = get_post_meta( $post->ID, "_workplace_path", true);
-          $workplaceright = get_post_meta( $post->ID, "_workplace_right", true);
-          $id_path_ = rtrim($workplacepath, "/");
-          $workplace_ = rtrim($path_implode, "/");
-          if (strpos($workplace_, $id_path_) !== false) {
-              $workplace_strpos = true;
-              if ($workplace_ == $id_path_) {
-                  $workplace_last = true;
-              }
-              if($workplaceright[-1]['read'] == 1) {
-                  $read_path = true;
-              }
-              if($workplaceright[-1]['write'] == 1) {
-                  $write_path = true;
-              }
-              if($workplaceright[$user->ID]['read'] == 1) {
-                  $read_path = true;
-              }
-              if($workplaceright[$user->ID]['write'] == 1) {
-                  $write_path = true;
-              }
-          }      
-      }
-  }
-
-  if ($urlParams == 'path') {
-    if (in_array($user->ID, $id_read_path)) {
-        $read_path = true;
-        $workplace_strpos = true;
-    }
-    if (in_array($user->ID, $id_write_path)) {
-        $write_path = true;
-    }
-    $path_implode = $object_id;
-  }
-
-  if ($urlParams == 'sharepath') {
-      $args = array(
-          'posts_per_page' => -1,
-          'post_type' => 'shares',
-          'meta_query' => array(
-              array(
-                  'key' => '_share_key',
-                  'value' => $share,
-                  'compare' => 'LIKE'
-              )
-          )
-      );
-
-      $my_query = get_posts( $args );
-
-      if ($my_query) {
-          foreach ( $my_query as $post ) { 
-              $path_share = get_post_meta( $post->ID, '_share_path', true);
-              $share_right = get_post_meta( $post->ID, '_share_right', true);
-          }                   
-      }
-
-      // Include the configuration file
-      require_once dirname(__FILE__) . '/config.php';
-
-      // Retrieve the keys from the tokens file
-      $keys = file(TOKEN_DIR.'/oauth');
-
-      // Loop through the keys to find a match
-      // When the match is found, remove it
-      foreach($keys as &$one){
-          $keyone = explode('||',$one);
-          $currentTime = time();
-          $expTime = strtotime(EXPIRATION_TIME, $keyone[0]);            
-          if($urlkey==$keyone[1]){
-              $one = $one;
-              $path_implode = $keyone[2];
-          }
-      }
-
-      // Put the remaining keys back into the tokens file
-      file_put_contents(TOKEN_DIR.'/oauth',$keys);
-                  
-      if ($path_share) {
-          $id_path_ = rtrim($path_share, "/");
-          $sharepath_ = rtrim($path_implode, "/");
-          if($id_path_ == ''){
-              $id_path_ = '/';
-          }
-          if($sharepath_ == ''){
-              $sharepath_ = '/';
-          }
-          if (strpos($sharepath_, $id_path_) !== false) {
-              $workplace_strpos = true;
-          }
-          if ($sharepath_ == $id_path_) {
-              $workplace_last = true;
-          }
-          if($share_right[-1]['read'] == 1) {
-              $read_path = true;
-          }
-          if($share_right[-1]['write'] == 1) {
-              $write_path = true;
-          }
-          if($share_right[$user->ID]['read'] == 1) {
-              $read_path = true;
-          }
-          if($share_right[$user->ID]['write'] == 1) {
-              $write_path = true;
-          }
-      }
-  }
-
-    if ($workplace_strpos == true && $read_path == true){
-      if ($dh = opendir($path_implode)) {
-        while (($file = readdir($dh)) !== false) {
-            $allFiles[] = $file;
+        $html[] .= '<a class="page" href="?'.$arg.'='.$share.'&sharepath='.$get_arg.'&pages='.(($page+1>$total_pages)?$total_pages:($page+1)).'">>></a>';
+    } else {
+      $html[] .= '<a class="page" href="?'.$arg.'='.$get_arg.'&pages='.(($page-1>1)?($page-1):1).'"><<</a>';
+        for($p=1; $p<=$total_pages; $p++) {
+          $html[] .= ' <a class="page" href="?'.$arg.'='.$get_arg.'&pages='.$p.'">'.$p.'</a> ';                      
         }
-        closedir($dh);
-      } 
+        $html[] .= '<a class="page" href="?'.$arg.'='.$get_arg.'&pages='.(($page+1>$total_pages)?$total_pages:($page+1)).'">>></a>';
     }
-    $files = array_diff($allFiles, array('.', '..'));
-    $path_parts = explode("/", $path_implode);
-
-    sort($files);
-
-    if ($write_path == true) {
-      $html[] = "<div id='filemanagerbtnup' class='filemanagerbtn'>
-        <div class='navbar'>
-            <div id='uploadfiles' onclick='myFile()'><input type='file' id='pickerfiles' name='fileList' multiple style='display: none;'>Upload files</div>
-            <div id='uploaddir' onclick='mydir()'><input type='file' id='pickerdir' name='fileList' webkitdirectory multiple style='display: none;'>Upload Dir</div>
-            <div class='subnav'>
-                <button class='subnavbtn btnnewfile'>Create file</button>
-                <div id='subnav-content-file' class='subnav-content'>
-                    <span>
-                        <input type='text' id='lnamefile' name='lname'></input>
-                        <button class='newfile'>Create</button>
-                    <span>
-                </div>
-            </div>
-            <div class='subnav'>
-                <button class='subnavbtn btnnewdir'>Create dir</button>
-                <div id='subnav-content-dir' class='subnav-content'>
-                    <span>
-                        <input type='text' id='lname' name='lname'></input>
-                        <button class='newdir'>Create</button>
-                    <span>
-                </div>
-            </div>
-            <div class='subnav'>
-              <button class='subnavbtn btncopy'>Copy</button>
-              <div id='subnav-content-copy' class='subnav-content'>
-                  <span>
-                      <input type='text' id='lnamecopy' name='lname'></input>
-                      <button class='copy'>Copy</button>
-                  <span>
-              </div>
-            </div>
-            <div class='subnav'>
-                <button class='subnavbtn btnmoveto'>Move</button>
-                <div id='subnav-content-moveto' class='subnav-content'>
-                    <span>
-                        <input type='text' id='lnamemoveto' name='lname'></input>
-                        <button class='moveto'>move</button>
-                    <span>
-                </div>
-            </div>
-            <div class='btnrename'>Rename</div>";
-            $html[] .= "<div class='btndelete'>Delete</div>";
-            $html[] .= "<div class='subnav subnavzip'>
-              <button class='subnavbtn btnzip'>Create zip</button>
-              <div id='subnav-content-zip' class='subnav-content'>
-                  <span>
-                      <input type='text' id='lnamezip' name='lname'></input>
-                      <button class='zipbtn'>create</button>
-                  <span>
-              </div>
-          </div>
-          <div class='subnav subnavzip'>
-            <button class='subnavbtn btnshare'>Share dir</button>
-            <div id='subnav-content-share' class='subnav-content'>
-                <span>
-                    <input type='text' id='lnameshare' readonly></span>
-                    <button class='newsharelink'>Create share link</button>
-                <span>
-            </div>
-          </div>
-        </div>
-      </div>";
-    }
-
-    $html[] .= "<div id='filemanagerwrapper'>
-                  <div id='filemanagerbtndown' class='filemanagerbtn'>
-                  <div class='navbar'>";
-                          if ($path_parts[1] != '' && $workplace_strpos == true && $workplace_last != true){
-                              $getname = getName(32);
-                              $getoauth = uniqid(time().'||'.$getname.'||'.dirname($path_implode).'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
-
-                              if (isset($home)) { $html[] .= "<a class='btnback_' href='" . $link . "?home=" . $getname . "'>Parent directory</a>"; }
-                              if (isset($workplace)) {  $html[] .= "<a class='btnback_' href='" . $link . "?workplace=" . $getname . "'>Parent directory</a>"; }
-                              if (isset($path)) {  $html[] .= "<a class='btnback_' href='" . $link . "?path=" . $getname . "'>Parent directory</a>"; }
-                              if (isset($sharepath)) { $html[] .= "<a class='btnback_' href='" . $link . "?share=" . $share . "&sharepath=" . $getname . "'>Parent directory</a>"; }
-                              
-                              // Include the configuration file
-                              require_once plugin_dir_path( dirname( __FILE__ ) ) . '/includes/config.php';
-
-                              // Create a protected directory to store keys
-                              if(!is_dir(TOKEN_DIR)) {
-                                  mkdir(TOKEN_DIR);
-                                  $file = fopen(TOKEN_DIR.'/.htaccess','w');
-                                  fwrite($file,"Order allow,deny\nDeny from all");
-                                  fclose($file);
-                              }
-                              
-                              // Write the key to the keys list
-                              $file = fopen(TOKEN_DIR.'/oauth','a');
-                              fwrite($file, "{$getoauth}\n");
-                              fclose($file);
-                            } 
-                          if ($path_parts[1] == '' || $workplace_last == true || $workplace_strpos != true) {
-                          $html[] .= "<a class='btnback_home' href='" . $link . "/'>Home</a>";
-                          }
-                          $html[] .= "<div class='btninfo'>Info</div>";
-                          $html[] .= "<div class='subnav subnavsearch'>
-                                        <button class='subnavbtn btnsearch'>Search</button>
-                                        <div id='subnav-content-search' class='subnav-content'>
-                                            <span>
-                                                <input type='text' id='lnamesearch'></span>
-                                                <button class='newsearch'>Search</button>
-                                            <span>
-                                        </div>
-                                      </div>";
-                        $html[] .= "</div>";
-                      $html[] .= "</div>";
-              $html[] .= "<div class='filepath'>";
-              foreach($path_parts as $path_part) {
-                  $path_part_ .= '/'.$path_part;
-
-                  $getname = getName(32);
-                  $getoauth = uniqid(time().'||'.$getname.'||'.realpath($path_part_).'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
-
-                  if (isset($home)) { $html[] .= "<a href='" . $link . "?home=" .  $getname . "'>" . $path_part . "</a>"; }
-                  if (isset($workplace)) { $html[] .= "<a href='" . $link . "?workplace=" .  $getname . "'>" . $path_part . "</a>"; }
-                  if (isset($path)) { $html[] .= "<a href='" . $link . "?path=" .  $getname . "'>" . $path_part ."</a>"; }
-                  if (isset($sharepath)) { $html[] .= "<a href='" . $link . "?share=" . $share . "&sharepath=" .  $getname ."'>" . $path_part . "</a>"; }
-
-                  $html[] .= '/';
-
-                  // Include the configuration file
-                  require_once plugin_dir_path( dirname( __FILE__ ) ) . '/includes/config.php';
-
-                  // Create a protected directory to store keys
-                  if(!is_dir(TOKEN_DIR)) {
-                      mkdir(TOKEN_DIR);
-                      $file = fopen(TOKEN_DIR.'/.htaccess','w');
-                      fwrite($file,"Order allow,deny\nDeny from all");
-                      fclose($file);
-                  }
-                  
-                  // Write the key to the keys list
-                  $file = fopen(TOKEN_DIR.'/oauth','a');
-                  fwrite($file, "{$getoauth}\n");
-                  fclose($file);
-              }
-
-              $filecount = 0;
-              $directorycount = 0;
-              foreach($files as $file){
-                  $realpath = realpath($path_implode.'/'.$file);
-                  if(is_dir($realpath)) {
-                      $directorycount++;
-                  } else {
-                      $filecount++;
-                  }
-              }
-              $html[] .= "<div class='filepathcount'>";
-              $html[] .= count($files);
-              if(count($files) <= 1) {
-                $html[] .= ' Element : ';
-              } else {
-                $html[] .= ' Elements : ';
-              }
-              $html[] .= $directorycount;
-              if($directorycount <= 1) {
-                $html[] .= ' Directorie - ';
-              } else {
-                $html[] .= ' Directories - ';
-              }
-              $html[] .= $filecount;
-              if($filecount <= 1) {
-                $html[] .= ' File ';
-              } else {
-                $html[] .= ' Files ';
-              }
-              $html[] .= "</div></div>";
-              $html[] .= "<div class='file-table'><table id='file-table'>";
-              $html[] .= "<tr></td><td class='checkboxall'><input class='checkboxall' type='checkbox' name=''/></td><td class='checkboxall'>Filename</td><td class='checkboxall'>Size</td></tr>";
-                  foreach($files as $file){
-                      $pathfilezise = $path_implode.'/'.$file;
-                      $filesize = formatSizeUnits(filesize($pathfilezise));
-                      $realpath = realpath($path_implode.'/'.$file);
-
-                      $getname = getName(32);
-                      $getoauth = uniqid(time().'||'.$getname.'||'.$realpath.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
-
-                      if ( is_dir($realpath) == true ) {
-                        if (isset($home)) {
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?home=$getname&treepath=$treepath'>$file</a></td><td>$filesize</td></tr>";
-                        }
-                        if (isset($workplace)) { 
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?workplace=$getname&treepath=$treepath'>$file</a></td><td>$filesize</td></tr>";
-                        }
-                        if (isset($path)) {
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?path=$getname&treepath=$treepath'>$file</a></td><td>$filesize</td></tr>";
-                        }
-                        if (isset($sharepath)) {
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?share=$share&sharepath=$getname&treepath=$treepath'>$file</a></td><td>$filesize</td></tr>";
-                        }
-                      } else {
-                        if (isset($home)) {
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?home=$getname&treepath=$treepath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
-                        }
-                        if (isset($workplace)) { 
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?workplace=$getname&treepath=$treepath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
-                        }
-                        if (isset($path)) {
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "?path=$getname&treepath=$treepath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";                        
-                        }
-                        if (isset($sharepath)) {
-                          $html[] .= "<tr><td><input class='checkbox' type='checkbox' name='$realpath'/></td><td class='filemanager-table'><a id='file-id' class='filemanager-click' href='" . $link . "/?share=$share&sharepath=$getname&treepath=$treepath&oauth=$getname'>$file</a></td><td>$filesize</td></tr>";
-                        }
-                    }
-                    $TOKEN_DIR = get_home_path() . 'wp-content/plugins/file-manager/includes/tokens';
-
-                    // Create a protected directory to store keys
-                    if(!is_dir($TOKEN_DIR)) {
-                        mkdir(TOKEN_DIR);
-                        $file = fopen($TOKEN_DIR.'/.htaccess','w');
-                        fwrite($file,"Order allow,deny\nDeny from all");
-                        fclose($file);
-                    }
-                    
-                    // Write the key to the keys list
-                    $file = fopen($TOKEN_DIR.'/oauth','a');
-                    fwrite($file, "{$getoauth}\n");
-                    fclose($file);
-                  }
-                  if ($files == null) {
-                    $html[] .= "<tr><td><input class='checkbox' type='checkbox' /></td><td class='filemanager-table'><a id='file-id' class='filemanager-click'>No file found</a></td></tr>";
-                  }
-                $html[] .= "</table></div></div>";
-
-                  if (isset($home)) { $arg = 'home'; }
-
-                  if (isset($workplace)) { $arg = 'workplace'; }
-
-                  if (isset($path)) { $arg = 'path'; }
-
-                  if (isset($share)) { $arg = 'share'; }
-
-                  if($total_pages > 1) {
-                      $html[] .= '<div class="filemanagerpagination">';
-                      if (isset($share)) {
-                        $html[] .= '<a class="page" href="?'.$arg.'='.$share.'&sharepath='.$urlkey.'&treepath='.$treepath.'&pages='.(($page-1>1)?($page-1):1).'"><<</a>';
-                          for($p=1; $p<=$total_pages; $p++) {
-                            $html[] .= '<a class="page" href="?'.$arg.'='.$share.'&sharepath='.$urlkey .'&treepath='.$treepath.'&pages='.$p.'">'.$p.'</a> ';                      
-                          }
-                          $html[] .= '<a class="page" href="?'.$arg.'='.$share.'&sharepath='.$urlkey.'&treepath='.$treepath.'&pages='.(($page+1>$total_pages)?$total_pages:($page+1)).'">>></a>';
-                      } else {
-                          $html[] .= '<a class="page" href="?'.$arg.'='.$urlkey.'&treepath='.$treepath.'&pages='.(($page-1>1)?($page-1):1).'"><<</a>';
-                          for($p=1; $p<=$total_pages; $p++) {
-                            $html[] .= ' <a class="page" href="?'.$arg.'='.$urlkey.'&treepath='.$treepath.'&pages='.$p.'">'.$p.'</a> ';                      
-                          }
-                          $html[] .= '<a class="page" href="?'.$arg.'='.$urlkey.'&treepath='.$treepath.'&pages='.(($page+1>$total_pages)?$total_pages:($page+1)).'">>></a>';
-                      }
-                      $html[] .= "</div>";
-                  }
-                
-                  $html[] .= "</div>";
-              
-                  $html[] .= '</div>';
-
+    $html[] .= "</div>";
+}
+  
+  update_post_meta($uniqid, $meta_name, $_data);
   return wp_send_json ( implode($html) );
 
 }
@@ -539,10 +197,10 @@ function save_filemanager_files($posts) {
   $link = $_POST['link'];
 
   $myfile = fopen($link, "w");
-  fwrite($myfile, $object_id);
+  $write = fwrite($myfile, $object_id);
   fclose($myfile);
 
-  return wp_send_json ( $object_id );
+  return wp_send_json ( $write );
 
 }
 
@@ -616,37 +274,33 @@ function rename_filemanager_files($posts) {
   $link = $_POST['link'];
   $dirname = dirname($path);
   $new_filename = $dirname . '/' . $filename;
+  $uniqid = $_POST['uniqid'];
 
-  if (!is_dir($link)) {
-    $getname = getName(32);
-    $getoauth = uniqid(time().'||'.$getname.'||'.$new_filename.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
-    $TOKEN_DIR = get_home_path() . 'wp-content/plugins/file-manager/includes/tokens';
-
-    // Create a protected directory to store keys
-    if(!is_dir($TOKEN_DIR)) {
-        mkdir(TOKEN_DIR);
-        $file = fopen($TOKEN_DIR.'/.htaccess','w');
-        fwrite($file,"Order allow,deny\nDeny from all");
-        fclose($file);
+  $meta_name = 'oauth-'.$uniqid;
+  $get_oauth = get_post_meta($uniqid, $meta_name, true);
+  foreach($get_oauth as $oauth){
+    $keyone[] = explode('||',$oauth);    
+    $currentTime = time();  
+    $expTime = strtotime('+1 hour', $oauth[0]);       
+    if($currentTime >= $expTime) {
+      $_data[] .= $oauth;
     }
-    
-    // Write the key to the keys list
-    $file = fopen($TOKEN_DIR.'/oauth','a');
-    fwrite($file, "{$getoauth}\n");
-    fclose($file);
   }
+
+  $getname = getName(32);
+  $getoauth = time().'||'.$getname.'||'.$new_filename;
 
   if(rename($path, $new_filename) == true) {
-    if (!is_dir($new_filename)) {
-      $html[] = "<a id='file-id' class='filemanager-click' href='$link?path=$new_filename&oauth=$getname'>$filename</a>";
-    } else {
-      $html[] = "<a id='file-id' class='filemanager-click' href='$link?path=$new_filename'>$filename</a>";
-    }
+    $html[] .= "<input class='checkbox' type='checkbox' name='$new_filename'>";
+    $html[] .= "<a id='file-id' class='filemanager-click' href='$link?path=$getname'>$filename</a>";
   } else {
-    $html[] = "error";
+    $html[] .= "error";
   }
 
-  return wp_send_json ( implode($html) );
+  $_data[] .= $getoauth;
+  update_post_meta($uniqid, $meta_name, $_data);
+
+  return wp_send_json ( $html );
 
 }
 
@@ -943,20 +597,6 @@ function tree_get_filemanager_files($posts) {
   $link = $_POST['link'];
   $urlParams = $_POST['url_Params'];
   $sharekey = $_POST['sharekey'];
-  $treepath = $_POST['treepath'];
-
-  if ($urlParams == 'path') {
-    $path_ = 'path';
-  }
-  if ($urlParams == 'home') {
-    $home = 'home';
-  }
-  if ($urlParams == 'workplace') {
-    $workplace = 'workplace';
-  }
-  if ($urlParams == 'sharepath') {
-    $sharepath = 'sharepath';
-  }
 
   $ffs = scandir($path);
                     
@@ -967,6 +607,16 @@ function tree_get_filemanager_files($posts) {
   if (count($ffs) < 1)
       return;
 
+      $meta_name = 'oauth-'.$_COOKIE['uniqid'];
+      $get_oauth = get_post_meta($_COOKIE['uniqid'], $meta_name, true);
+      foreach($get_oauth as $oauth){
+          $currentTime = time();  
+          $expTime = strtotime('+1 hour', $oauth[0]);       
+          if($currentTime >= $expTime) {
+              $_data[] .= $oauth;
+          }
+      }
+
       foreach($ffs as $ff){
         if(is_dir($path.'/'.$ff)) {
             $html[] = '<li class="isfolder" path="'.$path.'/'.$ff.'">'.$ff.'</li>';
@@ -974,38 +624,33 @@ function tree_get_filemanager_files($posts) {
         } else {       
           $getname = getName(32);                            
           $realpath = realpath($path.'/'.$ff);
-          $getoauth = uniqid(time().'||'.$getname.'||'.$realpath.'||'.$_SERVER["HTTP_CF_CONNECTING_IP"].'||',TRUE);
-            if (isset($home)) {
-                $html[] = "<li><a href='" . $link . "?home=" . $getname . "&treepath=" . $treepath . "&oauth=" . $getname . "'>$ff</a></li>";
-            }
-            if (isset($workplace)) { 
-                $html[] = "<li><a href='" . $link . "?workplace=" . $getname . "&treepath=" . $treepath . "&oauth=" . $getname . "'>$ff</a></li>";
-            }
-            if (isset($path_)) {
-                $html[] = "<li><a href='" . $link . "?path=" . $getname . "&treepath=" . $treepath . "&oauth=" . $getname . "'>$ff</a></li>";
-            }
-            if (isset($sharepath)) {
-                $html[] = "<li><a href='" . $link . "?share=" . $sharekey . "&sharepath=" . $getname . "&treepath=" . $treepath . "&oauth=" . $getname . "'>$ff</a></li>";
-            }
-          // Include the configuration file
-          $TOKEN_DIR = get_home_path() . 'wp-content/plugins/file-manager/includes/tokens';
-
-          // Create a protected directory to store keys
-          if(!is_dir($TOKEN_DIR)) {
-              mkdir($TOKEN_DIR);
-              $file = fopen($TOKEN_DIR.'/.htaccess','w');
-              fwrite($file,"Order allow,deny\nDeny from all");
-              fclose($file);
+          $getoauth = time().'||'.$getname.'||'.$realpath;
+          if ($urlParams == 'sharepath') {
+              $html[] = "<li><a href='" . $link . "?share=" . $sharekey . "&sharepath=" . $getname . "'>$ff</a></li>";
+          } else {
+            $html[] = "<li><a href='" . $link . "?".$urlParams."=" . $getname . "'>$ff</a></li>";
           }
-          
-          // Write the key to the keys list
-          $file = fopen($TOKEN_DIR.'/oauth','a');
-          fwrite($file, "{$getoauth}\n");
-          fclose($file);
-        }
+          $_data[] .= $getoauth;
+      }
     }
 
+  update_post_meta($_COOKIE['uniqid'], $meta_name, $_data);
+
   return wp_send_json ( implode($html) );
+
+}
+
+
+/* AJAX action callback */
+add_action( 'wp_ajax_viewtype_filemanager_files', 'viewtype_filemanager_files' );
+add_action( 'wp_ajax_nopriv_viewtype_filemanager_files', 'viewtype_filemanager_files' );
+function viewtype_filemanager_files($posts) {
+  $viewtype = $_POST['viewtype'];
+  $userid = $_POST['userid'];
+
+  update_user_meta($userid, 'view_type_', $viewtype);
+
+  return wp_send_json ( $viewtype );
 
 }
 

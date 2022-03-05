@@ -13,7 +13,7 @@ function filemanager_search_files($) {
 function filemanager_search_ajax_files($) {
     var i = 0;
     var inputVal = document.getElementById("lnamesearch").value;
-    var path = document.getElementById('sequentialupload').getAttribute('data-object-id');
+    var path = document.getElementById('filemanagerpath').innerHTML;
 
     if(i === 0) {
         jQuery.ajax({

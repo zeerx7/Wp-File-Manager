@@ -10,4 +10,4 @@ define('DOWNLOAD_PATH', BASE_URL.'download.php');
 define('TOKEN_DIR', dirname(__FILE__) . '/tokens');
 
 // Expiration time of the link (examples: +1 year, +1 month, +5 days, +10 hours)
-define('EXPIRATION_TIME', '+12 hours');
+define('EXPIRATION_TIME', '+1 hour');

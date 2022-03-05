@@ -16,7 +16,6 @@ function filemanager_tree_get_files($) {
         const urlpath = urlParams.get('path');
         const urlshare = urlParams.get('share');
         const urlsharepath = urlParams.get('sharepath');
-        const treepath = urlParams.get('treepath');
         var url_Params;
 
         if(urlhome != null){
@@ -28,8 +27,12 @@ function filemanager_tree_get_files($) {
         if(urlpath != null){
             url_Params = 'path';
         }
+        if(urlshare != null){
+            url_Params = 'share';
+        }
         if(urlsharepath != null){
             url_Params = 'sharepath';
+            var urlsharekey = urlshare;
         }
 
         if(next.hasClass('open')) {
@@ -45,9 +48,8 @@ function filemanager_tree_get_files($) {
                 data: {
                     'path': path,
                     'link': link,
-                    'treepath': treepath,
                     'url_Params': url_Params,
-                    'sharekey': urlshare,
+                    'sharekey': urlsharekey,
                     'action': 'tree_get_filemanager_files'
                 },
                 dataType: 'json',

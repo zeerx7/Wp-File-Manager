@@ -1,5 +1,3 @@
-var object_id = document.getElementById('sequentialupload').getAttribute('data-object-id');
-
 function makeid(length) {
     var result           = '';
     var characters       = '0123456789';
@@ -25,131 +23,59 @@ function formatBytes(bytes, decimals = 2) {
 function createFormData($, files_obj) {
     $("#errorlog").empty();	
     var form_data = new FormData();
-    var link = location.protocol + '//' + location.host + location.pathname;
-    var object_id = document.getElementById('sequentialupload').getAttribute('data-object-id');
+    var object_id = document.getElementById('filemanagerpath').innerHTML;
     for(i=0; i<files_obj.length; i++) {
         var rand = makeid(6);
         if(files_obj[i].webkitRelativePath === ''){
             $('#ajax-file-upload-container').append('<div id="progress_div'+rand+'" class="ajax-file-upload-statusbar" data-object-id="'+object_id+'" data-name="'+files_obj[i].name+'" data-rand="'+rand+'" data-size="'+formatBytes(files_obj[i].size)+'" style="display:flex;width: 100%;margin: 15px 0;"><div class="bar" style="width: 100%;">'+files_obj[i].name+'</div><div class="percent" id="percent'+rand+'" style="float: right;">0%</div><div class="ajax-file-upload-green done'+rand+'" id="done'+rand+'" style="display: none;margin: 0 15px;">Done</div></div>');
-            $('#file-table').append('<tr><td><input class="checkbox" type="checkbox" name="'+object_id+'/'+files_obj[i].name+'"/></td><td class="filemanager-table">'+files_obj[i].name+'<div class="percent" id="_percent'+rand+'" style="float: right;">0%</div></td><td>'+ formatBytes(files_obj[i].size)+'</td></tr>');
+            $('#file-table tr:first').after('<tr><td><input class="checkbox" type="checkbox" name="'+object_id+'/'+files_obj[i].name+'"/></td><td class="filemanager-table">'+files_obj[i].name+'<div class="percent" id="_percent'+rand+'" style="float: right;">0%</div></td><td>'+ formatBytes(files_obj[i].size)+'</td></tr>');
         } else {
             $('#ajax-file-upload-container').append('<div id="progress_div'+rand+'" class="ajax-file-upload-statusbar" data-object-id="'+object_id+'" data-name="'+files_obj[i].webkitRelativePath+'" data-rand="'+rand+'" data-size="'+formatBytes(files_obj[i].size)+'" style="display:flex;width: 100%;margin: 15px 0;"><div class="bar" style="width: 100%;">'+files_obj[i].webkitRelativePath+'</div><div class="percent" id="percent'+rand+'" style="float: right;">0%</div><div class="ajax-file-upload-green done'+rand+'" id="done'+rand+'" style="display: none;margin: 0 15px;">Done</div></div>');
-            $('#file-table').append('<tr><td><input class="checkbox" type="checkbox" name="'+object_id+'/'+files_obj[i].webkitRelativePath+'"/></td><td class="filemanager-table">'+files_obj[i].webkitRelativePath+'<div class="percent" id="_percent'+rand+'" style="float: right;">0%</div></td><td>'+ formatBytes(files_obj[i].size)+'</td></tr>');
+            $('#file-table tr:first').after('<tr><td><input class="checkbox" type="checkbox" name="'+object_id+'/'+files_obj[i].webkitRelativePath+'"/></td><td class="filemanager-table">'+files_obj[i].webkitRelativePath+'<div class="percent" id="_percent'+rand+'" style="float: right;">0%</div></td><td>'+ formatBytes(files_obj[i].size)+'</td></tr>');
         }
         form_data.append('myfile', files_obj[i]);
-        uploadFormData($, form_data, files_obj[i], rand, link, files_obj.length);
+        uploadFormData($, form_data, files_obj[i], rand, object_id);
     }
 }
 
-function uploadFormData($, formData, files_obj, rand, link, length) {
-    const queryString = window.location.search;
-    var object_id = document.getElementById('sequentialupload').getAttribute('data-object-id');
-    const urlParams = new URLSearchParams(queryString);
-    const urlhome = urlParams.get('home');
-    const urlworkplace = urlParams.get('workplace');
-    const urlpath = urlParams.get('path');
-    const urlshare = urlParams.get('share');
-    const urlsharepath = urlParams.get('sharepath');
-    const treepath = urlParams.get('treepath');
-    var url_Params, url_key;
-    var i = 0;
-
-    if(urlhome != null){
-        url_Params = 'home';
-        url_key = urlhome;
-    }
-    if(urlworkplace != null){
-        url_Params = 'workplace';
-        url_key = urlworkplace;
-    }
-    if(urlpath != null){
-        url_Params = 'path';
-        url_key = urlpath;
-    }
-    if(urlsharepath != null){
-        url_Params = 'sharepath';
-        url_key = urlsharepath;
-    }
-
-        
-    if(i === 0) {
-        $.ajax({
-            xhr: function() {
-                var xhr = new window.XMLHttpRequest();
-                xhr.upload.addEventListener("progress", function(evt) {
-                    var percent = document.getElementById('percent'+rand);
-                    var _percent = document.getElementById('_percent'+rand);
-                    if (evt.lengthComputable) {
-                        var percentComplete = evt.loaded / evt.total;
-                        percentComplete = parseInt(percentComplete * 100);
-                        var percentVal = percentComplete + '%';
-                        percent.innerHTML = percentVal;
-                        if(_percent != null){
-                            _percent.innerHTML = percentVal;
-                        }
-                        if (percentComplete === 100) {
-                            var parent = $('#done'+rand).parent().attr('id');
-                            document.getElementById(parent).remove();
-                            percent.innerHTML = '';
-                        }
+function uploadFormData($, formData, files_obj, rand, object_id) {
+    $.ajax({
+        xhr: function() {
+            var xhr = new window.XMLHttpRequest();
+            xhr.upload.addEventListener("progress", function(evt) {
+                var percent = document.getElementById('percent'+rand);
+                var _percent = document.getElementById('_percent'+rand);
+                if (evt.lengthComputable) {
+                    var percentComplete = evt.loaded / evt.total;
+                    percentComplete = parseInt(percentComplete * 100);
+                    percent.innerHTML = percentComplete + '%';
+                    _percent.innerHTML = percentComplete + '%';
+                    if (percentComplete === 100) {
+                        document.getElementById('progress_div'+rand).remove();
+                        document.getElementById('_percent'+rand).closest('tr').remove();
                     }
-                }, false);
-                return xhr;
-            },
-            url: "/wp-content/plugins/file-manager/includes/upload.php?upload_dir="+object_id+"/&relativepath="+files_obj.webkitRelativePath,
-            type: "POST",
-            data: formData,
-            contentType:false,
-            cache: false,
-            processData: false,
-            sequential:true,
-            sequentialCount:1,
-            success: function(obj) {
-                console.log(obj);
-                jQuery.ajax({
-                    type: 'post',
-                    url: get_filemanager_ajax_url,
-                    data: {
-                        'object_id': object_id,
-                        'link': link,
-                        'urlParams': url_Params,
-                        'sharekey': urlshare,
-                        'urlkey': url_key,
-                        'treepath': treepath,
-                        'action': 'get_filemanager_files'
-                    },
-                    dataType: 'json',
-                    success: function(data){
-                        console.log(object_id);
-                        $( '.filemanager-wrapper' ).empty();		
-                        $('.filemanager-wrapper').append(data);
-                        filemanager_select_files($);
-                        filemanager_copy_files($);
-                        filemanager_createdir_files($);
-                        filemanager_createfile_files($);
-                        filemanager_delete_files($);
-                        filemanager_info_files($);
-                        filemanager_moveto_files($);
-                        filemanager_rename_files($);
-                        filemanager_search_files($);
-                        filemanager_share_files($);
-                        filemanager_uploads_files($);
-                        filemanager_zip_files($);
-                        filemanager_tree_get_files($);
-                        i++;
-                    },
-                    error: function(errorThrown){
-                        //error stuff here.text
-                    }
-                });
-            }
-        });
-    }
+                }
+            }, false);
+            return xhr;
+        },
+        url: upload_filemanager_ajax_url+"?upload_dir="+object_id+"&relativepath="+files_obj.webkitRelativePath,
+        type: "POST",
+        data: formData,
+        contentType:false,
+        cache: false,
+        processData: false,
+        sequential:true,
+        sequentialCount:1,
+        success: function(obj) {
+            console.log(obj);
+            filemanager_get_files($);
+        }
+    });
 }
 
 function filemanager_uploads_files($) {   
     $('#sequentialupload').uploadFile({
-        url:"/wp-content/plugins/file-manager/includes/upload.php?upload_dir="+object_id+"/",
+        url:"#",
         fileName:"myfile",
         sequential:true,
         sequentialCount:1,
@@ -163,7 +89,7 @@ function filemanager_uploads_files($) {
             e.stopPropagation();
             e.stopImmediatePropagation();
             createFormData($, e.dataTransfer.files);
-        }, { once: true });
+        });
     }
 
     let pickerfiles = document.getElementById('pickerfiles');
@@ -174,7 +100,7 @@ function filemanager_uploads_files($) {
             e.stopImmediatePropagation();
             console.log(e.target.files);
             createFormData($, e.target.files);
-        }, { once: true });
+        });
     }
 
     let pickerdir = document.getElementById('pickerdir');
@@ -184,7 +110,7 @@ function filemanager_uploads_files($) {
             e.stopPropagation();
             e.stopImmediatePropagation();
             createFormData($, e.target.files);
-        }, { once: true });
+        });
     }
 }
 

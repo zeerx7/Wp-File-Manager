@@ -6,11 +6,9 @@ function filemanager_select_files($) {
 		var data_path_rand = $(obj).data('rand');
 		var data_path_size = $(obj).data('size');
 		var data_path_percent = document.getElementById("percent"+data_path_rand);	
-		
-		var upload_curent_path_element = document.getElementById("sequentialupload");
-		var upload_curent_path = upload_curent_path_element.getAttribute('data-object-id');
-		if(data_path_attr.includes(upload_curent_path)) {
-			$('#file-table').append('<tr><td><input class="checkbox" type="checkbox" name="'+data_path_attr+'/'+data_path_name+'"/></td><td class="filemanager-table">'+data_path_name+'<div class="percent" id="_percent'+data_path_rand+'" style="float: right;">'+data_path_percent.innerHTML+'</div></td><td>'+ data_path_size+'</td></tr>');
+		var object_id = document.getElementById('sequentialupload').getAttribute('data-object-id');
+		if(data_path_attr === object_id) {
+			$('#file-table tr:first').after('<tr><td><input class="checkbox" type="checkbox" name="'+data_path_attr+'/'+data_path_name+'"/></td><td class="filemanager-table">'+data_path_name+'<div class="percent" id="_percent'+data_path_rand+'" style="float: right;">'+data_path_percent.innerHTML+'</div></td><td>'+ data_path_size+'</td></tr>');
 		}
 	});
 
@@ -51,6 +49,15 @@ function filemanager_select_files($) {
 		}
     });
 
+	$('.grid-item').on( 'click', function () {
+        $(this).toggleClass('selected');
+		if ($(this).find("input").is(":checked")) {
+			$(this).find("input").attr("checked", false);
+		} else {
+			$(this).find("input").attr("checked", true);
+		}
+    });
+
 	$('.checkboxall').on( 'click', function () {
 		if ($('.checkboxall').find("input").is(":checked") == false) {
 			$('.checkbox').each(function () {
@@ -82,6 +89,13 @@ function filemanager_select_files($) {
         location.href = link+'?path='+object_id+'/..'
     });
 
+	$('#viewtype').on( 'click', function (event) {
+        event.stopImmediatePropagation();
+		val = $(this).val();
+		$(this).val(val === "list" ? "grid" : "list");
+		$('#viewtypetext').html($(this).val());
+		filemanager_view_type($, $(this).val())
+	});
 }
 
 jQuery(document).ready(function($) {

@@ -13,7 +13,6 @@ You can upload files and directorie, create blank file and directorie, copy and 
 2. Activate plugin in wp-admin.
 3. Go to the admin setting page, and add workplace and give the read and write autorization to your user.
 3. Use short code [filemanager-shortcode] in page.
-4. Set the permision of `oauth` file in `/includes/tokens` to read and write for www-data.
 
 ## Support
 
@@ -21,6 +20,7 @@ Support for PDF, JPEG, JPG, BMP, PNG, GIF, MP4, MKV, TXT, HTML, PHP, JS, LOG.
 
 ## Changelog
 
+- 0.8 - Don't allow video download, video can only be stream with player.
 - 0.7 - eatch path link have been changed to unique string, now support all type of special character in link.
 - 0.65 - Add user right to share link.
 - 0.6 - Add tree view.

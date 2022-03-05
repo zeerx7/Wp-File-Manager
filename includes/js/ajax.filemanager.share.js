@@ -19,7 +19,7 @@ function filemanager_share_link_files($) {
     const urlworkplace = urlParams.get('workplace');
     const urlpath = urlParams.get('path');
     const urlshare = urlParams.get('share');
-    const urlsharepath = document.getElementById('sequentialupload').getAttribute('data-object-id');
+    const urlsharepath = document.getElementById('filemanagerpath').innerHTML;
     var url_Params;
 
     if(urlhome != null){
