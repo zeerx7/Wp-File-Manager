@@ -70,5 +70,8 @@ function filemanager_tree_get_files($) {
 jQuery(document).ready(function($) {
     filemanager_tree_get_files($);
     var filetableheight = $('file-table').height();
-    document.getElementById("treeview").style.height = filetableheight;
+    treeview = document.getElementById("treeview");
+    if(treeview){
+        treeview.style.height = filetableheight;
+    }
 });

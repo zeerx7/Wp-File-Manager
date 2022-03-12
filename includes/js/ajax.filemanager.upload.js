@@ -23,15 +23,22 @@ function formatBytes(bytes, decimals = 2) {
 function createFormData($, files_obj) {
     $("#errorlog").empty();	
     var form_data = new FormData();
-    var object_id = document.getElementById('filemanagerpath').innerHTML;
+    var object_id = document.getElementById('filemanagerpath').innerHTML+'/';
     for(i=0; i<files_obj.length; i++) {
         var rand = makeid(6);
         if(files_obj[i].webkitRelativePath === ''){
             $('#ajax-file-upload-container').append('<div id="progress_div'+rand+'" class="ajax-file-upload-statusbar" data-object-id="'+object_id+'" data-name="'+files_obj[i].name+'" data-rand="'+rand+'" data-size="'+formatBytes(files_obj[i].size)+'" style="display:flex;width: 100%;margin: 15px 0;"><div class="bar" style="width: 100%;">'+files_obj[i].name+'</div><div class="percent" id="percent'+rand+'" style="float: right;">0%</div><div class="ajax-file-upload-green done'+rand+'" id="done'+rand+'" style="display: none;margin: 0 15px;">Done</div></div>');
-            $('#file-table tr:first').after('<tr><td><input class="checkbox" type="checkbox" name="'+object_id+'/'+files_obj[i].name+'"/></td><td class="filemanager-table">'+files_obj[i].name+'<div class="percent" id="_percent'+rand+'" style="float: right;">0%</div></td><td>'+ formatBytes(files_obj[i].size)+'</td></tr>');
+            $('#file-table tr:first').after('<tr><td><input class="checkbox" type="checkbox" name="'+object_id+files_obj[i].name+'"/></td><td class="filemanager-table">'+files_obj[i].name+'<div class="percent" id="_percent'+rand+'" style="float: right;">0%</div></td><td>'+ formatBytes(files_obj[i].size)+'</td></tr>');
         } else {
-            $('#ajax-file-upload-container').append('<div id="progress_div'+rand+'" class="ajax-file-upload-statusbar" data-object-id="'+object_id+'" data-name="'+files_obj[i].webkitRelativePath+'" data-rand="'+rand+'" data-size="'+formatBytes(files_obj[i].size)+'" style="display:flex;width: 100%;margin: 15px 0;"><div class="bar" style="width: 100%;">'+files_obj[i].webkitRelativePath+'</div><div class="percent" id="percent'+rand+'" style="float: right;">0%</div><div class="ajax-file-upload-green done'+rand+'" id="done'+rand+'" style="display: none;margin: 0 15px;">Done</div></div>');
+            var relativepath = files_obj[i].webkitRelativePath;
+            var str = relativepath.split("/").pop();
+            var str_ = relativepath.replace(str, "");
+            var editedText = str_.slice(0, -1);
+            $('#ajax-file-upload-container').append('<div id="progress_div'+rand+'" class="ajax-file-upload-statusbar" data-object-id="'+object_id+editedText+'" data-name="'+str+'" data-rand="'+rand+'" data-size="'+formatBytes(files_obj[i].size)+'" style="display:flex;width: 100%;margin: 15px 0;"><div class="bar" style="width: 100%;">'+str+'</div><div class="percent" id="percent'+rand+'" style="float: right;">0%</div><div class="ajax-file-upload-green done'+rand+'" id="done'+rand+'" style="display: none;margin: 0 15px;">Done</div></div>');
             $('#file-table tr:first').after('<tr><td><input class="checkbox" type="checkbox" name="'+object_id+'/'+files_obj[i].webkitRelativePath+'"/></td><td class="filemanager-table">'+files_obj[i].webkitRelativePath+'<div class="percent" id="_percent'+rand+'" style="float: right;">0%</div></td><td>'+ formatBytes(files_obj[i].size)+'</td></tr>');
+            var headerHeight = jQuery('header').height();
+            var contentHeight = jQuery("#loop-container").height();
+            jQuery("#main").height(contentHeight+headerHeight);
         }
         form_data.append('myfile', files_obj[i]);
         uploadFormData($, form_data, files_obj[i], rand, object_id);
@@ -48,12 +55,8 @@ function uploadFormData($, formData, files_obj, rand, object_id) {
                 if (evt.lengthComputable) {
                     var percentComplete = evt.loaded / evt.total;
                     percentComplete = parseInt(percentComplete * 100);
-                    percent.innerHTML = percentComplete + '%';
-                    _percent.innerHTML = percentComplete + '%';
-                    if (percentComplete === 100) {
-                        document.getElementById('progress_div'+rand).remove();
-                        document.getElementById('_percent'+rand).closest('tr').remove();
-                    }
+                    percent.innerHTML = percentComplete;
+                    _percent.innerHTML = percentComplete;
                 }
             }, false);
             return xhr;
@@ -64,10 +67,10 @@ function uploadFormData($, formData, files_obj, rand, object_id) {
         contentType:false,
         cache: false,
         processData: false,
-        sequential:true,
-        sequentialCount:1,
+        sequential:false,
         success: function(obj) {
             console.log(obj);
+            document.getElementById('progress_div'+rand).remove();
             filemanager_get_files($);
         }
     });
@@ -77,8 +80,7 @@ function filemanager_uploads_files($) {
     $('#sequentialupload').uploadFile({
         url:"#",
         fileName:"myfile",
-        sequential:true,
-        sequentialCount:1,
+        sequential:false,
         showDone:true
     }); 
 
@@ -109,6 +111,7 @@ function filemanager_uploads_files($) {
             e.preventDefault();
             e.stopPropagation();
             e.stopImmediatePropagation();
+            console.log(e.target.files);
             createFormData($, e.target.files);
         });
     }

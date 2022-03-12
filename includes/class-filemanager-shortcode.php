@@ -767,7 +767,7 @@ function filemanager_shortcode() {
                     <script type="text/javascript">document.getElementById("filemanagerbtnup").style.display = "block";</script>
                 <?php } ?>
                 <div id='filemanagerwrapper'>
-                    <div id='filemanagerpath' style='display: none;'><?php echo $path_implode; ?></div>
+                    <div id='filemanagerpath' style='display: none;'><?php echo realpath($path_implode); ?></div>
                     <div id='filemanagerbtndown' class='filemanagerbtn'>
                         <div class='navbar'>
                             <?php if ($path_parts[1] != '' && $workplace_strpos == true && $workplace_last != true){
@@ -816,12 +816,16 @@ function filemanager_shortcode() {
                         $path_part_ .= '/'.$path_part;
 
                         $getname = getName(32);
-                        $getoauth = time().'||'.$getname.'||'.$path_part_.'||'.$path_default;
+                        $getoauth = time().'||'.$getname.'||'.realpath($path_part_).'||'.realpath($path_default);
 
-                       ?><a href='<?php  echo home_url($wp->request) . "/?".$arg."=" . $getname ?>'><?php echo $path_part; ?></a><?php
+                        if (strpos(realpath($path_part_), realpath($path_default)) !== false) {
+                            ?><a href='<?php  echo home_url($wp->request) . "/?".$arg."=" . $getname ?>'><?php echo $path_part; ?></a><?php
+                        } else {
+                            echo $path_part;
+                        }
                         if($p != $path_parts_count){
                             echo '/';
-                        } 
+                        }
                         $p++;
                         $_data[] .= $getoauth;
 
@@ -974,7 +978,7 @@ function filemanager_shortcode() {
                     }
                     
                     ?><script type="text/javascript">document.getElementById("filemanagerbtnup").style.display = "none";</script><?php
-                    ?><div id='filemanagerpath' style='display: none;'><?php echo $path_implode; ?></div><?php
+                    ?><div id='filemanagerpath' style='display: none;'><?php echo realpath($path_implode); ?></div><?php
 
                     echo "<div class='navbarfilewrapper'><div class='navbar navbarfile'>";
                         if ($workplace_strpos == true && $workplace_last != true){

@@ -15,7 +15,7 @@ function wp_filemanager_ajax_scripts() {
   wp_enqueue_script( 'wp-filemanager-ajax-get-files' );
 
     wp_register_script( 'wp-filemanager-ajax-upload-files', $url . "js/ajax.filemanager.upload.js", array( 'jquery' ), '1.0.0', true );
-    wp_localize_script( 'wp-filemanager-ajax-upload-files', 'upload_filemanager_ajax_url', plugin_dir_path( dirname( __FILE__ ) ) . 'includes/upload.php' );
+    wp_localize_script( 'wp-filemanager-ajax-upload-files', 'upload_filemanager_ajax_url', plugin_dir_url( __DIR__ ) . 'includes/upload.php' );
     wp_enqueue_script( 'wp-filemanager-ajax-upload-files' );
 
     wp_register_script( 'wp-filemanager-ajax-download-files', $url . "js/ajax.filemanager.download.js", array( 'jquery' ), '1.0.0', true );
